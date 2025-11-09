@@ -32,12 +32,18 @@
       </button>
 
       <div class="section-body" *ngIf="section.expanded">
-        <div class="task-row" *ngFor="let task of section.tasks" (click)="$event.stopPropagation()">
-          <div class="cell checkbox">
+        <div
+          class="task-row"
+          *ngFor="let task of section.tasks"
+          (click)="openTaskDetail(section, task)"
+          [class.task-row--selected]="selectedTask?.id === task.id"
+        >
+          <div class="cell checkbox" (click)="$event.stopPropagation()">
             <mat-checkbox
               color="primary"
               [checked]="task.completed"
               (change)="toggleCompleted(section, task)"
+              (click)="$event.stopPropagation()"
             ></mat-checkbox>
           </div>
 
@@ -69,7 +75,7 @@
                 {{ status }}
               </button>
             </mat-menu>
-            <button mat-button [matMenuTriggerFor]="statusMenu" class="status-trigger">
+            <button mat-button [matMenuTriggerFor]="statusMenu" class="status-trigger" (click)="$event.stopPropagation()">
               {{ task.status }}
               <mat-icon>expand_more</mat-icon>
             </button>
@@ -77,7 +83,7 @@
 
           <div class="cell comments">
             <mat-icon>chat_bubble_outline</mat-icon>
-            <span>{{ task.commentsCount || 0 }}</span>
+            <span>{{ task.comments?.length ?? task.commentsCount ?? 0 }}</span>
           </div>
         </div>
 
@@ -89,3 +95,22 @@
     </div>
   </section>
 </div>
+
+<div
+  class="task-detail-backdrop"
+  *ngIf="selectedTask"
+  (click)="closeDetail()"
+></div>
+
+<app-task-detail
+  *ngIf="selectedTask"
+  [open]="!!selectedTask"
+  [task]="selectedTask"
+  [projectName]="currentProjectName"
+  [sectionTitle]="selectedSection?.title ?? ''"
+  [statuses]="statuses"
+  [priorities]="priorities"
+  (close)="closeDetail()"
+  (taskUpdated)="handleTaskUpdated($event)"
+></app-task-detail>
+

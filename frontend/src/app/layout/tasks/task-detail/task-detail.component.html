@@ -1,0 +1,144 @@
+<aside class="task-detail" [class.task-detail--open]="open">
+  <header class="task-detail__header">
+    <div class="task-detail__meta">
+      <span class="task-detail__meta-label">{{ projectName }}</span>
+      <mat-icon>chevron_right</mat-icon>
+      <span class="task-detail__meta-label">{{ sectionTitle || 'Tasks' }}</span>
+    </div>
+
+    <button mat-icon-button type="button" (click)="close.emit()" aria-label="Close task detail">
+      <mat-icon>close</mat-icon>
+    </button>
+  </header>
+
+  <div class="task-detail__body" *ngIf="task">
+    <section class="task-detail__block task-detail__title">
+      <input
+        class="task-detail__title-input"
+        [formControl]="titleControl"
+        (blur)="onTitleBlur()"
+        placeholder="Task title"
+      />
+    </section>
+
+    <section class="task-detail__block task-detail__grid">
+      <div class="task-detail__field">
+        <span class="task-detail__field-label">Assignee</span>
+        <input
+          class="task-detail__field-input"
+          [value]="task.assignee"
+          (blur)="updateAssignee($any($event.target).value)"
+          placeholder="Assign to"
+        />
+      </div>
+
+      <div class="task-detail__field">
+        <span class="task-detail__field-label">Due date</span>
+        <input
+          class="task-detail__field-input"
+          type="date"
+          [value]="toDateInputValue(task.dueDate)"
+          (change)="updateDueDate($any($event.target).value)"
+        />
+      </div>
+
+      <div class="task-detail__field">
+        <span class="task-detail__field-label">Status</span>
+        <mat-select [value]="task.status" (selectionChange)="updateStatus($event.value)">
+          <mat-option *ngFor="let status of statuses" [value]="status">{{ status }}</mat-option>
+        </mat-select>
+      </div>
+
+      <div class="task-detail__field">
+        <span class="task-detail__field-label">Priority</span>
+        <mat-select [value]="task.priority" (selectionChange)="updatePriority($event.value)">
+          <mat-option *ngFor="let priority of priorities" [value]="priority">{{ priority }}</mat-option>
+        </mat-select>
+      </div>
+    </section>
+
+    <section class="task-detail__block">
+      <header class="task-detail__section-header">
+        <span>Description</span>
+      </header>
+      <textarea
+        class="task-detail__description"
+        rows="5"
+        [formControl]="descriptionControl"
+        (blur)="onDescriptionBlur()"
+        placeholder="Add more context for your team…"
+      ></textarea>
+    </section>
+
+    <section class="task-detail__block">
+      <header class="task-detail__section-header">
+        <span>Subtasks</span>
+        <div class="task-detail__section-actions">
+          <input
+            class="task-detail__subtask-input"
+            [formControl]="newSubtaskControl"
+            (keydown.enter)="addSubtask(); $event.preventDefault()"
+            placeholder="Add subtask"
+          />
+          <button mat-stroked-button type="button" color="primary" (click)="addSubtask()" [disabled]="!newSubtaskControl.value.trim()">
+            Add
+          </button>
+        </div>
+      </header>
+
+      <div class="task-detail__subtasks" *ngIf="(task.subtasks?.length ?? 0) > 0; else emptySubtasks">
+        <div class="task-detail__subtask" *ngFor="let subtask of task.subtasks">
+          <mat-checkbox [checked]="subtask.completed" (change)="toggleSubtask(subtask)">
+            {{ subtask.title }}
+          </mat-checkbox>
+        </div>
+      </div>
+      <ng-template #emptySubtasks>
+        <p class="task-detail__empty">No subtasks yet. Break the work into smaller steps to track progress.</p>
+      </ng-template>
+    </section>
+
+    <section class="task-detail__block">
+      <header class="task-detail__section-header">
+        <span>Comments</span>
+      </header>
+
+      <div class="task-detail__comments" *ngIf="(task.comments?.length ?? 0) > 0; else emptyComments">
+        <div class="task-detail__comment" *ngFor="let comment of task.comments">
+          <div class="task-detail__comment-avatar">
+            {{ comment.author.charAt(0) }}
+          </div>
+          <div class="task-detail__comment-body">
+            <div class="task-detail__comment-meta">
+              <span class="task-detail__comment-author">{{ comment.author }}</span>
+              <span class="task-detail__comment-date">{{ comment.createdAt | date: 'MMM d, y, h:mm a' }}</span>
+            </div>
+            <p class="task-detail__comment-message">{{ comment.message }}</p>
+          </div>
+        </div>
+      </div>
+      <ng-template #emptyComments>
+        <p class="task-detail__empty">No comments yet. Start a conversation with your team.</p>
+      </ng-template>
+
+      <div class="task-detail__comment-compose">
+        <textarea
+          class="task-detail__comment-input"
+          rows="3"
+          [formControl]="commentControl"
+          placeholder="Leave a comment…"
+        ></textarea>
+        <button
+          mat-flat-button
+          color="primary"
+          type="button"
+          (click)="addComment()"
+          [disabled]="!commentControl.value.trim()"
+        >
+          Post comment
+        </button>
+      </div>
+    </section>
+  </div>
+</aside>
+

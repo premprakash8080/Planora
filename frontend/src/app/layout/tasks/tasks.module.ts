@@ -2,7 +2,12 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TasksRoutingModule } from './tasks-routing.module';
-import { TaskListComponent } from './task-list/task-list.component';
+import { ListViewComponent } from './list-view/list-view.component';
+import { TaskDetailComponent } from './task-detail/task-detail.component';
+import { BoardViewComponent } from './board-view/board-view.component';
+import { TimelineViewComponent } from './timeline-view/timeline-view.component';
+import { CalendarViewComponent } from './calendar-view/calendar-view.component';
+import { DashboardViewComponent } from './dashboard-view/dashboard-view.component';
 import { MatTableModule } from '@angular/material/table';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSortModule } from '@angular/material/sort';
@@ -16,10 +21,17 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatMenuModule } from '@angular/material/menu';
-import { SharedUiModule } from '../../../shared/ui/ui.module';
+import { SharedUiModule } from '../../shared/ui/ui.module';
 
 @NgModule({
-  declarations: [TaskListComponent],
+  declarations: [
+    ListViewComponent,
+    BoardViewComponent,
+    TimelineViewComponent,
+    CalendarViewComponent,
+    DashboardViewComponent,
+    TaskDetailComponent
+  ],
   imports: [
     CommonModule,
     FormsModule,

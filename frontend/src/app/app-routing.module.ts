@@ -28,7 +28,7 @@ const routes: Routes = [
       },
       {
         path: "projects/:projectId/tasks",
-        loadChildren: () => import("./layout/projects/tasks/tasks.module").then((m) => m.DashboardProjectTasksModule),
+        loadChildren: () => import("./layout/tasks/tasks.module").then((m) => m.DashboardProjectTasksModule),
       },
       {
         path: "mails",

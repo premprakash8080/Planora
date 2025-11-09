@@ -5,6 +5,11 @@ import { Observable, Subject } from 'rxjs';
 import { filter, map, shareReplay, takeUntil } from 'rxjs/operators';
 import { SidebarSection } from '../shared/ui/app-sidebar/app-sidebar.component';
 
+interface ProjectNavItem {
+  id: string;
+  name: string;
+}
+
 @Component({
   selector: 'vex-custom-layout',
   templateUrl: './custom-layout.component.html',
@@ -23,31 +28,14 @@ export class CustomLayoutComponent implements OnDestroy {
   mobileSidebarOpen = false;
   private readonly destroy$ = new Subject<void>();
 
-  readonly sidebarSections: SidebarSection[] = [
-    {
-      id: 'main',
-      title: 'Main',
-      items: [
-        { label: 'Dashboard', icon: 'dashboard', route: '/dashboard' },
-        { label: 'Inbox', icon: 'inbox', route: '/dashboard/inbox' },
-        { label: 'Members', icon: 'group', route: '/members' },
-        { label: 'Mails', icon: 'mail', route: '/mails' },
-        { label: 'Projects', icon: 'view_kanban', route: '/projects/1/tasks', exact: false }
-      ]
-    },
-    {
-      id: 'insights',
-      title: 'Insights',
-      collapsible: true,
-      collapsed: false,
-      items: [
-        { label: 'Reporting', icon: 'assessment', route: '/insights/report' },
-        { label: 'Productivity Overview', icon: 'show_chart', route: '/insights/productivity-overview' },
-        { label: 'Team Performance', icon: 'groups', route: '/insights/team-performance' },
-        { label: 'Time Tracking', icon: 'schedule', route: '/insights/time-tracking' }
-      ]
-    }
+  private readonly projects: ProjectNavItem[] = [
+    { id: '1', name: 'Website Redesign' },
+    { id: '2', name: 'Mobile App Launch' },
+    { id: '3', name: 'Growth Experiments' },
+    { id: '4', name: 'Customer Success Ops' }
   ];
+
+  sidebarSections: SidebarSection[] = this.buildSidebarSections();
 
   constructor(
     private readonly breakpointObserver: BreakpointObserver,
@@ -80,5 +68,43 @@ export class CustomLayoutComponent implements OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  private buildSidebarSections(): SidebarSection[] {
+    return [
+      {
+        id: 'main',
+        title: 'Main',
+        items: [
+          { label: 'Dashboard', icon: 'dashboard', route: '/dashboard' },
+          { label: 'Inbox', icon: 'inbox', route: '/dashboard/inbox' },
+          { label: 'Members', icon: 'group', route: '/members' },
+          { label: 'Mails', icon: 'mail', route: '/mails' }
+        ]
+      },
+      {
+        id: 'projects',
+        title: 'Projects',
+        collapsible: true,
+        collapsed: false,
+        items: this.projects.map(project => ({
+          label: project.name,
+          route: `/projects/${project.id}/tasks`,
+          exact: false
+        }))
+      },
+      {
+        id: 'insights',
+        title: 'Insights',
+        collapsible: true,
+        collapsed: false,
+        items: [
+          { label: 'Reporting', icon: 'assessment', route: '/insights/report' },
+          { label: 'Productivity Overview', icon: 'show_chart', route: '/insights/productivity-overview' },
+          { label: 'Team Performance', icon: 'groups', route: '/insights/team-performance' },
+          { label: 'Time Tracking', icon: 'schedule', route: '/insights/time-tracking' }
+        ]
+      }
+    ];
   }
 }
