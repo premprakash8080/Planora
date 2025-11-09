@@ -1,0 +1,62 @@
+@use 'sass:map';
+@use '@angular/material' as mat;
+@use './styles/tokens' as tokens;
+
+$primary-base: map.merge(mat.$blue-palette, (
+  200: tokens.$color-primary-light,
+  500: tokens.$color-primary,
+  600: tokens.$color-primary-dark
+));
+
+$accent-base: map.merge(mat.$green-palette, (
+  200: #6ee7b7,
+  500: tokens.$color-accent,
+  600: tokens.$color-accent-dark
+));
+
+$primary-palette: mat.define-palette($primary-base, 500, 200, 600);
+$accent-palette: mat.define-palette($accent-base, 500, 200, 600);
+
+$warn-palette: mat.define-palette(mat.$red-palette);
+
+$typography-config: mat.define-typography-config(
+  $font-family: tokens.$font-family-base,
+  $headline-5: mat.define-typography-level(32px, 40px, 600),
+  $headline-6: mat.define-typography-level(20px, 28px, 600),
+  $subtitle-1: mat.define-typography-level(18px, 26px, 500),
+  $body-1: mat.define-typography-level(16px, 24px, 400),
+  $body-2: mat.define-typography-level(14px, 20px, 400),
+  $button: mat.define-typography-level(14px, 20px, 600)
+);
+
+$light-theme: mat.define-light-theme((
+  color: (
+    primary: $primary-palette,
+    accent: $accent-palette,
+    warn: $warn-palette
+  ),
+  typography: $typography-config,
+  density: 0
+));
+
+$dark-theme: mat.define-dark-theme((
+  color: (
+    primary: $primary-palette,
+    accent: $accent-palette,
+    warn: $warn-palette
+  ),
+  typography: $typography-config,
+  density: 0
+));
+
+@include mat.core();
+@include mat.all-component-themes($light-theme);
+
+.mat-dark-theme {
+  @include mat.all-component-colors($dark-theme);
+}
+
+.mat-typography {
+  @include mat.typography-hierarchy($typography-config);
+}
+

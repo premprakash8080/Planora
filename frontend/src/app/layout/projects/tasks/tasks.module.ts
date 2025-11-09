@@ -16,6 +16,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatMenuModule } from '@angular/material/menu';
+import { SharedUiModule } from '../../../shared/ui/ui.module';
 
 @NgModule({
   declarations: [TaskListComponent],
@@ -36,7 +37,8 @@ import { MatMenuModule } from '@angular/material/menu';
     MatChipsModule,
     MatSelectModule,
     MatDividerModule,
-    MatMenuModule
+    MatMenuModule,
+    SharedUiModule
   ]
 })
 export class DashboardProjectTasksModule {}

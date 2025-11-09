@@ -1,0 +1,35 @@
+@use 'src/styles/tokens' as tokens;
+
+:host {
+  @include tokens.card(tokens.space(5));
+  display: block;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+:host(.app-card--interactive) {
+  cursor: pointer;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+  }
+}
+
+:host(.app-card--padded-none) {
+  padding: 0;
+}
+
+:host(.app-card--padded-sm) {
+  padding: tokens.space(4);
+}
+
+:host(.app-card--padded-lg) {
+  padding: tokens.space(6);
+}
+
+.app-card__inner {
+  display: flex;
+  flex-direction: column;
+  gap: tokens.space(4);
+}
+

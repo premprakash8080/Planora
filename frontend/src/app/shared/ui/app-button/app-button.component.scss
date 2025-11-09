@@ -1,0 +1,73 @@
+@use 'src/styles/tokens' as tokens;
+
+:host {
+  display: inline-flex;
+}
+
+:host(.app-button--full) {
+  width: 100%;
+}
+
+.app-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: tokens.space(2);
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  background: transparent;
+  color: var(--color-text-heading);
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &--primary {
+    background: var(--color-primary);
+    color: #fff;
+    box-shadow: var(--shadow-xs);
+
+    &:hover:not(:disabled) {
+      background: var(--color-primary-dark);
+      box-shadow: var(--shadow-sm);
+    }
+  }
+
+  &--secondary {
+    background: rgba(37, 99, 235, 0.1);
+    color: var(--color-primary);
+
+    &:hover:not(:disabled) {
+      background: rgba(37, 99, 235, 0.16);
+    }
+  }
+
+  &--ghost {
+    background: transparent;
+    border-color: var(--color-border);
+
+    &:hover:not(:disabled) {
+      background: rgba(148, 163, 184, 0.12);
+    }
+  }
+
+  &--sm {
+    padding: 0.4rem 0.85rem;
+    font-size: tokens.font-size(sm);
+  }
+
+  &--md {
+    padding: 0.65rem 1.25rem;
+    font-size: tokens.font-size(md);
+  }
+
+  &--lg {
+    padding: 0.85rem 1.75rem;
+    font-size: tokens.font-size(lg);
+  }
+}
+

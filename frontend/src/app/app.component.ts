@@ -16,99 +16,6 @@ import { UserSessionService } from './shared/services/user-session.service';
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  sidebarMenu: Array<any> = [
-    {
-      type: "subheading",
-      children: [
-        {
-          type: "link",
-          label: "Dashboard",
-          route: "/dashboard",
-          icon: "../assets/img/icons/dashboard-icon.svg",
-          iconActive: "assets/img/icons/dashboard-active-icon.svg",
-          routerLinkActiveOptions: { exact: true },
-          hasPermission: false
-        },
-        {
-          type: "link",
-          label: "Members",
-          route: "/dashboard/members",
-          icon: "../assets/img/icons/members-icon.svg",
-          iconActive: "assets/img/icons/members-active-icon.svg",
-          routerLinkActiveOptions: { exact: true },
-          hasPermission: false
-        },
-        {
-          type: "link",
-          label: "Mails",
-          route: "/dashboard/mails",
-          icon: "../assets/img/icons/mails-icon.svg",
-          iconActive: "assets/img/icons/mails-active-icon.svg",
-          routerLinkActiveOptions: { exact: true },
-          hasPermission: false
-        }
-
-      ],
-    },
-    {
-      type: 'dropdown',
-      label: 'Insights',
-      icon: "mat:insights",
-      children: [
-        {
-          type: 'link',
-          label: 'Reporting',
-          route: '/insights/report',
-          routerLinkActiveOptions: { exact: true }
-        },
-        {
-          type: 'link',
-          label: 'Productivity Overview',
-          route: '/insights/productivity-overview',
-          routerLinkActiveOptions: { exact: true }
-        },
-        {
-          type: 'link',
-          label: 'Team Performance',
-          route: '/insights/team-performance',
-          routerLinkActiveOptions: { exact: true }
-        },
-        {
-          type: 'link',
-          label: 'Time Tracking',
-          route: '/insights/time-tracking',
-          routerLinkActiveOptions: { exact: true }
-        }
-      ]
-    }
-    ,{
-      type: "subheading",
-      children: [
-        {
-          type: "link",
-          label: "Projects",
-          route: "/projects",
-          icon: "../assets/img/icons/projects-icon.svg",
-          iconActive: "assets/img/icons/projects-active-icon.svg",
-          routerLinkActiveOptions: { exact: true },
-          hasPermission: false
-        },
-        {
-          type: "link",
-          label: "Tasks",
-          route: "/tasks",
-          icon: "../assets/img/icons/tasks-icon.svg",
-          iconActive: "assets/img/icons/tasks-active-icon.svg",
-          routerLinkActiveOptions: { exact: true },
-          hasPermission: false
-        }
-      ]
-    }
-  ];
-
-
-  currentAppMenu: Array<any> = this.sidebarMenu;
-
   constructor(
 
     private renderer: Renderer2,
@@ -161,14 +68,7 @@ export class AppComponent {
     /**
      * Add your own routes here
      */
-    this.navigationService.items = this.currentAppMenu;
-
-    // get new menu data after change mode of app
-    this.commonService.appModeChange.subscribe(() => {
-      this.manageMenuItems();
-      this.navigationService.items = this.currentAppMenu;
-      this.commonService.onUpdateSidebarMenu();
-    });
+    this.navigationService.items = [];
   }
 
 
@@ -177,20 +77,5 @@ export class AppComponent {
     this.titleService.setTitle("Planora | Super Admin")
   }
 
-
-  ngAfterViewInit(): void {
-
-    this.manageMenuItems();
-  }
-  /**
-   * manage menu items according app mode
-   */
-  manageMenuItems() {
-    // this.currentAppMenu.forEach(a=>{
-    //   a.children.forEach(s=>{
-    //     s.hasPermission=this.userSessionService.userPermissions.filter(p=>p==s.PermissionId).length>0
-    //   })
-    // });
-  }
 
 }

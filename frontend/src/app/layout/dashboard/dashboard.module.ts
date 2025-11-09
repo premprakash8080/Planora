@@ -9,8 +9,8 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { NotificationComponent } from 'src/@vex/layout/toolbar/notification/notification.component';
 import { ProfileComponent } from 'src/@vex/layout/toolbar/profile/profile.component';
 import { InboxComponent } from './components/inbox/inbox.component';
-import { MembersComponent } from '../members/members.component';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { SharedUiModule } from '../../shared/ui/ui.module';
 
 @NgModule({
   declarations: [
@@ -19,14 +19,14 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
     DashboardComponent,
     ProfileComponent,
     NotificationComponent,
-    InboxComponent,
-    MembersComponent
+    InboxComponent
   ],
   imports: [
     CommonModule,
     DashboardRoutingModule,
     SharedModule,
     MatProgressBarModule,
+    SharedUiModule
   ]
 })
 export class DashboardModule { }

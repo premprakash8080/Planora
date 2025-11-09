@@ -1,0 +1,63 @@
+@use 'src/styles/tokens' as tokens;
+
+:host {
+  display: block;
+}
+
+.app-table {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  overflow: hidden;
+  box-shadow: var(--shadow-xs);
+
+  &__wrapper {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: inherit;
+  }
+
+  thead {
+    background: rgba(148, 163, 184, 0.12);
+
+    th {
+      font-size: tokens.font-size(sm);
+      font-weight: 600;
+      color: var(--color-text-heading);
+      padding: tokens.space(3) tokens.space(4);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      border-bottom: 1px solid var(--color-border);
+    }
+  }
+
+  tbody tr {
+    transition: background 0.2s ease;
+    border-top: 1px solid var(--color-border);
+  }
+
+  tbody td {
+    padding: tokens.space(3) tokens.space(4);
+    font-size: tokens.font-size(md);
+    color: var(--color-text-body);
+  }
+}
+
+:host(.app-table--striped) {
+  .app-table tbody tr:nth-child(even) {
+    background: rgba(148, 163, 184, 0.08);
+  }
+}
+
+:host(.app-table--dense) {
+  .app-table thead th,
+  .app-table tbody td {
+    padding: tokens.space(2) tokens.space(3);
+  }
+}
+

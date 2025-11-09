@@ -1,0 +1,85 @@
+<aside class="app-sidebar" [class.app-sidebar--collapsed]="collapsed">
+  <div class="app-sidebar__brand" [class.app-sidebar__brand--collapsed]="collapsed">
+    <a routerLink="/" class="app-sidebar__brand-link">
+      <div class="app-sidebar__logo" *ngIf="logoUrl; else initials">
+        <img [src]="logoUrl" [alt]="appName" />
+      </div>
+      <ng-template #initials>
+        <div class="app-sidebar__logo app-sidebar__logo--fallback">
+          {{ appName.charAt(0) }}
+        </div>
+      </ng-template>
+      <span class="app-sidebar__title" *ngIf="!collapsed">{{ appName }}</span>
+    </a>
+    <button
+      mat-icon-button
+      type="button"
+      class="app-sidebar__collapse"
+      (click)="toggleCollapse()"
+      [attr.aria-expanded]="!collapsed"
+      aria-label="Toggle sidebar"
+    >
+      <mat-icon>{{ collapsed ? 'chevron_right' : 'chevron_left' }}</mat-icon>
+    </button>
+  </div>
+
+  <nav class="app-sidebar__nav">
+    <ng-container *ngFor="let section of sections; trackBy: trackBySection">
+      <div class="app-sidebar__section">
+        <button
+          type="button"
+          class="app-sidebar__section-trigger"
+          *ngIf="section.title"
+          (click)="toggleSection(section)"
+          [attr.aria-expanded]="!(section.collapsible && section.collapsed)"
+        >
+          <span>{{ section.title }}</span>
+          <mat-icon *ngIf="section.collapsible">
+            {{ section.collapsed ? 'expand_more' : 'expand_less' }}
+          </mat-icon>
+        </button>
+
+        <ul
+          class="app-sidebar__list"
+          [class.app-sidebar__list--collapsed]="section.collapsible && section.collapsed"
+        >
+          <li
+            class="app-sidebar__item"
+            *ngFor="let item of section.items; trackBy: trackByItem"
+            routerLinkActive="app-sidebar__item--active"
+            [routerLinkActiveOptions]="{ exact: item.exact ?? true }"
+          >
+            <a
+              class="app-sidebar__link"
+              [routerLink]="item.route"
+              (click)="navigate.emit(item)"
+            >
+              <mat-icon *ngIf="item.icon" class="app-sidebar__icon">{{ item.icon }}</mat-icon>
+              <span class="app-sidebar__label" *ngIf="!collapsed">{{ item.label }}</span>
+              <span class="app-sidebar__badge" *ngIf="item.badge && !collapsed">
+                {{ item.badge }}
+              </span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </ng-container>
+  </nav>
+
+  <div class="app-sidebar__footer" *ngIf="!collapsed">
+    <div class="app-sidebar__quick-actions">
+      <span class="app-sidebar__quick-title">Quick actions</span>
+      <div class="app-sidebar__quick-buttons">
+        <button mat-stroked-button color="primary" type="button">
+          <mat-icon>add</mat-icon>
+          New Task
+        </button>
+        <button mat-button type="button">
+          <mat-icon>calendar_today</mat-icon>
+          Calendar
+        </button>
+      </div>
+    </div>
+  </div>
+</aside>
+

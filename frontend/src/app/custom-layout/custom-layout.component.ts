@@ -1,40 +1,84 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { LayoutService } from '../../@vex/services/layout.service';
-import { filter, map, startWith } from 'rxjs/operators';
-import { NavigationEnd, Router } from '@angular/router';
-import { checkRouterChildsData } from '../../@vex/utils/check-router-childs-data';
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { ConfigService } from '../../@vex/config/config.service';
-import { UntilDestroy, untilDestroyed } from '@ngneat/until-destroy';
-import { SidebarComponent } from '../../@vex/components/sidebar/sidebar.component';
+import { ChangeDetectionStrategy, Component, OnDestroy } from '@angular/core';
+import { NavigationEnd, Router } from '@angular/router';
+import { Observable, Subject } from 'rxjs';
+import { filter, map, shareReplay, takeUntil } from 'rxjs/operators';
+import { SidebarSection } from '../shared/ui/app-sidebar/app-sidebar.component';
 
-
-@UntilDestroy()
 @Component({
   selector: 'vex-custom-layout',
   templateUrl: './custom-layout.component.html',
-  styleUrls: ['./custom-layout.component.scss']
+  styleUrls: ['./custom-layout.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CustomLayoutComponent implements OnInit {
+export class CustomLayoutComponent implements OnDestroy {
+  readonly isMobile$: Observable<boolean> = this.breakpointObserver
+    .observe('(max-width: 1024px)')
+    .pipe(
+      map(result => result.matches),
+      shareReplay({ bufferSize: 1, refCount: true })
+    );
 
-  sidenavCollapsed$ = this.layoutService.sidenavCollapsed$;
-  isFooterVisible$ = this.configService.config$.pipe(map(config => config.footer.visible));
-  isDesktop$ = this.layoutService.isDesktop$;
+  sidebarCollapsed = false;
+  mobileSidebarOpen = false;
+  private readonly destroy$ = new Subject<void>();
 
-  toolbarShadowEnabled$ = this.router.events.pipe(
-    filter(event => event instanceof NavigationEnd),
-    startWith(null),
-    map(() => checkRouterChildsData(this.router.routerState.root.snapshot, data => data.toolbarShadowEnabled))
-  );
+  readonly sidebarSections: SidebarSection[] = [
+    {
+      id: 'main',
+      title: 'Main',
+      items: [
+        { label: 'Dashboard', icon: 'dashboard', route: '/dashboard' },
+        { label: 'Inbox', icon: 'inbox', route: '/dashboard/inbox' },
+        { label: 'Members', icon: 'group', route: '/members' },
+        { label: 'Mails', icon: 'mail', route: '/mails' },
+        { label: 'Projects', icon: 'view_kanban', route: '/projects/1/tasks', exact: false }
+      ]
+    },
+    {
+      id: 'insights',
+      title: 'Insights',
+      collapsible: true,
+      collapsed: false,
+      items: [
+        { label: 'Reporting', icon: 'assessment', route: '/insights/report' },
+        { label: 'Productivity Overview', icon: 'show_chart', route: '/insights/productivity-overview' },
+        { label: 'Team Performance', icon: 'groups', route: '/insights/team-performance' },
+        { label: 'Time Tracking', icon: 'schedule', route: '/insights/time-tracking' }
+      ]
+    }
+  ];
 
-  @ViewChild('configpanel', { static: true }) configpanel: SidebarComponent;
+  constructor(
+    private readonly breakpointObserver: BreakpointObserver,
+    private readonly router: Router
+  ) {
+    this.router.events
+      .pipe(
+        filter(event => event instanceof NavigationEnd),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(() => {
+        if (this.breakpointObserver.isMatched('(max-width: 1024px)')) {
+          this.mobileSidebarOpen = false;
+        }
+      });
+  }
 
-  constructor(private layoutService: LayoutService,
-              private configService: ConfigService,
-              private breakpointObserver: BreakpointObserver,
-              private router: Router) { }
+  handleMenuToggle(): void {
+    if (this.breakpointObserver.isMatched('(max-width: 1024px)')) {
+      this.mobileSidebarOpen = !this.mobileSidebarOpen;
+    } else {
+      this.sidebarCollapsed = !this.sidebarCollapsed;
+    }
+  }
 
-  ngOnInit() {
-   
+  handleSidebarCollapseChange(collapsed: boolean): void {
+    this.sidebarCollapsed = collapsed;
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

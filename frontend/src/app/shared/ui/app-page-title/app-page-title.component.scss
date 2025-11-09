@@ -1,0 +1,34 @@
+@use 'src/styles/tokens' as tokens;
+
+.app-page-title {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: tokens.space(4);
+  margin-bottom: tokens.space(6);
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: tokens.space(3);
+  }
+
+  &__heading {
+    font-size: tokens.font-size('2xl');
+    font-weight: 600;
+    color: var(--color-text-heading);
+  }
+
+  &__description {
+    margin-top: tokens.space(2);
+    font-size: tokens.font-size(md);
+    color: var(--color-text-subtle);
+  }
+
+  &__actions {
+    display: inline-flex;
+    gap: tokens.space(2);
+    flex-wrap: wrap;
+  }
+}
+

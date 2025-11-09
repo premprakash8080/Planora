@@ -1,0 +1,10 @@
+<div class="app-page-title">
+  <div class="app-page-title__meta">
+    <h1 class="app-page-title__heading">{{ title }}</h1>
+    <p class="app-page-title__description" *ngIf="description">{{ description }}</p>
+  </div>
+  <div class="app-page-title__actions">
+    <ng-content select="[pageActions]"></ng-content>
+  </div>
+</div>
+

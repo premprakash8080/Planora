@@ -1,25 +1,22 @@
-<div class="inbox-container">
-  <!-- Header Section -->
-  <div class="inbox-header">
-    <div class="header-content">
-      <h1 class="inbox-title">
-        <mat-icon class="inbox-title-icon">inbox</mat-icon>
-        Inbox
-      </h1>
-      <p class="inbox-subtitle">Task updates and activity feed</p>
-    </div>
-    <div class="header-actions">
-      <button mat-icon-button matTooltip="Filter" class="action-button">
+<div class="page-container inbox-page">
+  <app-page-title
+    title="Inbox"
+    description="Task updates and activity feed"
+  >
+    <ng-container pageActions>
+      <app-button variant="ghost" size="sm">
         <mat-icon>filter_list</mat-icon>
-      </button>
-      <button mat-icon-button matTooltip="Sort" class="action-button">
+        Filters
+      </app-button>
+      <app-button variant="ghost" size="sm">
         <mat-icon>sort</mat-icon>
-      </button>
-    </div>
-  </div>
+        Sort
+      </app-button>
+    </ng-container>
+  </app-page-title>
 
-  <!-- Task List -->
-  <div class="task-list-container">
+  <app-card padding="lg">
+    <div class="task-list-container">
     <!-- List Header -->
     <div class="list-header">
       <div class="header-cell checkbox-cell">
@@ -33,84 +30,85 @@
       <div class="header-cell actions-cell">Actions</div>
     </div>
 
-    <!-- Task List Items -->
-    <div class="task-list">
-      <div 
-        *ngFor="let update of inboxUpdates" 
-        class="task-list-item"
-        (click)="onUpdateClick(update)">
-        
-        <!-- Checkbox -->
-        <div class="task-cell checkbox-cell">
-          <mat-checkbox (click)="$event.stopPropagation()"></mat-checkbox>
-        </div>
+      <!-- Task List Items -->
+      <div class="task-list">
+        <div 
+          *ngFor="let update of inboxUpdates" 
+          class="task-list-item"
+          (click)="onUpdateClick(update)">
+          
+          <!-- Checkbox -->
+          <div class="task-cell checkbox-cell">
+            <mat-checkbox (click)="$event.stopPropagation()"></mat-checkbox>
+          </div>
 
-        <!-- Task Info -->
-        <div class="task-cell task-info-cell">
-          <div class="task-main-info">
-            <div class="task-icon-wrapper" [style.background-color]="getIconBackgroundColor(update.updateType)">
-              <mat-icon 
-                [style.color]="getIconColor(update.updateType)" 
-                class="task-icon">
-                {{ update.icon }}
-              </mat-icon>
-            </div>
-            <div class="task-details">
-              <div class="task-name">{{ update.taskName }}</div>
-              <div class="task-description">
-                <span class="user-name">{{ update.userName }}</span>
-                <span class="action-text">{{ update.updateDescription }}</span>
+          <!-- Task Info -->
+          <div class="task-cell task-info-cell">
+            <div class="task-main-info">
+              <div class="task-icon-wrapper" [style.background-color]="getIconBackgroundColor(update.updateType)">
+                <mat-icon 
+                  [style.color]="getIconColor(update.updateType)" 
+                  class="task-icon">
+                  {{ update.icon }}
+                </mat-icon>
+              </div>
+              <div class="task-details">
+                <div class="task-name">{{ update.taskName }}</div>
+                <div class="task-description">
+                  <span class="user-name">{{ update.userName }}</span>
+                  <span class="action-text">{{ update.updateDescription }}</span>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- Project -->
-        <div class="task-cell project-cell">
-          <div class="project-badge">
-            <mat-icon class="project-icon">folder</mat-icon>
-            <span class="project-name">{{ update.projectName }}</span>
-          </div>
-        </div>
-
-        <!-- Status -->
-        <div class="task-cell status-cell">
-          <span class="status-badge" [ngClass]="'status-' + update.updateType">
-            {{ update.updateType }}
-          </span>
-        </div>
-
-        <!-- Assignee -->
-        <div class="task-cell assignee-cell">
-          <div class="assignee-info">
-            <div class="assignee-avatar">
-              {{ update.userName.charAt(0) }}
+          <!-- Project -->
+          <div class="task-cell project-cell">
+            <div class="project-badge">
+              <mat-icon class="project-icon">folder</mat-icon>
+              <span class="project-name">{{ update.projectName }}</span>
             </div>
-            <span class="assignee-name">{{ update.userName }}</span>
           </div>
-        </div>
 
-        <!-- Time -->
-        <div class="task-cell time-cell">
-          <div class="time-info">
-            <mat-icon class="time-icon">schedule</mat-icon>
-            <span class="time-text">{{ update.timeAgo }}</span>
+          <!-- Status -->
+          <div class="task-cell status-cell">
+            <span class="status-badge" [ngClass]="'status-' + update.updateType">
+              {{ update.updateType }}
+            </span>
           </div>
-        </div>
 
-        <!-- Actions -->
-        <div class="task-cell actions-cell">
-          <button 
-            mat-icon-button 
-            class="action-button"
-            (click)="$event.stopPropagation()"
-            matTooltip="More options">
-            <mat-icon>more_vert</mat-icon>
-          </button>
+          <!-- Assignee -->
+          <div class="task-cell assignee-cell">
+            <div class="assignee-info">
+              <div class="assignee-avatar">
+                {{ update.userName.charAt(0) }}
+              </div>
+              <span class="assignee-name">{{ update.userName }}</span>
+            </div>
+          </div>
+
+          <!-- Time -->
+          <div class="task-cell time-cell">
+            <div class="time-info">
+              <mat-icon class="time-icon">schedule</mat-icon>
+              <span class="time-text">{{ update.timeAgo }}</span>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="task-cell actions-cell">
+            <button 
+              mat-icon-button 
+              class="action-button"
+              (click)="$event.stopPropagation()"
+              matTooltip="More options">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  </app-card>
 
   <!-- Empty State (if no updates) -->
   <div *ngIf="inboxUpdates.length === 0" class="inbox-empty-state">
@@ -118,11 +116,10 @@
       <mat-icon class="inbox-empty-icon">inbox</mat-icon>
       <h3 class="inbox-empty-title">No tasks yet</h3>
       <p class="inbox-empty-text">Task updates will appear here when available</p>
-      <button mat-raised-button color="primary" class="empty-state-button">
+      <app-button variant="primary">
         <mat-icon>add</mat-icon>
         Create Task
-      </button>
+      </app-button>
     </div>
   </div>
 </div>
-

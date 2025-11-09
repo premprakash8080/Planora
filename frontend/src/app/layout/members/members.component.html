@@ -1,14 +1,19 @@
-<div class="members-container">
-  <div class="members-header">
-    <div class="header-content">
-      <h1 class="page-title">
-        <mat-icon class="title-icon">group</mat-icon>
-        Team Members
-      </h1>
-      <p class="page-subtitle">Manage and track your project team</p>
-    </div>
-    <div class="header-actions">
-      <mat-form-field appearance="outline" class="search-field">
+<div class="page-container members-page">
+  <app-page-title
+    title="Team Members"
+    description="Manage and track your project team"
+  >
+    <ng-container pageActions>
+      <app-button variant="primary">
+        <mat-icon>person_add</mat-icon>
+        Invite Member
+      </app-button>
+    </ng-container>
+  </app-page-title>
+
+  <app-card padding="lg">
+    <div class="members-toolbar">
+      <mat-form-field appearance="outline" class="members-toolbar__search">
         <mat-label>Search members</mat-label>
         <input
           matInput
@@ -16,30 +21,36 @@
           [(ngModel)]="searchTerm"
           (ngModelChange)="applyFilters()"
         >
-        <button mat-icon-button matSuffix *ngIf="searchTerm" (click)="clearSearch()">
+        <button
+          mat-icon-button
+          matSuffix
+          *ngIf="searchTerm"
+          (click)="clearSearch()"
+          aria-label="Clear search"
+        >
           <mat-icon>close</mat-icon>
         </button>
       </mat-form-field>
-      <mat-form-field appearance="outline" class="filter-field">
-        <mat-label>Role</mat-label>
-        <mat-select [value]="selectedRole" (selectionChange)="onRoleChange($event)">
-          <mat-option *ngFor="let role of roles" [value]="role">{{ role }}</mat-option>
-        </mat-select>
-      </mat-form-field>
-      <mat-form-field appearance="outline" class="filter-field">
-        <mat-label>Status</mat-label>
-        <mat-select [value]="selectedStatus" (selectionChange)="onStatusChange($event)">
-          <mat-option *ngFor="let status of statuses" [value]="status">{{ status }}</mat-option>
-        </mat-select>
-      </mat-form-field>
+
+      <div class="members-toolbar__filters">
+        <mat-form-field appearance="outline">
+          <mat-label>Role</mat-label>
+          <mat-select [value]="selectedRole" (selectionChange)="onRoleChange($event)">
+            <mat-option *ngFor="let role of roles" [value]="role">{{ role }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Status</mat-label>
+          <mat-select [value]="selectedStatus" (selectionChange)="onStatusChange($event)">
+            <mat-option *ngFor="let status of statuses" [value]="status">{{ status }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
     </div>
-  </div>
 
-  <mat-card class="members-card">
-    <div class="members-table-wrapper">
-      <table mat-table [dataSource]="displayedMembers" class="members-table" matSort>
-
-        <!-- Name Column -->
+    <app-table>
+      <table mat-table [dataSource]="displayedMembers" matSort>
         <ng-container matColumnDef="name">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
           <td mat-cell *matCellDef="let member">
@@ -53,19 +64,16 @@
           </td>
         </ng-container>
 
-        <!-- Role Column -->
         <ng-container matColumnDef="role">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>Role</th>
           <td mat-cell *matCellDef="let member">{{ member.role }}</td>
         </ng-container>
 
-        <!-- Projects Column -->
         <ng-container matColumnDef="projectsAssigned">
           <th mat-header-cell *matHeaderCellDef mat-sort-header>Projects</th>
           <td mat-cell *matCellDef="let member">{{ member.projectsAssigned }}</td>
         </ng-container>
 
-        <!-- Status Column -->
         <ng-container matColumnDef="status">
           <th mat-header-cell *matHeaderCellDef>Status</th>
           <td mat-cell *matCellDef="let member">
@@ -76,12 +84,12 @@
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
       </table>
+    </app-table>
 
-      <div class="empty-state" *ngIf="displayedMembers.length === 0">
-        <mat-icon>people_outline</mat-icon>
-        <h3>No members found</h3>
-        <p>Try adjusting your search or filters.</p>
-      </div>
+    <div class="members-empty" *ngIf="displayedMembers.length === 0">
+      <mat-icon>people_outline</mat-icon>
+      <h3>No members found</h3>
+      <p>Try adjusting your search or filters.</p>
     </div>
-  </mat-card>
+  </app-card>
 </div>

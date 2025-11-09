@@ -1,0 +1,117 @@
+@use 'sass:map';
+@use 'sass:math';
+
+// Color System
+$color-primary: #2563eb !default;
+$color-primary-dark: #1d4ed8 !default;
+$color-primary-light: #60a5fa !default;
+
+$color-accent: #10b981 !default;
+$color-accent-dark: #0d9b6a !default;
+
+$color-background: #f9fafb !default;
+$color-surface: #ffffff !default;
+$color-muted: #64748b !default;
+$color-border: #e5e7eb !default;
+$color-text-heading: #111827 !default;
+$color-text-body: #1f2937 !default;
+$color-text-subtle: #6b7280 !default;
+
+$color-background-dark: #1e1e1e !default;
+$color-surface-dark: #262626 !default;
+$color-text-heading-dark: #f3f4f6 !default;
+$color-text-body-dark: #e5e7eb !default;
+$color-border-dark: rgba(255, 255, 255, 0.08) !default;
+
+// Radius
+$radius-sm: 6px !default;
+$radius-md: 8px !default;
+$radius-lg: 12px !default;
+$radius-xl: 16px !default;
+
+// Shadows
+$shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.04) !default;
+$shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.08) !default;
+$shadow-md: 0 10px 30px rgba(15, 23, 42, 0.1) !default;
+$shadow-lg: 0 20px 45px rgba(15, 23, 42, 0.12) !default;
+
+// Spacing Scale (multiples of 4px)
+$spacing-scale: (
+  0: 0,
+  1: 0.25rem,
+  2: 0.5rem,
+  3: 0.75rem,
+  4: 1rem,
+  5: 1.25rem,
+  6: 1.5rem,
+  7: 1.75rem,
+  8: 2rem,
+  9: 2.5rem,
+  10: 3rem
+) !default;
+
+@function space($step) {
+  @return map.get($spacing-scale, $step);
+}
+
+// Typography
+$font-family-base: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif !default;
+$font-sizes: (
+  xs: 0.75rem,
+  sm: 0.875rem,
+  md: 1rem,
+  lg: 1.125rem,
+  xl: 1.25rem,
+  '2xl': 1.5rem,
+  '3xl': 1.875rem
+) !default;
+
+@function font-size($key) {
+  @return map.get($font-sizes, $key);
+}
+
+// Mixins
+@mixin card($padding: 1.5rem) {
+  background: $color-surface;
+  border-radius: $radius-lg;
+  border: 1px solid $color-border;
+  box-shadow: $shadow-xs;
+  padding: $padding;
+}
+
+@mixin dark-card($padding: 1.5rem) {
+  background: $color-surface-dark;
+  border-radius: $radius-lg;
+  border: 1px solid $color-border-dark;
+  box-shadow: none;
+  padding: $padding;
+}
+
+@mixin page-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: space(6) space(8);
+
+  @media (max-width: 1024px) {
+    padding: space(5) space(6);
+  }
+
+  @media (max-width: 768px) {
+    padding: space(4) space(4);
+  }
+}
+
+@mixin visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+

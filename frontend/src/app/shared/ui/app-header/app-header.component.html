@@ -1,0 +1,67 @@
+<header class="app-header">
+  <div class="app-header__left">
+    <button
+      mat-icon-button
+      type="button"
+      class="app-header__menu"
+      (click)="menuToggle.emit()"
+      aria-label="Toggle navigation"
+    >
+      <mat-icon>menu</mat-icon>
+    </button>
+    <div class="app-header__branding">
+      <span class="app-header__title">{{ appTitle }}</span>
+    </div>
+  </div>
+
+  <div class="app-header__search" *ngIf="showSearch">
+    <mat-icon>search</mat-icon>
+    <input
+      type="search"
+      [placeholder]="searchPlaceholder"
+      (input)="onSearchChange($any($event.target).value)"
+    >
+  </div>
+
+  <div class="app-header__actions">
+    <button
+      mat-stroked-button
+      color="primary"
+      type="button"
+      class="app-header__create"
+      (click)="createClicked.emit()"
+    >
+      <mat-icon>add</mat-icon>
+      New Task
+    </button>
+
+    <button
+      mat-icon-button
+      matBadge="{{ notifications }}"
+      matBadgeColor="warn"
+      matTooltip="Notifications"
+      type="button"
+    >
+      <mat-icon>notifications</mat-icon>
+    </button>
+
+    <button mat-icon-button matTooltip="Help" type="button">
+      <mat-icon>help_outline</mat-icon>
+    </button>
+
+    <div class="app-header__profile" role="button" tabindex="0" matRipple>
+      <ng-container *ngIf="userAvatarUrl; else initials">
+        <img [src]="userAvatarUrl" alt="Avatar" />
+      </ng-container>
+      <ng-template #initials>
+        <span class="avatar-initials">{{ userInitials }}</span>
+      </ng-template>
+      <div class="app-header__profile-info">
+        <span class="app-header__profile-name">{{ userInitials }}</span>
+        <span class="app-header__profile-role">{{ userRole }}</span>
+      </div>
+      <mat-icon>keyboard_arrow_down</mat-icon>
+    </div>
+  </div>
+</header>
+

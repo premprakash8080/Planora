@@ -1,32 +1,28 @@
-<ng-template #sidenavRef>
-  <vex-sidenav [collapsed]="sidenavCollapsed$ | async"></vex-sidenav>
-</ng-template>
+<div class="app-shell" [class.app-shell--sidebar-open]="mobileSidebarOpen">
+  <aside
+    class="app-shell__sidebar-wrapper"
+    [class.app-shell__sidebar-wrapper--mobile-open]="mobileSidebarOpen"
+  >
+    <app-sidebar
+      [sections]="sidebarSections"
+      [collapsed]="sidebarCollapsed"
+      (collapsedChange)="handleSidebarCollapseChange($event)"
+    ></app-sidebar>
+  </aside>
 
-<ng-template #toolbarRef>
-  <vex-toolbar [hasShadow]="toolbarShadowEnabled$ | async" [mobileQuery]="!(isDesktop$ | async)"
-    class="vex-toolbar"></vex-toolbar>
-</ng-template>
+  <div
+    class="app-shell__backdrop"
+    *ngIf="(isMobile$ | async) && mobileSidebarOpen"
+    (click)="handleMenuToggle()"
+  ></div>
 
-<ng-template #footerRef>
-  <vex-footer *ngIf="isFooterVisible$ | async" class="vex-footer"></vex-footer>
-</ng-template>
+  <div class="app-shell__main">
+    <app-header
+      (menuToggle)="handleMenuToggle()"
+    ></app-header>
 
-<ng-template #quickpanelRef>
-  <vex-quickpanel></vex-quickpanel>
-</ng-template>
-<ng-template #dashboardSchedulePanelRef>
-  <vex-quickpanel></vex-quickpanel>
-</ng-template>
-
-<vex-layout [footerRef]="footerRef" [dashboardSchedulePanelRef]="dashboardSchedulePanelRef"
-  [quickpanelRef]="quickpanelRef" [sidenavRef]="sidenavRef" [toolbarRef]="toolbarRef"></vex-layout>
-
-<!-- <vex-config-panel-toggle
-  (openConfig)="configpanel.open()"
-></vex-config-panel-toggle> -->
-
-<!-- CONFIGPANEL -->
-<!-- <vex-sidebar #configpanel [invisibleBackdrop]="true" position="right">
-  <vex-config-panel></vex-config-panel>
-</vex-sidebar> -->
-<!-- END CONFIGPANEL -->
+    <main class="app-shell__content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

@@ -23,15 +23,29 @@ const routes: Routes = [
         loadChildren: () => import("./layout/dashboard/dashboard.module").then((m) => m.DashboardModule),
       },
       {
+        path: "members",
+        loadChildren: () => import("./layout/members/members.module").then((m) => m.MembersModule),
+      },
+      {
+        path: "projects/:projectId/tasks",
+        loadChildren: () => import("./layout/projects/tasks/tasks.module").then((m) => m.DashboardProjectTasksModule),
+      },
+      {
+        path: "mails",
+        loadChildren: () => import("./layout/mails/mails.module").then((m) => m.MailsModule),
+      },
+      {
         path: "insights",
         loadChildren: () => import("./layout/insights/insights.module").then((m) => m.InsightsModule),
       },
-    ],
-  },
+      {
+        path: "**",
+        redirectTo: "dashboard",
+        pathMatch: "full",
+      }
+    ]
+  }
 ];
 
-@NgModule({
-  imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
-})
-export class AppRoutingModule { }
+@NgModule({ imports: [RouterModule.forRoot(routes)], exports: [RouterModule] })
+export class AppRoutingModule {}
