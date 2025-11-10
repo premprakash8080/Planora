@@ -4,7 +4,8 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TasksRoutingModule } from './tasks-routing.module';
 import { ListViewComponent } from './list-view/list-view.component';
 import { TaskDetailComponent } from './task-detail/task-detail.component';
-import { SubtaskListComponent } from './task-detail/subtask-list/subtask-list.component';
+import { SubtaskListComponent } from './subtask-list/subtask-list.component';
+import { TaskDescriptionEditorComponent } from './task-description-editor/task-description-editor.component';
 import { BoardViewComponent } from './board-view/board-view.component';
 import { TimelineViewComponent } from './timeline-view/timeline-view.component';
 import { CalendarViewComponent } from './calendar-view/calendar-view.component';
@@ -24,6 +25,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
+import { QuillModule } from 'ngx-quill';
 import { SharedUiModule } from '../../shared/ui/ui.module';
 
 @NgModule({
@@ -34,7 +36,8 @@ import { SharedUiModule } from '../../shared/ui/ui.module';
     CalendarViewComponent,
     DashboardViewComponent,
     TaskDetailComponent,
-    SubtaskListComponent
+    SubtaskListComponent,
+    TaskDescriptionEditorComponent
   ],
   imports: [
     CommonModule,
@@ -56,6 +59,7 @@ import { SharedUiModule } from '../../shared/ui/ui.module';
     MatMenuModule,
     MatDatepickerModule,
     MatNativeDateModule,
+    QuillModule.forRoot(),
     SharedUiModule
   ]
 })

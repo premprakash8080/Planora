@@ -31,7 +31,7 @@
             type="text"
             [value]="getDraft(subtask)"
             placeholder="Name this subtask"
-            (focus)="open.emit(subtask)"
+            (focus)="subtaskOpen.emit(subtask)"
             (input)="handleNameInput(subtask, $any($event.target).value)"
             (blur)="handleNameBlur(subtask)"
             (keydown)="handleNameKeydown($event, subtask)"

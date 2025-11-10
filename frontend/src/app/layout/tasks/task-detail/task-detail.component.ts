@@ -44,16 +44,6 @@ export class TaskDetailComponent implements OnChanges {
     }
   }
 
-  onDescriptionBlur(): void {
-    if (!this.task) {
-      return;
-    }
-    const value = this.descriptionControl.value.trim();
-    if (value !== (this.task.description ?? '')) {
-      this.taskUpdated.emit({ description: value });
-    }
-  }
-
   updateAssignee(rawValue: string): void {
     if (!this.task) {
       return;
@@ -133,7 +123,7 @@ export class TaskDetailComponent implements OnChanges {
     this.taskUpdated.emit({ subtasks: next });
   }
 
-  handleSubtaskCreate(title: string): void {
+  handleSubtaskCreate(name: string): void {
     if (!this.task) {
       return;
     }
@@ -141,7 +131,7 @@ export class TaskDetailComponent implements OnChanges {
       ...(this.task.subtasks ?? []),
       {
         id: `subtask-${Date.now()}`,
-        name: title,
+        name,
         assignee: '',
         dueDate: undefined,
         priority: 'Medium' as TaskPriority,
@@ -159,6 +149,26 @@ export class TaskDetailComponent implements OnChanges {
       return;
     }
     this.subtaskOpen.emit({ parentTaskId: this.task.id, subtask });
+  }
+
+  handleDescriptionSave(value: string): void {
+    if (!this.task) {
+      return;
+    }
+    const normalized = (value ?? '').trim();
+    const current = (this.task.description ?? '').trim();
+    if (normalized === current) {
+      return;
+    }
+    this.descriptionControl.setValue(normalized, { emitEvent: false });
+    this.taskUpdated.emit({ description: normalized });
+  }
+
+  get descriptionMeta(): string | null {
+    if (!this.task) {
+      return null;
+    }
+    return this.task.description ? 'Edited just now' : 'No description yet';
   }
 
   addComment(): void {

@@ -12,7 +12,7 @@
   </header>
 
   <div class="task-detail__body" *ngIf="task">
-    <section class="task-detail__block task-detail__title">
+    <section class="task-detail__block task-detail__card task-detail__title">
       <input
         class="task-detail__title-input"
         [formControl]="titleControl"
@@ -21,7 +21,7 @@
       />
     </section>
 
-    <section class="task-detail__block task-detail__grid">
+    <section class="task-detail__block task-detail__card task-detail__grid">
       <div class="task-detail__field">
         <span class="task-detail__field-label">Assignee</span>
         <input
@@ -57,20 +57,20 @@
       </div>
     </section>
 
-    <section class="task-detail__block">
+    <section class="task-detail__block task-detail__card task-detail__block-description">
       <header class="task-detail__section-header">
         <span>Description</span>
       </header>
       <textarea
-        class="task-detail__description"
-        rows="5"
+        class="task-detail__description-input"
+        rows="6"
         [formControl]="descriptionControl"
-        (blur)="onDescriptionBlur()"
-        placeholder="Add more context for your team…"
+        (blur)="handleDescriptionSave(descriptionControl.value || '')"
+        placeholder="Add a description..."
       ></textarea>
     </section>
 
-    <section class="task-detail__block">
+    <section class="task-detail__block task-detail__card">
       <header class="task-detail__section-header">
         <span>Subtasks</span>
       </header>
@@ -83,12 +83,12 @@
         (nameChange)="handleSubtaskNameChange($event)"
         (remove)="handleSubtaskRemove($event)"
         (create)="handleSubtaskCreate($event)"
-        (open)="handleSubtaskOpen($event)"
+        (subtaskOpen)="handleSubtaskOpen($event)"
         (assigneeClick)="handleSubtaskOpen($event)"
       ></app-subtask-list>
     </section>
 
-    <section class="task-detail__block">
+    <section class="task-detail__block task-detail__card">
       <header class="task-detail__section-header">
         <span>Comments</span>
       </header>

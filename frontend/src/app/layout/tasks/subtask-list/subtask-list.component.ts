@@ -11,7 +11,7 @@ import {
   ViewChild
 } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { Task } from '../../task.model';
+import { Task } from '../task.model';
 
 type DueDateState = 'empty' | 'overdue' | 'today' | 'upcoming';
 
@@ -30,7 +30,7 @@ export class SubtaskListComponent implements OnChanges, AfterViewInit {
   @Output() nameChange = new EventEmitter<{ id: string; name: string }>();
   @Output() remove = new EventEmitter<string>();
   @Output() create = new EventEmitter<string>();
-  @Output() open = new EventEmitter<Task>();
+  @Output() subtaskOpen = new EventEmitter<Task>();
   @Output() assigneeClick = new EventEmitter<Task>();
 
   @ViewChild('listContainer') private listContainer?: ElementRef<HTMLDivElement>;
@@ -185,7 +185,7 @@ export class SubtaskListComponent implements OnChanges, AfterViewInit {
     if (!this.allowDueDate) {
       return;
     }
-    this.open.emit(subtask);
+    this.subtaskOpen.emit(subtask);
   }
 
   handleRowClick(subtask: Task, event: MouseEvent): void {
@@ -193,7 +193,7 @@ export class SubtaskListComponent implements OnChanges, AfterViewInit {
     if (target.closest('.subtask-row__input')) {
       return;
     }
-    this.open.emit(subtask);
+    this.subtaskOpen.emit(subtask);
   }
 
   handleRemoveClick(id: string, event: Event): void {
