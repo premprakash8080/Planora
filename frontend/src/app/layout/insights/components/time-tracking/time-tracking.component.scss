@@ -3,12 +3,13 @@
  * 
  * Modern UI styles for time tracking metrics
  */
+ @use 'src/styles/tokens' as tokens;
 
 .time-tracking-container {
   padding: 32px;
   max-width: 100%;
   margin: 0 auto;
-  background: linear-gradient(to bottom, #f8f9fa 0%, #ffffff 100%);
+  background: linear-gradient(to bottom, tokens.$color-background 0%, tokens.$color-surface 100%);
   min-height: 100vh;
 }
 
@@ -18,7 +19,7 @@
 .time-header {
   margin-bottom: 40px;
   padding-bottom: 24px;
-  border-bottom: 2px solid #e9ecef;
+  border-bottom: 2px solid tokens.$color-border;
   
   .header-content {
     .page-title {
@@ -27,7 +28,7 @@
       gap: 12px;
       font-size: 32px;
       font-weight: 700;
-      color: #1a1a1a;
+      color: tokens.$color-text-heading;
       margin: 0 0 8px 0;
       letter-spacing: -0.5px;
       
@@ -35,13 +36,13 @@
         font-size: 36px;
         width: 36px;
         height: 36px;
-        color: #1976d2;
+        color: tokens.$color-primary;
       }
     }
     
     .page-subtitle {
       font-size: 16px;
-      color: #6c757d;
+      color: tokens.$color-text-subtle;
       margin: 0;
       font-weight: 400;
     }
@@ -57,7 +58,7 @@
   gap: 10px;
   font-size: 22px;
   font-weight: 600;
-  color: #212529;
+  color: tokens.$color-text-heading;
   margin: 0 0 24px 0;
   letter-spacing: -0.3px;
   
@@ -65,7 +66,7 @@
     font-size: 24px;
     width: 24px;
     height: 24px;
-    color: #1976d2;
+    color: tokens.$color-primary;
   }
 }
 
@@ -86,7 +87,7 @@
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
-  background: #ffffff;
+  background: tokens.$color-surface;
   
   &:hover {
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
@@ -109,15 +110,15 @@
     height: 48px;
     
     &.total {
-      color: #1976d2;
+      color: tokens.$color-primary;
     }
     
     &.billable {
-      color: #4caf50;
+      color: tokens.$color-primary;
     }
     
     &.non-billable {
-      color: #9e9e9e;
+        color: tokens.$color-primary;
     }
   }
   
@@ -126,7 +127,7 @@
     
     .summary-label {
       font-size: 14px;
-      color: #6c757d;
+      color: tokens.$color-text-subtle;
       margin-bottom: 8px;
       font-weight: 500;
       text-transform: uppercase;
@@ -136,16 +137,20 @@
     .summary-value {
       font-size: 32px;
       font-weight: 700;
-      color: #212529;
+      color: tokens.$color-text-heading;
       line-height: 1;
       letter-spacing: -1px;
+
+      &.total {
+        color: tokens.$color-accent;
+      }
       
       &.billable {
-        color: #4caf50;
+        color: tokens.$color-accent;
       }
       
       &.non-billable {
-        color: #9e9e9e;
+        color: tokens.$color-accent;
       }
     }
   }
@@ -169,7 +174,7 @@
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
-  background: #ffffff;
+  background: tokens.$color-surface;
   
   &:hover {
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
@@ -208,13 +213,13 @@
     .project-name {
       font-size: 18px;
       font-weight: 600;
-      color: #212529;
+      color: tokens.$color-text-heading;
       margin: 0 0 6px 0;
     }
     
     .project-stats {
       font-size: 14px;
-      color: #6c757d;
+      color: tokens.$color-text-subtle;
       
       .stat-item {
         margin-right: 12px;
@@ -232,13 +237,13 @@
   .time-detail {
     text-align: center;
     padding: 12px;
-    background: #f8f9fa;
+    background: tokens.$color-background;
     border-radius: 8px;
     
     .time-label {
       display: block;
       font-size: 12px;
-      color: #6c757d;
+      color: tokens.$color-text-subtle;
       margin-bottom: 6px;
       font-weight: 500;
       text-transform: uppercase;
@@ -248,14 +253,14 @@
       display: block;
       font-size: 20px;
       font-weight: 700;
-      color: #212529;
+      color: tokens.$color-text-heading;
       
       &.billable {
-        color: #4caf50;
+        color: tokens.$color-accent;
       }
       
       &.non-billable {
-        color: #9e9e9e;
+        color: tokens.$color-primary;
       }
     }
   }
@@ -264,7 +269,7 @@
 .project-progress {
   .progress-bar {
     height: 8px;
-    background-color: #e9ecef;
+    background-color: tokens.$color-border;
     border-radius: 10px;
     overflow: hidden;
     display: flex;
@@ -300,7 +305,7 @@
 .modern-card {
   border-radius: 16px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-  background: #ffffff;
+  background: tokens.$color-surface;
   transition: all 0.3s ease;
   
   &:hover {
@@ -345,7 +350,7 @@
   .bar-label {
     font-size: 12px;
     font-weight: 600;
-    color: #495057;
+    color: tokens.$color-text-subtle;
     margin-bottom: 8px;
   }
   
@@ -378,7 +383,7 @@
     .bar-value {
       font-size: 11px;
       font-weight: 600;
-      color: #ffffff;
+      color: tokens.$color-surface;
       text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
     }
   }
@@ -386,7 +391,7 @@
   .bar-total {
     font-size: 12px;
     font-weight: 600;
-    color: #212529;
+    color: tokens.$color-text-heading;
     margin-top: 8px;
   }
 }
@@ -396,14 +401,14 @@
   justify-content: center;
   gap: 32px;
   padding-top: 24px;
-  border-top: 1px solid #e9ecef;
+  border-top: 1px solid tokens.$color-border;
   
   .legend-item {
     display: flex;
     align-items: center;
     gap: 8px;
     font-size: 14px;
-    color: #495057;
+    color: tokens.$color-text-subtle;
     font-weight: 500;
     
     .legend-color {
@@ -412,11 +417,11 @@
       border-radius: 4px;
       
       &.billable {
-        background: linear-gradient(135deg, #4caf50, #66bb6a);
+        background: linear-gradient(135deg, tokens.$color-accent, tokens.$color-accent-dark);
       }
       
       &.non-billable {
-        background: linear-gradient(135deg, #9e9e9e, #bdbdbd);
+        background: linear-gradient(135deg, tokens.$color-primary, tokens.$color-primary-dark);
       }
     }
   }
@@ -449,11 +454,11 @@
   .table-header-row {
     th {
       font-weight: 600;
-      color: #495057;
-      background: linear-gradient(to bottom, #f8f9fa, #e9ecef);
+      color: tokens.$color-text-subtle;
+      background: linear-gradient(to bottom, tokens.$color-background, tokens.$color-border);
       padding: 16px 20px;
       text-align: left;
-      border-bottom: 2px solid #dee2e6;
+      border-bottom: 2px solid tokens.$color-border;
       position: sticky;
       top: 0;
       z-index: 10;
@@ -467,7 +472,7 @@
           font-size: 18px;
           width: 18px;
           height: 18px;
-          color: #1976d2;
+          color: tokens.$color-primary;
         }
       }
     }
@@ -477,13 +482,13 @@
     transition: all 0.2s ease;
     
     &:hover {
-      background-color: #f8f9fa;
+      background-color: tokens.$color-background;
       transform: scale(1.01);
     }
     
     td {
       padding: 18px 20px;
-      border-bottom: 1px solid #e9ecef;
+      border-bottom: 1px solid tokens.$color-border;
       vertical-align: middle;
     }
   }
@@ -492,7 +497,7 @@
 .date-text {
   font-size: 14px;
   font-weight: 500;
-  color: #495057;
+  color: tokens.$color-text-subtle;
 }
 
 .project-cell {
@@ -504,26 +509,26 @@
     font-size: 18px;
     width: 18px;
     height: 18px;
-    color: #6c757d;
+    color: tokens.$color-text-subtle;
   }
   
   span {
     font-size: 14px;
     font-weight: 500;
-    color: #212529;
+    color: tokens.$color-text-heading;
   }
 }
 
 .task-text {
   font-size: 14px;
   font-weight: 500;
-  color: #495057;
+  color: tokens.$color-text-subtle;
 }
 
 .time-text {
   font-size: 15px;
   font-weight: 600;
-  color: #212529;
+  color: tokens.$color-text-heading;
 }
 
 .billable-badge {
@@ -542,22 +547,22 @@
   }
   
   &.billable-yes {
-    background-color: #e8f5e9;
-    color: #2e7d32;
+    background-color: tokens.$color-accent;
+    color: tokens.$color-surface;
   }
   
   &.billable-no {
-    background-color: #f5f5f5;
-    color: #6c757d;
+    background-color: tokens.$color-primary;
+    color: tokens.$color-surface;
   }
 }
 
 .action-button {
-  color: #6c757d;
+  color: tokens.$color-text-subtle;
   
   &:hover {
-    background-color: #f8f9fa;
-    color: #1976d2;
+    background-color: tokens.$color-background;
+    color: tokens.$color-primary;
   }
 }
 

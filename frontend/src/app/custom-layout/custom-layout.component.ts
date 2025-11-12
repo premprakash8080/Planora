@@ -8,6 +8,7 @@ import { SidebarSection } from '../shared/ui/app-sidebar/app-sidebar.component';
 interface ProjectNavItem {
   id: string;
   name: string;
+  icon: string;
 }
 
 @Component({
@@ -29,10 +30,10 @@ export class CustomLayoutComponent implements OnDestroy {
   private readonly destroy$ = new Subject<void>();
 
   private readonly projects: ProjectNavItem[] = [
-    { id: '1', name: 'Website Redesign' },
-    { id: '2', name: 'Mobile App Launch' },
-    { id: '3', name: 'Growth Experiments' },
-    { id: '4', name: 'Customer Success Ops' }
+    { id: '1', name: 'Website Redesign' , icon: 'folder'},
+    { id: '2', name: 'Mobile App Launch' , icon: 'folder'},
+    { id: '3', name: 'Growth Experiments' , icon: 'folder'},
+    { id: '4', name: 'Customer Success Ops' , icon: 'folder'}
   ];
 
   sidebarSections: SidebarSection[] = this.buildSidebarSections();
@@ -90,6 +91,7 @@ export class CustomLayoutComponent implements OnDestroy {
         collapsed: false,
         items: this.projects.map(project => ({
           label: project.name,
+          icon: project.icon,
           route: `/projects/${project.id}/tasks`,
           exact: false
         }))
