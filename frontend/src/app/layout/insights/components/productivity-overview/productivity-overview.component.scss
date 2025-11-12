@@ -4,11 +4,13 @@
  * Modern UI styles for productivity metrics and trends
  */
 
+@use 'src/styles/tokens' as tokens;
+
 .productivity-container {
   padding: 32px;
   max-width: 100%;
   margin: 0 auto;
-  background: linear-gradient(to bottom, #f8f9fa 0%, #ffffff 100%);
+  background: linear-gradient(to bottom, tokens.$color-background 0%, tokens.$color-surface 100%);
   min-height: 100vh;
 }
 
@@ -21,7 +23,7 @@
   align-items: flex-start;
   margin-bottom: 40px;
   padding-bottom: 24px;
-  border-bottom: 2px solid #e9ecef;
+  border-bottom: 2px solid tokens.$color-border;
   
   .header-content {
     flex: 1;
@@ -32,7 +34,7 @@
       gap: 12px;
       font-size: 32px;
       font-weight: 700;
-      color: #1a1a1a;
+      color: tokens.$color-text-heading;
       margin: 0 0 8px 0;
       letter-spacing: -0.5px;
       
@@ -40,13 +42,13 @@
         font-size: 36px;
         width: 36px;
         height: 36px;
-        color: #1976d2;
+        color: tokens.$color-primary;
       }
     }
     
     .page-subtitle {
       font-size: 16px;
-      color: #6c757d;
+      color: tokens.$color-text-subtle;
       margin: 0;
       font-weight: 400;
     }
@@ -68,7 +70,7 @@
   gap: 10px;
   font-size: 22px;
   font-weight: 600;
-  color: #212529;
+  color: tokens.$color-text-heading;
   margin: 0 0 24px 0;
   letter-spacing: -0.3px;
   
@@ -76,7 +78,7 @@
     font-size: 24px;
     width: 24px;
     height: 24px;
-    color: #1976d2;
+    color: tokens.$color-primary;
   }
 }
 
@@ -98,7 +100,7 @@
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  background: #ffffff;
+  background: tokens.$color-surface;
   
   &:hover {
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
@@ -139,7 +141,7 @@
 
 .metric-label {
   font-size: 14px;
-  color: #6c757d;
+  color: tokens.$color-text-subtle;
   margin-bottom: 12px;
   font-weight: 500;
   text-transform: uppercase;
@@ -156,7 +158,7 @@
 .metric-value {
   font-size: 36px;
   font-weight: 700;
-  color: #212529;
+  color: tokens.$color-text-heading;
   line-height: 1;
   letter-spacing: -1px;
 }
@@ -164,7 +166,7 @@
 .metric-unit {
   font-size: 18px;
   font-weight: 500;
-  color: #6c757d;
+  color: tokens.$color-text-subtle;
 }
 
 .metric-change {
@@ -181,11 +183,11 @@
   }
   
   &.positive {
-    color: #28a745;
+    color: tokens.$color-accent;
   }
   
   &.negative {
-    color: #dc3545;
+    color: tokens.$color-error;
   }
 }
 
@@ -205,7 +207,7 @@
 .modern-card {
   border-radius: 16px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-  background: #ffffff;
+  background: tokens.$color-surface;
   transition: all 0.3s ease;
   
   &:hover {
@@ -223,7 +225,7 @@
   .trend-title {
     font-size: 18px;
     font-weight: 600;
-    color: #212529;
+    color: tokens.$color-text-heading;
     margin: 0 0 24px 0;
     text-align: center;
   }
@@ -266,7 +268,7 @@
     .bar-value {
       font-size: 12px;
       font-weight: 600;
-      color: #ffffff;
+      color: tokens.$color-surface;
       text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
     }
   }
@@ -274,7 +276,7 @@
   .bar-label {
     font-size: 12px;
     font-weight: 500;
-    color: #6c757d;
+    color: tokens.$color-text-subtle;
     text-align: center;
   }
 }
@@ -298,14 +300,14 @@
   gap: 12px;
   font-size: 20px;
   font-weight: 600;
-  color: #212529;
+  color: tokens.$color-text-heading;
   margin: 0 0 24px 0;
   
   .summary-icon {
     font-size: 24px;
     width: 24px;
     height: 24px;
-    color: #1976d2;
+    color: tokens.$color-primary;
   }
 }
 
@@ -318,20 +320,20 @@
 .summary-stat {
   text-align: center;
   padding: 20px;
-  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  background: linear-gradient(135deg, tokens.$color-background 0%, tokens.$color-surface 100%);
   border-radius: 12px;
-  border: 1px solid #e9ecef;
+  border: 1px solid tokens.$color-border;
   transition: all 0.3s ease;
   
   &:hover {
     transform: translateY(-4px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    border-color: #1976d2;
+    border-color: tokens.$color-primary;
   }
   
   .stat-label {
     font-size: 14px;
-    color: #6c757d;
+    color: tokens.$color-text-subtle;
     margin-bottom: 12px;
     font-weight: 500;
   }
@@ -339,7 +341,7 @@
   .stat-value {
     font-size: 32px;
     font-weight: 700;
-    color: #212529;
+    color: tokens.$color-text-heading;
     line-height: 1;
   }
 }

@@ -24,6 +24,10 @@ $color-surface-dark: #262626 !default;
 $color-text-heading-dark: #f3f4f6 !default;
 $color-text-body-dark: #e5e7eb !default;
 $color-border-dark: rgba(255, 255, 255, 0.08) !default;
+$color-error: #dc2626 !default;
+$color-warning: #ffc107 !default;
+$color-success: #28a745 !default;
+$color-muted-dark: #4b5563 !default;
 
 @function primary-shade($lightness: 0%) {
   @return color.scale($color-primary, $lightness: $lightness);
