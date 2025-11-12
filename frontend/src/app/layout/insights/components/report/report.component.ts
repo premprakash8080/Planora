@@ -19,7 +19,8 @@ export interface ReportData {
   change: number;
   changeType: 'increase' | 'decrease';
   icon: string;
-  color: string;
+  borderColor: string;
+  iconColor: string;
 }
 
 /**
@@ -54,7 +55,8 @@ export class ReportComponent implements OnInit {
       change: 12,
       changeType: 'increase',
       icon: 'task',
-      color: '#2196f3'
+      borderColor: '#4CAF50',
+      iconColor: '#ff7300'
     },
     {
       id: '2',
@@ -63,7 +65,8 @@ export class ReportComponent implements OnInit {
       change: 8,
       changeType: 'increase',
       icon: 'check_circle',
-      color: '#4caf50'
+      borderColor: '#4CAF50',
+      iconColor: '#ff7300'
     },
     {
       id: '3',
@@ -72,7 +75,8 @@ export class ReportComponent implements OnInit {
       change: -5,
       changeType: 'decrease',
       icon: 'hourglass_empty',
-      color: '#ff9800'
+      borderColor: '#4CAF50',
+      iconColor: '#ff7300'
     },
     {
       id: '4',
@@ -81,7 +85,8 @@ export class ReportComponent implements OnInit {
       change: 3,
       changeType: 'increase',
       icon: 'warning',
-      color: '#f44336'
+      borderColor: '#4CAF50',
+      iconColor: '#ff7300'
     }
   ];
 

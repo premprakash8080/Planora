@@ -5,11 +5,12 @@
  */
 
 .team-performance-container {
-  padding: 32px;
+  // padding: 32px;
   max-width: 100%;
   margin: 0 auto;
   background: linear-gradient(to bottom, #f8f9fa 0%, #ffffff 100%);
-  min-height: 100vh;
+  // min-height: 100vh;
+  max-height: calc(100vh - 10rem);
 }
 
 // ============================================

@@ -58,11 +58,11 @@
       Time by Project
     </h2>
     <div class="project-summary-grid">
-      <mat-card *ngFor="let project of projectTimeSummary" class="project-card modern-card" [style.border-left-color]="project.color">
+      <mat-card *ngFor="let project of projectTimeSummary" class="project-card modern-card" [style.border-left-color]="project.borderColor">
         <mat-card-content>
           <div class="project-header">
-            <div class="project-icon-wrapper" [style.background-color]="project.color + '20'">
-              <mat-icon [style.color]="project.color" class="project-icon">folder</mat-icon>
+            <div class="project-icon-wrapper" [style.background-color]="project.borderColor + '20'">
+              <mat-icon [style.color]="project.iconColor" class="project-icon">folder</mat-icon>
             </div>
             <div class="project-info">
               <h3 class="project-name">{{ project.projectName }}</h3>
@@ -89,7 +89,7 @@
             <div class="progress-bar">
               <div class="progress-fill billable" 
                    [style.width.%]="(project.billableHours / project.totalHours) * 100"
-                   [style.background-color]="project.color">
+                   [style.background-color]="project.borderColor">
               </div>
               <div class="progress-fill non-billable" 
                    [style.width.%]="(project.nonBillableHours / project.totalHours) * 100"

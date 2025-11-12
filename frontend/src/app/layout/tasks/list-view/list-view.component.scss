@@ -14,9 +14,10 @@ $subtext: #64748b;
 }
 
 .task-board {
-  padding: 32px;
+  // padding: 32px;
   background: $bg;
-  min-height: 100%;
+  // min-height: 100%;
+  max-height: calc(100vh - 10rem);
   padding-bottom: 1.5rem;
   font-family: 'Inter', 'Roboto', sans-serif;
   color: $text;
@@ -56,7 +57,7 @@ $subtext: #64748b;
   overflow-x: hidden;
   scroll-behavior: smooth;
   padding-bottom: 16px;
-  max-height: calc(100vh - 240px);
+  max-height: calc(100vh - 19rem);
 }
 
 .task-list-scroll::-webkit-scrollbar {

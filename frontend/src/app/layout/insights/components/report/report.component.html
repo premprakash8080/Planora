@@ -20,14 +20,14 @@
       *ngFor="let metric of reportMetrics"
       class="metric-card"
       padding="md"
-      [ngStyle]="{ 'border-top-color': metric.color }"
+      [ngStyle]="{ 'border-top-color': metric.borderColor }"
     >
       <div class="metric-content">
         <div
           class="metric-icon-wrapper"
-          [style.background]="'linear-gradient(135deg, ' + metric.color + '20, ' + metric.color + '05)'"
+          [style.background]="'linear-gradient(135deg, ' + metric.borderColor + '20, ' + metric.borderColor + '05)'"
         >
-          <mat-icon [style.color]="metric.color" class="metric-icon">
+          <mat-icon [style.color]="metric.iconColor" class="metric-icon">
             {{ metric.icon }}
           </mat-icon>
         </div>

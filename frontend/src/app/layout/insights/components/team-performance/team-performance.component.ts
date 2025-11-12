@@ -30,7 +30,8 @@ export interface TeamMetric {
   value: number;
   unit: string;
   icon: string;
-  color: string;
+  borderColor: string;
+  iconColor: string;
 }
 
 @Component({
@@ -52,7 +53,8 @@ export class TeamPerformanceComponent implements OnInit {
       value: 85,
       unit: '%',
       icon: 'trending_up',
-      color: '#4caf50'
+      borderColor: '#4CAF50',
+      iconColor: '#ff7300'
     },
     {
       id: '2',
@@ -60,7 +62,8 @@ export class TeamPerformanceComponent implements OnInit {
       value: 78,
       unit: '%',
       icon: 'check_circle',
-      color: '#2196f3'
+     borderColor: '#4CAF50',
+      iconColor: '#ff7300'
     },
     {
       id: '3',
@@ -68,7 +71,8 @@ export class TeamPerformanceComponent implements OnInit {
       value: 12,
       unit: 'members',
       icon: 'people',
-      color: '#9c27b0'
+     borderColor: '#4CAF50',
+      iconColor: '#ff7300'
     },
     {
       id: '4',
@@ -76,7 +80,8 @@ export class TeamPerformanceComponent implements OnInit {
       value: 92,
       unit: '%',
       icon: 'group',
-      color: '#ff9800'
+    borderColor: '#4CAF50',
+      iconColor: '#ff7300'
     }
   ];
 

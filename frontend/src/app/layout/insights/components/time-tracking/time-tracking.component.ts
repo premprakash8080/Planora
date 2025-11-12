@@ -27,7 +27,8 @@ export interface ProjectTimeSummary {
   billableHours: number;
   nonBillableHours: number;
   tasksCount: number;
-  color: string;
+  borderColor: string;
+  iconColor: string;
 }
 
 export interface DailyTimeBreakdown {
@@ -108,7 +109,8 @@ export class TimeTrackingComponent implements OnInit {
       billableHours: 22.0,
       nonBillableHours: 2.5,
       tasksCount: 8,
-      color: '#2196f3'
+      borderColor: '#4CAF50',
+      iconColor: '#ff7300'
     },
     {
       projectName: 'Mobile App',
@@ -116,7 +118,8 @@ export class TimeTrackingComponent implements OnInit {
       billableHours: 18.75,
       nonBillableHours: 0,
       tasksCount: 6,
-      color: '#4caf50'
+      borderColor: '#4CAF50',
+      iconColor: '#ff7300'
     },
     {
       projectName: 'Backend Services',
@@ -124,7 +127,8 @@ export class TimeTrackingComponent implements OnInit {
       billableHours: 12.0,
       nonBillableHours: 3.25,
       tasksCount: 5,
-      color: '#ff9800'
+      borderColor: '#4CAF50',
+      iconColor: '#ff7300'
     },
     {
       projectName: 'Marketing Campaign',
@@ -132,7 +136,8 @@ export class TimeTrackingComponent implements OnInit {
       billableHours: 12.5,
       nonBillableHours: 0,
       tasksCount: 4,
-      color: '#9c27b0'
+      borderColor: '#4CAF50',
+      iconColor: '#ff7300'
     }
   ];
 

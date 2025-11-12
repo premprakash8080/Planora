@@ -79,7 +79,7 @@ $primary-dark: color.scale($primary, $lightness: -12%);
   flex-direction: column;
   gap: 18px;
   background: tokens.$color-surface;
-  min-height: 0;
+  max-height: calc(100vh - 25rem);
 }
 
 .chat-window__date-divider {
@@ -168,7 +168,7 @@ $primary-dark: color.scale($primary, $lightness: -12%);
 
 .chat-window__composer-wrapper {
   position: sticky;
-  bottom: 0;
+  bottom: 35px;
   left: 0;
   right: 0;
   z-index: 3;

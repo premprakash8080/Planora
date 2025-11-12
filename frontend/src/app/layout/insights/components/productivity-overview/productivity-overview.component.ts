@@ -18,7 +18,8 @@ export interface ProductivityMetric {
   change: number;
   changeType: 'increase' | 'decrease';
   icon: string;
-  color: string;
+  borderColor: string;
+  iconColor: string;
 }
 
 export interface ProductivityTrend {
@@ -49,7 +50,8 @@ export class ProductivityOverviewComponent implements OnInit {
       change: 15,
       changeType: 'increase',
       icon: 'check_circle',
-      color: '#4caf50'
+      borderColor: '#4CAF50',
+      iconColor: '#ff7300'
     },
     {
       id: '2',
@@ -59,7 +61,8 @@ export class ProductivityOverviewComponent implements OnInit {
       change: -8,
       changeType: 'decrease',
       icon: 'schedule',
-      color: '#2196f3'
+      borderColor: '#4CAF50',
+      iconColor: '#ff7300'
     },
     {
       id: '3',
@@ -69,7 +72,8 @@ export class ProductivityOverviewComponent implements OnInit {
       change: 5,
       changeType: 'increase',
       icon: 'trending_up',
-      color: '#9c27b0'
+      borderColor: '#4CAF50',
+      iconColor: '#ff7300'
     },
     {
       id: '4',
@@ -79,7 +83,8 @@ export class ProductivityOverviewComponent implements OnInit {
       change: 12,
       changeType: 'increase',
       icon: 'timer',
-      color: '#ff9800'
+      borderColor: '#4CAF50',
+      iconColor: '#ff7300'
     }
   ];
 
@@ -123,7 +128,7 @@ export class ProductivityOverviewComponent implements OnInit {
     this.maxTasksCompleted = Math.max(...this.productivityTrends.map(t => t.tasksCompleted)) * 1.2;
     this.maxHoursWorked = Math.max(...this.productivityTrends.map(t => t.hoursWorked)) * 1.2;
     this.maxEfficiency = Math.max(...this.productivityTrends.map(t => t.efficiency)) * 1.2;
-    
+
     // Calculate summary values
     this.totalTasksThisWeek = this.productivityTrends.reduce((sum, t) => sum + t.tasksCompleted, 0);
     this.totalHoursWorked = this.productivityTrends.reduce((sum, t) => sum + t.hoursWorked, 0);
