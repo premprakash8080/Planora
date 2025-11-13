@@ -1,0 +1,120 @@
+<div class="member-create-panel">
+  <app-card padding="lg">
+    <header class="member-create-panel__header">
+      <div>
+        <h2>Add team member</h2>
+        <p>Capture the essentials so everyone knows how to collaborate with them.</p>
+      </div>
+      <button mat-icon-button type="button" aria-label="Close" (click)="handleCancel()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </header>
+
+    <form class="member-create-form" [formGroup]="form" (ngSubmit)="handleSubmit()">
+      <div class="member-create-form__grid">
+        <mat-form-field appearance="outline">
+          <mat-label>Full name</mat-label>
+          <input matInput formControlName="name" placeholder="Alex Morgan">
+          <mat-error *ngIf="form.get('name')?.hasError('required')">
+            Name is required.
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Email</mat-label>
+          <input matInput formControlName="email" placeholder="alex@planora.io">
+          <mat-error *ngIf="form.get('email')?.hasError('required')">
+            Email is required.
+          </mat-error>
+          <mat-error *ngIf="form.get('email')?.hasError('email')">
+            Enter a valid email address.
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Phone</mat-label>
+          <input matInput formControlName="phone" placeholder="+1 (555) 123-4567">
+          <mat-error *ngIf="form.get('phone')?.hasError('required')">
+            Phone number is required.
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Role</mat-label>
+          <mat-select formControlName="role">
+            <mat-option *ngFor="let role of roles" [value]="role">{{ role }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Team</mat-label>
+          <input matInput formControlName="team" placeholder="Platform">
+          <mat-error *ngIf="form.get('team')?.hasError('required')">
+            Team is required.
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Status</mat-label>
+          <mat-select formControlName="status">
+            <mat-option *ngFor="let status of statuses" [value]="status">{{ status }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Availability</mat-label>
+          <mat-select formControlName="availability">
+            <mat-option *ngFor="let option of availability" [value]="option">{{ option }}</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Location</mat-label>
+          <input matInput formControlName="location" placeholder="Remote • GMT-5">
+          <mat-error *ngIf="form.get('location')?.hasError('required')">
+            Location is required.
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Projects assigned</mat-label>
+          <input matInput type="number" formControlName="projectsAssigned" min="0">
+          <mat-error *ngIf="form.get('projectsAssigned')?.hasError('required')">
+            Projects count is required.
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Primary avatar color</mat-label>
+          <input matInput type="color" formControlName="avatarColor">
+        </mat-form-field>
+      </div>
+
+      <mat-form-field appearance="outline" class="member-create-form__field">
+        <mat-label>Bio</mat-label>
+        <textarea matInput rows="4" formControlName="bio" placeholder="Share context about responsibilities, impacts, and collaboration style."></textarea>
+        <mat-error *ngIf="form.get('bio')?.hasError('required')">
+          Bio is required.
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="member-create-form__field">
+        <mat-label>Key skills</mat-label>
+        <textarea matInput rows="2" formControlName="skills" placeholder="Angular, Microservices, Mentorship"></textarea>
+        <mat-hint>Separate skills with commas</mat-hint>
+        <mat-error *ngIf="form.get('skills')?.hasError('required')">
+          Please add at least one skill.
+        </mat-error>
+      </mat-form-field>
+
+      <div class="member-create-form__actions">
+        <button mat-stroked-button type="button" (click)="handleCancel()">Cancel</button>
+        <button mat-flat-button color="primary" type="submit" [disabled]="submitting">
+          <mat-icon>person_add</mat-icon>
+          Add member
+        </button>
+      </div>
+    </form>
+  </app-card>
+</div>
+

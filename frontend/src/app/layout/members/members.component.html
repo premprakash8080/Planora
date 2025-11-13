@@ -4,112 +4,108 @@
     description="Manage and track your project team"
   >
     <ng-container pageActions>
-      <app-button variant="primary">
+      <app-button variant="primary" (pressed)="handleAddMember()">
         <mat-icon>person_add</mat-icon>
         Invite Member
       </app-button>
     </ng-container>
   </app-page-title>
 
-  <app-card padding="lg">
-    <div class="members-toolbar">
-      <mat-form-field appearance="outline" class="members-toolbar__search">
-        <mat-label>Search members</mat-label>
-        <input
-          matInput
-          placeholder="Search by name or role"
-          [(ngModel)]="searchTerm"
-          (ngModelChange)="applyFilters()"
-        >
-        <button
-          mat-icon-button
-          matSuffix
-          *ngIf="searchTerm"
-          (click)="clearSearch()"
-          aria-label="Clear search"
-        >
-          <mat-icon>close</mat-icon>
-        </button>
-      </mat-form-field>
-
-      <div class="members-toolbar__filters">
-        <mat-form-field appearance="outline">
-          <mat-label>Role</mat-label>
-          <mat-select [value]="selectedRole" (selectionChange)="onRoleChange($event)">
-            <mat-option *ngFor="let role of roles" [value]="role">{{ role }}</mat-option>
-          </mat-select>
+  <div class="members-layout">
+    <app-card class="members-panel" padding="lg">
+      <div class="members-toolbar">
+        <mat-form-field appearance="outline" class="members-toolbar__search">
+          <mat-label>Search members</mat-label>
+          <input
+            matInput
+            placeholder="Search by name or role"
+            [(ngModel)]="searchTerm"
+            (ngModelChange)="applyFilters()"
+          >
+          <button
+            mat-icon-button
+            matSuffix
+            *ngIf="searchTerm"
+            (click)="clearSearch()"
+            aria-label="Clear search"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
         </mat-form-field>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Status</mat-label>
-          <mat-select [value]="selectedStatus" (selectionChange)="onStatusChange($event)">
-            <mat-option *ngFor="let status of statuses" [value]="status">{{ status }}</mat-option>
-          </mat-select>
-        </mat-form-field>
+        <div class="members-toolbar__filters">
+          <mat-form-field appearance="outline">
+            <mat-label>Role</mat-label>
+            <mat-select [value]="selectedRole" (selectionChange)="onRoleChange($event)">
+              <mat-option *ngFor="let role of roles" [value]="role">{{ role }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Status</mat-label>
+            <mat-select [value]="selectedStatus" (selectionChange)="onStatusChange($event)">
+              <mat-option *ngFor="let status of statuses" [value]="status">{{ status }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
       </div>
-    </div>
 
-    <app-table class="members-table">
-      <table mat-table [dataSource]="displayedMembers" matSort>
-        <!-- <ng-container matColumnDef="name">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
-          <td mat-cell *matCellDef="let member">
-            <div class="member-name">
-              <div class="avatar">{{ member.name.charAt(0) }}</div>
-              <div class="name-role">
-                <span class="name">{{ member.name }}</span>
-                <span class="role">{{ member.role }}</span>
+      <app-table class="members-table">
+        <table mat-table [dataSource]="displayedMembers" matSort>
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
+            <td mat-cell *matCellDef="let member">
+              <div class="member-cell">
+                <app-avatar
+                  [src]="member.avatarUrl"
+                  [initials]="member.initials"
+                  [color]="member.avatarColor"
+                  [alt]="member.name"
+                ></app-avatar>
+
+                <div class="member-meta">
+                  <span class="member-name">{{ member.name }}</span>
+                  <span class="member-role">{{ member.role }}</span>
+                </div>
               </div>
-            </div>
-          </td>
-        </ng-container> -->
+            </td>
+          </ng-container>
 
-        <ng-container matColumnDef="name">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
-          <td mat-cell *matCellDef="let member">
-            <div class="member-cell">
-              <app-avatar
-                [src]="member.avatarUrl"
-                [initials]="member.initials"
-                [color]="member.avatarColor"
-                [alt]="member.name"
-              ></app-avatar>
+          <ng-container matColumnDef="role">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Role</th>
+            <td mat-cell *matCellDef="let member">{{ member.role }}</td>
+          </ng-container>
 
-              <div class="member-meta">
-                <span class="member-name">{{ member.name }}</span>
-                <span class="member-role">{{ member.role }}</span>
-              </div>
-            </div>
-          </td>
-        </ng-container>
-        
+          <ng-container matColumnDef="projectsAssigned">
+            <th mat-header-cell *matHeaderCellDef mat-sort-header>Projects</th>
+            <td mat-cell *matCellDef="let member">{{ member.projectsAssigned }}</td>
+          </ng-container>
 
-        <ng-container matColumnDef="role">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Role</th>
-          <td mat-cell *matCellDef="let member">{{ member.role }}</td>
-        </ng-container>
+          <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef>Status</th>
+            <td mat-cell *matCellDef="let member">
+              <span class="status-badge" [ngClass]="member.status.toLowerCase()">{{ member.status }}</span>
+            </td>
+          </ng-container>
 
-        <ng-container matColumnDef="projectsAssigned">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header>Projects</th>
-          <td mat-cell *matCellDef="let member">{{ member.projectsAssigned }}</td>
-        </ng-container>
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr
+            mat-row
+            *matRowDef="let row; columns: displayedColumns; trackBy: trackByMemberId"
+            (click)="handleMemberSelect(row)"
+            class="members-row"
+            role="button"
+            tabindex="0"
+          ></tr>
+        </table>
+      </app-table>
 
-        <ng-container matColumnDef="status">
-          <th mat-header-cell *matHeaderCellDef>Status</th>
-          <td mat-cell *matCellDef="let member">
-            <span class="status-badge" [ngClass]="member.status.toLowerCase()">{{ member.status }}</span>
-          </td>
-        </ng-container>
+      <div class="members-empty" *ngIf="displayedMembers.length === 0">
+        <mat-icon>people_outline</mat-icon>
+        <h3>No members found</h3>
+        <p>Try adjusting your search or filters.</p>
+      </div>
+    </app-card>
 
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-      </table>
-    </app-table>
-
-    <div class="members-empty" *ngIf="displayedMembers.length === 0">
-      <mat-icon>people_outline</mat-icon>
-      <h3>No members found</h3>
-      <p>Try adjusting your search or filters.</p>
-    </div>
-  </app-card>
+  </div>
 </div>

@@ -1,0 +1,96 @@
+<div class="page-container member-detail-page">
+  <app-page-title
+    title="Member Details"
+    description="Review profile information, skills, and contact details."
+  >
+    <ng-container pageActions>
+      <app-button variant="ghost" (pressed)="handleBack()">
+        <mat-icon>arrow_back</mat-icon>
+        Back to members
+      </app-button>
+    </ng-container>
+  </app-page-title>
+
+  <div class="member-detail-panel">
+    <ng-container *ngIf="member; else notFound">
+      <app-card padding="lg" class="member-detail-panel__card">
+      <div class="member-detail__header">
+        <app-avatar
+          size="lg"
+          [src]="member.avatarUrl"
+          [initials]="member.initials"
+          [color]="member.avatarColor"
+          [alt]="member.name"
+        ></app-avatar>
+
+        <div class="member-detail__headline">
+          <div class="member-detail__title">
+            <h2>{{ member.name }}</h2>
+            <span class="member-detail__status" [class.member-detail__status--inactive]="member.status === 'Inactive'">
+              {{ member.status }}
+            </span>
+          </div>
+          <p class="member-detail__role">{{ member.role }} • {{ member.team }}</p>
+          <p class="member-detail__meta">
+            <mat-icon>location_on</mat-icon>
+            <span>{{ member.location }}</span>
+          </p>
+          <p class="member-detail__meta">
+            <mat-icon>schedule</mat-icon>
+            <span>{{ member.lastActive }}</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="member-detail__actions">
+        <button mat-stroked-button color="primary" type="button" (click)="handleContact(member)">
+          <mat-icon>chat_bubble_outline</mat-icon>
+          Message
+        </button>
+      </div>
+
+      <div class="member-detail__section">
+        <h3>About</h3>
+        <p>{{ member.bio }}</p>
+      </div>
+
+      <div class="member-detail__section member-detail__section--stack">
+        <div class="member-detail__card">
+          <h4>Contact</h4>
+          <ul class="member-detail__list">
+            <li>
+              <mat-icon>mail</mat-icon>
+              <a [href]="'mailto:' + member.email">{{ member.email }}</a>
+            </li>
+            <li>
+              <mat-icon>phone</mat-icon>
+              <a [href]="'tel:' + member.phone">{{ member.phone }}</a>
+            </li>
+            <li>
+              <mat-icon>work_outline</mat-icon>
+              <span>{{ member.availability }}</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="member-detail__card">
+          <h4>Skills</h4>
+          <div class="member-detail__chips">
+            <span class="member-detail__chip" *ngFor="let skill of member.skills">
+              {{ skill }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </app-card>
+  </ng-container>
+
+  <ng-template #notFound>
+    <app-card padding="lg" class="member-detail-panel__placeholder">
+      <mat-icon>person_search</mat-icon>
+      <h3>Select a member to get started</h3>
+      <p>Choose someone from the list to view their profile, skills, and contact details.</p>
+    </app-card>
+  </ng-template>
+</div>
+

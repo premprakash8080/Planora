@@ -6,12 +6,27 @@
   gap: tokens.space(6);
 }
 
+.members-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: tokens.space(5);
+
+  @media (max-width: 1200px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.members-panel {
+  display: flex;
+  flex-direction: column;
+  gap: tokens.space(4);
+}
+
 .members-toolbar {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
   gap: tokens.space(4);
-  margin-bottom: tokens.space(5);
   flex-wrap: wrap;
 
   &__search {
@@ -32,6 +47,27 @@
 .members-table {
   table {
     width: 100%;
+    border-spacing: 0 12px;
+  }
+
+  .members-row {
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    td {
+      background: rgba(248, 250, 252, 0.9);
+      border: none;
+      padding: 16px 20px;
+    }
+
+    &:hover td {
+      background: rgba(241, 245, 249, 0.95);
+      box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.16);
+    }
+
+    &:focus-visible td {
+      outline: 2px solid rgba(37, 99, 235, 0.45);
+    }
   }
 
   th.mat-header-cell {
