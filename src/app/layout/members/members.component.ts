@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MatSelectChange } from '@angular/material/select';
+import { Router } from '@angular/router';
 
 interface Member {
   id: string;
@@ -106,7 +107,7 @@ export class MembersComponent implements OnInit {
   roles: Array<'All' | Member['role']> = ['All', 'Developer', 'Designer', 'Manager', 'QA', 'DevOps'];
   statuses: Array<'All' | Member['status']> = ['All', 'Active', 'Inactive'];
 
-  constructor() { }
+  constructor(private router: Router) { }
 
   ngOnInit(): void {
     this.applyFilters();
@@ -139,5 +140,13 @@ export class MembersComponent implements OnInit {
   clearSearch(): void {
     this.searchTerm = '';
     this.applyFilters();
+  }
+
+  onMemberClick(member: Member): void {
+    this.router.navigate(['/members', member.id]);
+  }
+
+  onAddMember(): void {
+    this.router.navigate(['/members/add']);
   }
 }

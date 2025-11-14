@@ -14,12 +14,20 @@ import { MatSortModule } from '@angular/material/sort';
 import { MembersComponent } from './members.component';
 import { MembersRoutingModule } from './members-routing.module';
 import { SharedUiModule } from '../../shared/ui/ui.module';
+import { AddMemberComponent } from './add-member/add-member.component';
+import { ViewMemberComponent } from './view-member/view-member.component';
+import { ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
-  declarations: [MembersComponent],
+  declarations: [
+    MembersComponent,
+    AddMemberComponent,
+    ViewMemberComponent
+  ],
   imports: [
     CommonModule,
     FormsModule,
+    ReactiveFormsModule,
     MembersRoutingModule,
     MatButtonModule,
     MatCardModule,

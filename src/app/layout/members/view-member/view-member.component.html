@@ -1,0 +1,98 @@
+<div class="page-container view-member-page" *ngIf="member">
+  <app-page-title
+    [title]="member.name"
+    description="Member Details"
+  >
+    <ng-container pageActions>
+      <app-button variant="secondary" (pressed)="onBack()">
+        <mat-icon>arrow_back</mat-icon>
+        Back
+      </app-button>
+      <app-button variant="primary" (pressed)="onEdit()">
+        <mat-icon>edit</mat-icon>
+        Edit
+      </app-button>
+    </ng-container>
+  </app-page-title>
+
+  <div class="member-details-grid">
+    <app-card padding="lg" class="member-profile-card">
+      <div class="member-profile">
+        <app-avatar
+          [src]="member.avatarUrl"
+          [initials]="member.initials"
+          [color]="member.avatarColor"
+          [alt]="member.name"
+          size="lg"
+        ></app-avatar>
+        
+        <div class="member-info">
+          <h2 class="member-name">{{ member.name }}</h2>
+          <p class="member-role">{{ member.role }}</p>
+          <span class="status-badge" [ngClass]="member.status.toLowerCase()">
+            {{ member.status }}
+          </span>
+        </div>
+      </div>
+    </app-card>
+
+    <app-card padding="lg" class="member-details-card">
+      <h3 class="card-title">Contact Information</h3>
+      <div class="detail-list">
+        <div class="detail-item">
+          <mat-icon class="detail-icon">email</mat-icon>
+          <div class="detail-content">
+            <span class="detail-label">Email</span>
+            <span class="detail-value">{{ member.email || 'Not provided' }}</span>
+          </div>
+        </div>
+      </div>
+    </app-card>
+
+    <app-card padding="lg" class="member-stats-card">
+      <h3 class="card-title">Statistics</h3>
+      <div class="detail-list">
+        <div class="detail-item">
+          <mat-icon class="detail-icon">folder</mat-icon>
+          <div class="detail-content">
+            <span class="detail-label">Projects Assigned</span>
+            <span class="detail-value">{{ member.projectsAssigned }}</span>
+          </div>
+        </div>
+        <div class="detail-item">
+          <mat-icon class="detail-icon">work</mat-icon>
+          <div class="detail-content">
+            <span class="detail-label">Role</span>
+            <span class="detail-value">{{ member.role }}</span>
+          </div>
+        </div>
+        <div class="detail-item">
+          <mat-icon class="detail-icon">check_circle</mat-icon>
+          <div class="detail-content">
+            <span class="detail-label">Status</span>
+            <span class="detail-value">
+              <span class="status-badge" [ngClass]="member.status.toLowerCase()">
+                {{ member.status }}
+              </span>
+            </span>
+          </div>
+        </div>
+      </div>
+    </app-card>
+  </div>
+</div>
+
+<div class="page-container view-member-page" *ngIf="!member">
+  <app-card padding="lg">
+    <div class="member-not-found">
+      <mat-icon>person_off</mat-icon>
+      <h3>Member not found</h3>
+      <p>The member you're looking for doesn't exist.</p>
+      <app-button variant="primary" (pressed)="onBack()">
+        <mat-icon>arrow_back</mat-icon>
+        Back to Members
+      </app-button>
+    </div>
+  </app-card>
+</div>
+

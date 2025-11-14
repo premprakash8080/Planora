@@ -1,0 +1,77 @@
+<div class="page-container add-member-page">
+  <app-page-title
+    title="Add New Member"
+    description="Invite a new team member to your project"
+  >
+  </app-page-title>
+
+  <app-card padding="lg">
+    <form [formGroup]="memberForm" (ngSubmit)="onSubmit()" class="add-member-form">
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Full Name</mat-label>
+          <input
+            matInput
+            formControlName="name"
+            placeholder="Enter full name"
+            required
+          />
+          <mat-error *ngIf="memberForm.get('name')?.invalid && memberForm.get('name')?.touched">
+            {{ getErrorMessage('name') }}
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Email</mat-label>
+          <input
+            matInput
+            type="email"
+            formControlName="email"
+            placeholder="Enter email address"
+            required
+          />
+          <mat-error *ngIf="memberForm.get('email')?.invalid && memberForm.get('email')?.touched">
+            {{ getErrorMessage('email') }}
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Role</mat-label>
+          <mat-select formControlName="role" required>
+            <mat-option *ngFor="let role of roles" [value]="role">
+              {{ role }}
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="memberForm.get('role')?.invalid && memberForm.get('role')?.touched">
+            {{ getErrorMessage('role') }}
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Status</mat-label>
+          <mat-select formControlName="status" required>
+            <mat-option *ngFor="let status of statuses" [value]="status">
+              {{ status }}
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="memberForm.get('status')?.invalid && memberForm.get('status')?.touched">
+            {{ getErrorMessage('status') }}
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-actions">
+        <app-button variant="secondary" type="button" (pressed)="onCancel()">
+          Cancel
+        </app-button>
+        <app-button variant="primary" type="submit" [disabled]="memberForm.invalid">
+          <mat-icon>person_add</mat-icon>
+          Add Member
+        </app-button>
+      </div>
+    </form>
+  </app-card>
+</div>
+

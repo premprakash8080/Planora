@@ -4,7 +4,7 @@
     description="Manage and track your project team"
   >
     <ng-container pageActions>
-      <app-button variant="primary">
+      <app-button variant="primary" (pressed)="onAddMember()">
         <mat-icon>person_add</mat-icon>
         Invite Member
       </app-button>
@@ -102,7 +102,12 @@
         </ng-container>
 
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        <tr 
+          mat-row 
+          *matRowDef="let row; columns: displayedColumns;"
+          (click)="onMemberClick(row)"
+          class="member-row"
+        ></tr>
       </table>
     </app-table>
 
