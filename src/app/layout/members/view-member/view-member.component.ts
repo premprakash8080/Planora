@@ -132,8 +132,9 @@ export class ViewMemberComponent implements OnInit {
   }
 
   onEdit(): void {
-    // TODO: Navigate to edit member page when implemented
-    console.log('Edit member:', this.member?.id);
+    if (this.memberId) {
+      this.router.navigate(['/members', this.memberId, 'edit']);
+    }
   }
 }
 

@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 interface Member {
   id: string;
@@ -23,15 +23,104 @@ export class AddMemberComponent implements OnInit {
   memberForm: FormGroup;
   roles: Member['role'][] = ['Developer', 'Designer', 'Manager', 'QA', 'DevOps'];
   statuses: Member['status'][] = ['Active', 'Inactive'];
+  isEditMode = false;
+  memberId: string | null = null;
+  existingMember: Member | null = null;
   
   avatarColors: string[] = [
     '#6C5CE7', '#00B894', '#0984E3', '#E17055', 
     '#D63031', '#E84393', '#00CEC9', '#FDCB6E'
   ];
 
+  // Mock data - in real app, this would come from a service
+  private members: Member[] = [
+    {
+      id: '1',
+      name: 'Sarah Johnson',
+      avatarUrl: 'assets/img/pic_rounded.svg',
+      initials: 'SJ',
+      avatarColor: '#6C5CE7',
+      role: 'Developer',
+      projectsAssigned: 5,
+      status: 'Active',
+      email: 'sarah.johnson@planora.com'
+    },
+    {
+      id: '2',
+      name: 'Michael Chen',
+      initials: 'MC',
+      avatarColor: '#00B894',
+      role: 'Developer',
+      projectsAssigned: 4,
+      status: 'Active',
+      email: 'michael.chen@planora.com'
+    },
+    {
+      id: '3',
+      name: 'Emily Rodriguez',
+      initials: 'ER',
+      avatarColor: '#0984E3',
+      role: 'Designer',
+      projectsAssigned: 3,
+      status: 'Active',
+      email: 'emily.rodriguez@planora.com'
+    },
+    {
+      id: '4',
+      name: 'David Kim',
+      initials: 'DK',
+      avatarColor: '#E17055',
+      role: 'DevOps',
+      projectsAssigned: 2,
+      status: 'Inactive',
+      email: 'david.kim@planora.com'
+    },
+    {
+      id: '5',
+      name: 'Lisa Anderson',
+      initials: 'LA',
+      avatarColor: '#6C5CE7',
+      role: 'Manager',
+      projectsAssigned: 6,
+      status: 'Active',
+      email: 'lisa.anderson@planora.com'
+    },
+    {
+      id: '6',
+      name: 'James Wilson',
+      initials: 'JW',
+      avatarColor: '#D63031',
+      role: 'QA',
+      projectsAssigned: 4,
+      status: 'Active',
+      email: 'james.wilson@planora.com'
+    },
+    {
+      id: '7',
+      name: 'Priya Patel',
+      initials: 'PP',
+      avatarColor: '#E84393',
+      role: 'Designer',
+      projectsAssigned: 2,
+      status: 'Inactive',
+      email: 'priya.patel@planora.com'
+    },
+    {
+      id: '8',
+      name: 'Oliver Brown',
+      initials: 'OB',
+      avatarColor: '#00CEC9',
+      role: 'Developer',
+      projectsAssigned: 5,
+      status: 'Active',
+      email: 'oliver.brown@planora.com'
+    }
+  ];
+
   constructor(
     private fb: FormBuilder,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) {
     this.memberForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(2)]],
@@ -41,43 +130,88 @@ export class AddMemberComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.memberId = this.route.snapshot.paramMap.get('id');
+    
+    if (this.memberId) {
+      this.isEditMode = true;
+      this.existingMember = this.members.find(m => m.id === this.memberId) || null;
+      
+      if (this.existingMember) {
+        // Populate form with existing member data
+        this.memberForm.patchValue({
+          name: this.existingMember.name,
+          email: this.existingMember.email || '',
+          role: this.existingMember.role,
+          status: this.existingMember.status
+        });
+      } else {
+        // Member not found, redirect to members list
+        this.router.navigate(['/members']);
+      }
+    }
+  }
 
   onSubmit(): void {
     if (this.memberForm.valid) {
       const formValue = this.memberForm.value;
       
-      // Generate initials from name
-      const initials = this.getInitials(formValue.name);
-      
-      // Generate random avatar color
-      const avatarColor = this.avatarColors[
-        Math.floor(Math.random() * this.avatarColors.length)
-      ];
+      if (this.isEditMode && this.existingMember) {
+        // Update existing member
+        const updatedMember: Member = {
+          ...this.existingMember,
+          name: formValue.name,
+          email: formValue.email,
+          role: formValue.role,
+          status: formValue.status,
+          // Update initials if name changed
+          initials: this.getInitials(formValue.name)
+        };
 
-      const newMember: Member = {
-        id: Date.now().toString(),
-        name: formValue.name,
-        email: formValue.email,
-        role: formValue.role,
-        status: formValue.status,
-        projectsAssigned: 0,
-        avatarColor,
-        initials
-      };
+        // TODO: Update member in service/store
+        console.log('Updated member:', updatedMember);
+        
+        // Navigate back to member detail view
+        this.router.navigate(['/members', this.memberId]);
+      } else {
+        // Create new member
+        const initials = this.getInitials(formValue.name);
+        
+        // Generate random avatar color
+        const avatarColor = this.avatarColors[
+          Math.floor(Math.random() * this.avatarColors.length)
+        ];
 
-      // TODO: Save member to service/store
-      console.log('New member:', newMember);
-      
-      // Navigate back to members list
-      this.router.navigate(['/members']);
+        const newMember: Member = {
+          id: Date.now().toString(),
+          name: formValue.name,
+          email: formValue.email,
+          role: formValue.role,
+          status: formValue.status,
+          projectsAssigned: 0,
+          avatarColor,
+          initials
+        };
+
+        // TODO: Save member to service/store
+        console.log('New member:', newMember);
+        
+        // Navigate back to members list
+        this.router.navigate(['/members']);
+      }
     } else {
       this.memberForm.markAllAsTouched();
     }
   }
 
   onCancel(): void {
-    this.router.navigate(['/members']);
+    if (this.isEditMode && this.memberId) {
+      // Navigate back to member detail view
+      this.router.navigate(['/members', this.memberId]);
+    } else {
+      // Navigate back to members list
+      this.router.navigate(['/members']);
+    }
   }
 
   getInitials(name: string): string {

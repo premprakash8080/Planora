@@ -1,7 +1,7 @@
 <div class="page-container add-member-page">
   <app-page-title
-    title="Add New Member"
-    description="Invite a new team member to your project"
+    [title]="isEditMode ? 'Edit Member' : 'Add New Member'"
+    [description]="isEditMode ? 'Update member information' : 'Invite a new team member to your project'"
   >
   </app-page-title>
 
@@ -67,8 +67,8 @@
           Cancel
         </app-button>
         <app-button variant="primary" type="submit" [disabled]="memberForm.invalid">
-          <mat-icon>person_add</mat-icon>
-          Add Member
+          <mat-icon>{{ isEditMode ? 'save' : 'person_add' }}</mat-icon>
+          {{ isEditMode ? 'Update Member' : 'Add Member' }}
         </app-button>
       </div>
     </form>

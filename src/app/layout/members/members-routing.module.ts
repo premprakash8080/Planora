@@ -14,6 +14,10 @@ const routes: Routes = [
     component: AddMemberComponent
   },
   {
+    path: ':id/edit',
+    component: AddMemberComponent
+  },
+  {
     path: ':id',
     component: ViewMemberComponent
   }
