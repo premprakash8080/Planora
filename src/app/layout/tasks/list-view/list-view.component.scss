@@ -153,6 +153,31 @@ $subtext: #64748b;
     flex: 1;
   }
 
+  .section-title-input {
+    flex: 0 0 auto;
+    background: transparent;
+    border: none;
+    font-size: 16px;
+    font-weight: 600;
+    color: $text;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: background 0.2s ease, border 0.2s ease;
+    white-space: nowrap;
+    min-width: 100px;
+    font-family: inherit;
+
+    &:hover {
+      background: rgba(37, 99, 235, 0.08);
+    }
+
+    &:focus {
+      outline: none;
+      border: 1px solid rgba(37, 99, 235, 0.45);
+      background: rgba(37, 99, 235, 0.12);
+    }
+  }
+
   .task-count {
     font-size: 13px;
     color: $subtext;
@@ -471,6 +496,34 @@ $subtext: #64748b;
 
   mat-icon {
     font-size: 18px;
+  }
+}
+
+.add-section {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px 20px;
+  margin-top: 16px;
+  color: $subtext;
+  background: $panel;
+  border: 2px dashed $border;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: $hover;
+    color: $text;
+    border-color: color.adjust($border, $lightness: -10%);
+  }
+
+  mat-icon {
+    font-size: 20px;
   }
 }
 

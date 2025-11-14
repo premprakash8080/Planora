@@ -38,12 +38,22 @@
         <button
           class="section-header"
           type="button"
-          (click)="toggleSection(section)"
+          (click)="toggleSection(section, $event)"
         >
           <mat-icon class="chevron" [class.expanded]="section.expanded"
             >expand_more</mat-icon
           >
-          <span class="section-title">{{ section.title }}</span>
+          <input
+            class="section-title-input"
+            [ngModel]="sectionTitleDrafts.get(section.id) ?? section.title"
+            (ngModelChange)="onSectionTitleInput(section, $event)"
+            [style.width.px]="getSectionTitleWidth(section)"
+            (focus)="handleSectionTitleFocus(section)"
+            (blur)="handleSectionTitleBlur(section, $any($event.target))"
+            (keydown.enter)="handleSectionTitleEnter($event, section, $any($event.target))"
+            (keydown.escape)="handleSectionTitleEscape(section, $any($event.target))"
+            (click)="$event.stopPropagation()"
+          />
           <span class="task-count">{{ section.tasks.length }} tasks</span>
         </button>
 
@@ -207,6 +217,12 @@
       </div>
     </div>
     <!-- scroll end here this hole section is scrollable -->
+
+    <!-- Add Section Button -->
+    <button class="add-section" type="button" (click)="addSection()">
+      <mat-icon>add</mat-icon>
+      Add section…
+    </button>
   </section>
 </div>
 

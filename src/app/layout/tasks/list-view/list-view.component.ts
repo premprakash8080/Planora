@@ -42,6 +42,7 @@ export class ListViewComponent implements OnInit, OnDestroy {
   private selectedTaskId: string | null = null;
   private selectedParentTaskId: string | null = null;
   readonly nameDrafts = new Map<string, string>();
+  readonly sectionTitleDrafts = new Map<string, string>();
   readonly teamMembers: TeamMember[] = [
     {
       id: 'john-doe',
@@ -192,11 +193,78 @@ export class ListViewComponent implements OnInit, OnDestroy {
   }
 
   /** Toggle the expanded state for a section header */
-  toggleSection(section: TaskSection): void {
+  toggleSection(section: TaskSection, event?: Event): void {
     if (!this.currentProjectId) {
       return;
     }
+    // Don't toggle if clicking on the title input
+    if (event) {
+      const target = event.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.classList.contains('section-title-input')) {
+        return;
+      }
+    }
     this.taskService.toggleSection(this.currentProjectId, section.id);
+  }
+
+  /** Track section title edits while user is typing */
+  onSectionTitleInput(section: TaskSection, value: string): void {
+    this.sectionTitleDrafts.set(section.id, value);
+  }
+
+  /** Capture initial section title before edit begins for cancel support */
+  handleSectionTitleFocus(section: TaskSection): void {
+    if (!this.sectionTitleDrafts.has(section.id)) {
+      this.sectionTitleDrafts.set(section.id, section.title ?? '');
+    }
+  }
+
+  /** Commit inline section title changes or revert when left empty */
+  handleSectionTitleBlur(section: TaskSection, input: HTMLInputElement): void {
+    if (!this.currentProjectId) {
+      return;
+    }
+    const draft = (this.sectionTitleDrafts.get(section.id) ?? input.value ?? '').trim();
+
+    if (!draft) {
+      input.value = section.title ?? '';
+      this.sectionTitleDrafts.delete(section.id);
+      return;
+    }
+
+    if (draft !== (section.title ?? '')) {
+      this.taskService.updateSectionTitle(this.currentProjectId, section.id, draft);
+    }
+
+    this.sectionTitleDrafts.delete(section.id);
+  }
+
+  /** Allow saving via Enter without submitting outer forms */
+  handleSectionTitleEnter(event: Event, section: TaskSection, input: HTMLInputElement): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.handleSectionTitleBlur(section, input);
+    input.blur();
+  }
+
+  /** Restore original section title when user presses Escape */
+  handleSectionTitleEscape(section: TaskSection, input: HTMLInputElement): void {
+    input.value = section.title ?? '';
+    this.sectionTitleDrafts.delete(section.id);
+    input.blur();
+  }
+
+  /** Approximate width so section title field grows with its content */
+  getSectionTitleWidth(section: TaskSection): number {
+    const draft = this.sectionTitleDrafts.get(section.id);
+    const text = (draft ?? section.title ?? '').trim() || 'New Section';
+    const baseLength = Math.max(text.length, 1);
+    const padding = 24;
+    const minWidth = 100;
+    const maxWidth = 400;
+    const approximateCharWidth = 8.5;
+
+    return Math.min(Math.max(baseLength * approximateCharWidth + padding, minWidth), maxWidth);
   }
 
   /** Flip completion state and persist the change */
@@ -482,6 +550,14 @@ export class ListViewComponent implements OnInit, OnDestroy {
     if (firstSection) {
       this.addTask(firstSection);
     }
+  }
+
+  /** Add a new section to the task list */
+  addSection(): void {
+    if (!this.currentProjectId) {
+      return;
+    }
+    this.taskService.addSection(this.currentProjectId);
   }
 
   /** Track which section/task is currently selected for detail view */

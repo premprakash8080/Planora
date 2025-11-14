@@ -530,6 +530,15 @@ export class TaskService {
     );
   }
 
+  updateSectionTitle(projectId: string, sectionId: string, title: string): void {
+    const subject = this.getProjectSubject(projectId);
+    subject.next(
+      subject.value.map(section =>
+        section.id === sectionId ? { ...section, title } : section
+      )
+    );
+  }
+
   updateTask(projectId: string, sectionId: string, taskId: string, changes: Partial<Task>): void {
     const subject = this.getProjectSubject(projectId);
     subject.next(
@@ -569,6 +578,17 @@ export class TaskService {
           : section
       )
     );
+  }
+
+  addSection(projectId: string, title?: string): void {
+    const subject = this.getProjectSubject(projectId);
+    const newSection: TaskSection = {
+      id: `section-${Date.now()}`,
+      title: title || 'New Section',
+      tasks: [],
+      expanded: true
+    };
+    subject.next([...subject.value, newSection]);
   }
 
   filterTasks(projectId: string, query: string): Observable<TaskSection[]> {
