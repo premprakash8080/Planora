@@ -11,7 +11,7 @@ import {
   ViewChild
 } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { Task } from '../task.model';
+import { Task } from '../../task.model';
 
 type DueDateState = 'empty' | 'overdue' | 'today' | 'upcoming';
 

@@ -1,0 +1,149 @@
+<div class="page-container">
+    <app-task-header [projectTitle]="'Project Overview'"></app-task-header>
+  
+    <div class="project-overview">
+      <!-- ────────────────────── LEFT COLUMN ────────────────────── -->
+      <div class="left-column">
+  
+        <!-- Project description -->
+        <section class="section">
+          <h2 class="section-title">Project description</h2>
+          <p class="section-subtitle">What's this project about?</p>
+          <p class="description-text" *ngIf="description; else emptyDesc">{{ description }}</p>
+          <ng-template #emptyDesc>
+            <p class="empty-text">No description yet.</p>
+          </ng-template>
+        </section>
+  
+        <!-- Project roles -->
+        <section class="section">
+          <h2 class="section-title">Project roles</h2>
+          <div class="members-list">
+            <button class="add-member-btn">
+              <mat-icon>add</mat-icon> Add member
+            </button>
+  
+            <div class="member" *ngFor="let member of members">
+              <app-avatar size="sm" [initials]="member.initials" [color]="member.color"></app-avatar>
+              <div class="member-info">
+                <span class="member-name">{{ member.name }}</span>
+                <span class="member-role" *ngIf="member.role">{{ member.role }}</span>
+              </div>
+            </div>
+          </div>
+        </section>
+  
+        <!-- Connected goals -->
+        <section class="section">
+          <h2 class="section-title">Connected goals</h2>
+          <div class="connect-card">
+            <p class="connect-text">
+              Connect or create a goal to link this project to a larger purpose.
+            </p>
+            <button class="connect-btn">
+              <mat-icon>trending_up</mat-icon> Add goal
+            </button>
+          </div>
+        </section>
+  
+        <!-- Connected portfolios -->
+        <section class="section">
+          <h2 class="section-title">Connected portfolios</h2>
+          <div class="connect-card">
+            <p class="connect-text">
+              Connect a portfolio to link this project to a larger body of work.
+            </p>
+            <button class="connect-btn">
+              <mat-icon>folder_open</mat-icon> Add to portfolio
+            </button>
+          </div>
+        </section>
+  
+        <!-- Key resources -->
+        <section class="section">
+          <h2 class="section-title">Key resources</h2>
+          <div class="connect-card">
+            <p class="connect-text">
+              Align your team around a shared vision with a project brief and supporting resources.
+            </p>
+            <div class="resource-actions">
+              <button class="resource-btn">
+                <mat-icon>description</mat-icon> Create project brief
+              </button>
+              <button class="resource-btn">
+                <mat-icon>link</mat-icon> Add links & files
+              </button>
+            </div>
+          </div>
+        </section>
+      </div>
+  
+      <!-- ────────────────────── RIGHT COLUMN ────────────────────── -->
+      <div class="right-column">
+  
+        <!-- Status -->
+        <section class="status-section">
+          <h2 class="section-title">What's the status?</h2>
+  
+          <div class="status-pills">
+            <button
+              class="status-pill"
+              [class.active]="status === 'on-track'"
+              [style.backgroundColor]="status === 'on-track' ? '#10b981' : 'transparent'"
+              [style.color]="status === 'on-track' ? '#ffffff' : '#64748b'"
+            >
+              <span class="dot" [style.backgroundColor]="'#10b981'"></span> On track
+            </button>
+  
+            <button
+              class="status-pill"
+              [class.active]="status === 'at-risk'"
+              [style.backgroundColor]="status === 'at-risk' ? '#f59e0b' : 'transparent'"
+              [style.color]="status === 'at-risk' ? '#ffffff' : '#64748b'"
+            >
+              <span class="dot" [style.backgroundColor]="'#f59e0b'"></span> At risk
+            </button>
+  
+            <button
+              class="status-pill"
+              [class.active]="status === 'off-track'"
+              [style.backgroundColor]="status === 'off-track' ? '#ef4444' : 'transparent'"
+              [style.color]="status === 'off-track' ? '#ffffff' : '#64748b'"
+            >
+              <span class="dot" [style.backgroundColor]="'#ef4444'"></span> Off track
+            </button>
+          </div>
+  
+          <!-- Due date -->
+          <div class="due-date" *ngIf="dueDate; else noDueDate">
+            <mat-icon>event</mat-icon> {{ dueDate }}
+          </div>
+          <ng-template #noDueDate>
+            <div class="due-date empty">
+              <mat-icon>event</mat-icon> No due date
+            </div>
+          </ng-template>
+        </section>
+  
+        <!-- Activity feed -->
+        <section class="activity-section">
+          <div class="activity-item" *ngFor="let activity of activities">
+            <mat-icon class="activity-icon">{{ activity.icon }}</mat-icon>
+  
+            <div class="activity-content">
+              <p class="activity-message" [innerHTML]="activity.message"></p>
+              <span class="activity-time">{{ activity.time }}</span>
+            </div>
+  
+            <app-avatar
+              *ngIf="activity.userInitials"
+              size="sm"
+              [initials]="activity.userInitials"
+              [color]="activity.userColor!"
+              class="activity-avatar"
+            ></app-avatar>
+          </div>
+        </section>
+      </div>
+    </div>
+  </div>

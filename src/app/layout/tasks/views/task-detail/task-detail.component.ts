@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, HostListener, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { Task, TaskPriority, TaskStatus } from '../task.model';
+import { Task, TaskPriority, TaskStatus } from '../../task.model';
 
 @Component({
   selector: 'app-task-detail',

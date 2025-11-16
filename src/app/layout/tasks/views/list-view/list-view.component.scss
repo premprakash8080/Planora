@@ -8,7 +8,7 @@ $text: #1f2937;
 $subtext: #64748b;
 
 .project-name {
-  font-size: 36px;
+  font-size: 30px;
   font-weight: 600;
   color: $text;
 }
@@ -57,7 +57,6 @@ $subtext: #64748b;
   overflow-y: auto;
   overflow-x: hidden;
   scroll-behavior: smooth;
-  padding: 0 0 1.5rem 0; // 1.5rem bottom padding
   max-height: calc(100vh - 200px); 
 
   // Custom scrollbar styling
@@ -84,118 +83,14 @@ $subtext: #64748b;
   scrollbar-color: rgba(148, 163, 184, 0.5) transparent;
 }
 
-.task-section {
-  margin-bottom: 16px;
-}
-
-.section-header {
-  position: sticky;
-  top: 0;
-  background-color: $panel;
-  z-index: 2; // this is for the section header to be sticky  
-  border-bottom: 1px solid $border;
-}
-
-
-.task-board__actions {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-
-  .task-search {
-    min-width: 280px;
-  }
-
-  .mat-mdc-form-field-appearance-outline .mdc-notched-outline__leading,
-  .mat-mdc-form-field-appearance-outline .mdc-notched-outline__notch,
-  .mat-mdc-form-field-appearance-outline .mdc-notched-outline__trailing {
-    border-color: $border !important;
-  }
-
-  input {
-    color: $text;
-  }
-
-  .add-task-button {
-    box-shadow: 0 12px 24px rgba(59, 130, 246, 0.2);
-  }
-}
+/* removed legacy board actions and section header styles not used by this component */
 
 .task-sections {
   display: flex;
   flex-direction: column;
-  gap: 20px;
 }
 
-.task-section {
-  background: $panel;
-  border-radius: 16px;
-  border: 1px solid $border;
-  box-shadow: 0 6px 24px rgba(15, 23, 42, 0.08);
-  overflow: hidden;
-  gap: 20px;
-}
-
-.section-header {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: transparent;
-  border: none;
-  color: $text;
-  padding: 16px 20px;
-  text-align: left;
-  cursor: pointer;
-
-  &:hover {
-    background: $hover;
-  }
-
-  .chevron {
-    transition: transform 0.2s ease;
-
-    &.expanded {
-      transform: rotate(180deg);
-    }
-  }
-
-  .section-title {
-    font-size: 16px;
-    font-weight: 600;
-    flex: 1;
-  }
-
-  .section-title-input {
-    flex: 0 0 auto;
-    background: transparent;
-    border: none;
-    font-size: 16px;
-    font-weight: 600;
-    color: $text;
-    padding: 4px 8px;
-    border-radius: 6px;
-    transition: background 0.2s ease, border 0.2s ease;
-    white-space: nowrap;
-    min-width: 100px;
-    font-family: inherit;
-
-    &:hover {
-      background: rgba(37, 99, 235, 0.08);
-    }
-
-    &:focus {
-      outline: none;
-      border: 1px solid rgba(37, 99, 235, 0.45);
-      background: rgba(37, 99, 235, 0.12);
-    }
-  }
-
-  .task-count {
-    font-size: 13px;
-    color: $subtext;
-  }
-}
+/* removed legacy section container and header input styles (moved to child components) */
 
 .task-grid-header {
   display: grid;

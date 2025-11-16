@@ -1,0 +1,40 @@
+@use 'src/styles/tokens' as *;
+
+.add-section {
+  // width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: space(2);                     // 8px
+  padding: space(0) space(5);        // 16px 20px
+  margin-top: space(4);              // 16px
+  color: $color-muted;
+  background: $color-surface;   // 12px
+  font-size: font-size(md);          // 14px
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .2s ease;
+  background: $color-background;
+
+  &:hover {
+    color: $color-text-body;
+    border-color: $color-muted;
+  }
+
+  mat-icon {
+    font-size: 20px;
+  }
+}
+
+/* ── Dark mode ───────────────────────────────────── */
+.dark-theme .add-section {
+  background: $color-surface-dark;
+  border-color: $color-border-dark;
+  color: $color-muted;
+
+  &:hover {
+    background: $color-background-dark;
+    color: $color-text-body-dark;
+    border-color: $color-muted;
+  }
+}

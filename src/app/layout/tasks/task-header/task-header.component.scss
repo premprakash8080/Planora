@@ -1,0 +1,229 @@
+@use 'src/styles/tokens' as *;
+
+// ── Light theme (default) ───────────────────────
+.task-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 24px;
+  background: $color-surface;
+  border-bottom: 1px solid $color-border;
+  color: $color-text-body;
+  font-family: $font-family-base;
+  box-shadow: $shadow-xs;
+}
+
+.header-left { display: flex; align-items: center; gap: space(4); }
+
+.project-title-wrapper { display: flex; align-items: center; gap: space(2); }
+.project-icon { flex-shrink: 0; }
+
+.project-title-input {
+  background: transparent;
+  border: none;
+  color: $color-text-body;
+  font-size: 1.125rem;               // 18px
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: $radius-sm;
+  min-width: 200px;
+  max-width: 400px;
+
+  &:hover  { background: rgba($color-primary-dark, .08); }
+  &:focus {
+    outline: none;
+    background: $color-primary-light;
+    border: 1px solid $color-primary-dark;
+    box-shadow: 0 0 0 2px $color-primary-light;
+  }
+}
+
+.favorite-btn {
+  color: $color-muted;
+  padding: 4px;
+  border-radius: 50%;
+
+  &.favorited { color: $color-accent; }
+
+  &:hover {
+    background: $color-primary-light;
+    border: 1px solid $color-primary-dark;
+    box-shadow: 0 0 0 2px $color-primary-light;
+  }
+
+  mat-icon { font-size: 20px; }
+}
+
+/* ── Status dropdown ─────────────────────────── */
+.status-trigger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: $color-background;
+  border: 1px solid $color-border;
+  color: $color-text-body;
+  padding: 6px 10px;
+  border-radius: $radius-md;
+  font-size: font-size(sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .18s ease;
+
+  &:hover {
+    background: $color-background;
+    border-color: $color-border;
+  }
+
+  .status-dot { width:8px;height:8px;border-radius:50%;flex-shrink:0; }
+  .dropdown-icon { font-size:16px;margin-left:4px;color:$color-muted; }
+}
+
+/* ── Right side actions ──────────────────────── */
+.header-right { display: flex; align-items: center; gap: space(3); }
+
+.share-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: $color-primary;
+  color: $color-surface;
+  border: none;
+  padding: 8px 14px;
+  border-radius: $radius-md;
+  font-weight: 500;
+  cursor: pointer;
+  font-size: font-size(md);
+  transition: background .18s ease;
+
+  &:hover { background: $color-primary-dark; }
+  mat-icon { font-size:18px; }
+}
+
+.customize-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  color: $color-muted;
+  border: 1px solid $color-border;
+  padding: 6px 12px;
+  border-radius: $radius-md;
+  font-size: font-size(md);
+  cursor: pointer;
+  transition: all .18s ease;
+
+  &:hover {
+    background: $color-background;
+    color: $color-text-body;
+    border-color: $color-border;
+  }
+
+  .customize-dot {
+    width:6px;height:6px;background:$color-accent;border-radius:50%;flex-shrink:0;
+  }
+}
+
+/* ── Navigation tabs ─────────────────────────── */
+.project-nav {
+  display: flex;
+  gap: 4px;
+  padding: 0 24px;
+  background: $color-background;
+  border-bottom: 1px solid $color-border;
+  overflow-x: auto;
+  scrollbar-width: none;
+  font-size: font-size(md);
+
+  &::-webkit-scrollbar { display:none; }
+}
+
+.nav-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  color: $color-muted;
+  background: transparent;
+  border: none;
+  border-radius: $radius-md $radius-md 0 0;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all .18s ease;
+
+  &.active {
+    color: $color-text-body;
+    background: $color-surface;
+    font-weight: 600;
+    box-shadow: 0 -2px 0 $color-primary-dark inset;
+  }
+
+  &:hover:not(.active) {
+    color: $color-text-body;
+    background: mix($color-background, $color-surface, 50%);
+  }
+
+  .tab-icon { font-size:18px; }
+}
+
+.nav-more {
+  margin-left: auto;
+  color: $color-muted;
+  background: transparent;
+  border: none;
+  padding: 8px;
+  border-radius: $radius-sm;
+  cursor: pointer;
+
+  &:hover {
+    background: mix($color-background, $color-surface, 30%);
+    color: $color-text-body;
+  }
+}
+
+/* ── Dark‑mode overrides ─────────────────────── */
+.dark-theme {
+  .task-header {
+    background: $color-surface-dark;
+    border-bottom-color: $color-border-dark;
+    color: $color-text-body-dark;
+    box-shadow: none;
+  }
+
+  .project-title-input {
+    color: $color-text-body-dark;
+    &:hover  { background: rgba($color-primary-dark, .12); }
+    &:focus  { background: $color-primary-light; }
+  }
+
+  .favorite-btn {
+    color: $color-muted;
+    &.favorited { color: $color-accent; }
+  }
+
+  .status-trigger {
+    background: $color-background-dark;
+    border-color: $color-border-dark;
+    color: $color-text-body-dark;
+    &:hover { background: $color-background-dark; }
+    .dropdown-icon { color: $color-muted; }
+  }
+
+  .share-btn   { background: $color-primary;   &:hover { background: $color-primary-dark; } }
+  .customize-btn { color: $color-muted; border-color: $color-border-dark;
+    &:hover { background: $color-background-dark; color: $color-text-body-dark; }
+  }
+
+  .project-nav {
+    background: $color-background-dark;
+    border-bottom-color: $color-border-dark;
+  }
+
+  .nav-tab {
+    color: $color-muted;
+    &.active { color: $color-text-body-dark; background: $color-surface-dark; }
+    &:hover:not(.active) { background: mix($color-background-dark, $color-surface-dark, 30%); }
+  }
+
+  .nav-more:hover { background: mix($color-background-dark, $color-surface-dark, 20%); }
+}

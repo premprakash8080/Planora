@@ -1,10 +1,11 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { ListViewComponent } from './list-view/list-view.component';
-import { BoardViewComponent } from './board-view/board-view.component';
-import { TimelineViewComponent } from './timeline-view/timeline-view.component';
-import { CalendarViewComponent } from './calendar-view/calendar-view.component';
-import { DashboardViewComponent } from './dashboard-view/dashboard-view.component';
+import { ListViewComponent } from './views/list-view/list-view.component';
+import { BoardViewComponent } from './views/board-view/board-view.component';
+import { TimelineViewComponent } from './views/timeline-view/timeline-view.component';
+import { CalendarViewComponent } from './views/calendar-view/calendar-view.component';
+import { DashboardViewComponent } from './views/dashboard-view/dashboard-view.component';
+import { ProjectOverviewComponent } from './views/project-overview/project-overview.component';
 
 const routes: Routes = [
   {
@@ -35,6 +36,10 @@ const routes: Routes = [
   {
     path: 'dashboard',
     component: DashboardViewComponent
+  },
+  {
+    path: 'overview',
+    component: ProjectOverviewComponent
   }
 ];
 

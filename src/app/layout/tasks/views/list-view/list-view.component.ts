@@ -2,11 +2,11 @@ import { formatDate } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { DropdownPopoverComponent, DropdownPopoverItem } from '../../../shared/ui/dropdown-popover/dropdown-popover.component';
+import { DropdownPopoverComponent, DropdownPopoverItem } from '../../../../shared/ui/dropdown-popover/dropdown-popover.component';
 import { Subject, combineLatest } from 'rxjs';
 import { debounceTime, distinctUntilChanged, filter, map, startWith, switchMap, take, takeUntil, tap } from 'rxjs/operators';
-import { Task, TaskPriority, TaskSection, TaskStatus } from '../task.model';
-import { TaskService } from '../task.service';
+import { Task, TaskPriority, TaskSection, TaskStatus } from '../../task.model';
+import { TaskService } from '../../task.service';
 
 interface TeamMember {
   id: string;
@@ -270,6 +270,14 @@ export class ListViewComponent implements OnInit, OnDestroy {
     const approximateCharWidth = 8.5;
 
     return Math.min(Math.max(baseLength * approximateCharWidth + padding, minWidth), maxWidth);
+  }
+
+  /** Public wrapper for section header title updates (used by child component) */
+  updateSectionTitle(event: { section: TaskSection; title: string }): void {
+    if (!this.currentProjectId) {
+      return;
+    }
+    this.taskService.updateSectionTitle(this.currentProjectId, event.section.id, event.title);
   }
 
   /** Flip completion state and persist the change */

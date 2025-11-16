@@ -7,8 +7,10 @@ $color-primary: #ff7300 !default;
 $color-primary-dark: #1d4ed8 !default;
 $color-primary-light: #60a5fa !default;
 
-$color-accent: #10b981 !default;
 $color-accent-dark: #0d9b6a !default;
+$color-accent:  #10b981 !default;   // on‑track
+$color-warning: #f59e0b !default;   // at‑risk
+$color-danger:  #ef4444 !default;   // off‑track
 
 $color-background: #f9fafb !default;
 $color-surface: #ffffff !default;
