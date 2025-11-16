@@ -3,7 +3,10 @@
 .members-page {
   display: flex;
   flex-direction: column;
-  gap: tokens.space(6);
+  // gap: tokens.space(6);
+  min-height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .members-toolbar {
@@ -30,6 +33,35 @@
 }
 
 .members-table {
+  max-height: calc(100vh - 400px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  scroll-behavior: smooth;
+  padding-bottom: tokens.space(6); // 1.5rem bottom padding
+
+  // Custom scrollbar styling
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: rgba(148, 163, 184, 0.5);
+    border-radius: 999px;
+    transition: background-color 0.2s ease;
+
+    &:hover {
+      background-color: rgba(148, 163, 184, 0.7);
+    }
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  // Firefox scrollbar
+  scrollbar-width: thin;
+  scrollbar-color: rgba(148, 163, 184, 0.5) transparent;
+
   table {
     width: 100%;
   }
@@ -40,6 +72,10 @@
     text-transform: uppercase;
     letter-spacing: 0.08em;
     color: var(--color-text-subtle);
+    position: sticky;
+    top: 0;
+    background: var(--color-surface);
+    z-index: 10;
   }
 
   .member-row {

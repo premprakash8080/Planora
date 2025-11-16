@@ -14,11 +14,14 @@ $subtext: #64748b;
 }
 
 .task-board {
-  padding: 32px;
   background: $bg;
-  min-height: 100vh;
+  min-height: 100%;
   font-family: 'Inter', 'Roboto', sans-serif;
   color: $text;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .task-board__header {
@@ -54,7 +57,7 @@ $subtext: #64748b;
   overflow-y: auto;
   overflow-x: hidden;
   scroll-behavior: smooth;
-  padding: 0 0 24px 0;
+  padding: 0 0 1.5rem 0; // 1.5rem bottom padding
   max-height: calc(100vh - 200px); 
 
   // Custom scrollbar styling

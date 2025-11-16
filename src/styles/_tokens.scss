@@ -92,15 +92,11 @@ $font-sizes: (
   width: 100%;
   max-width: 100%;
   margin: 0 auto;
-  padding: space(6) space(8);
-
-  @media (max-width: 1024px) {
-    padding: space(5) space(6);
-  }
-
-  @media (max-width: 768px) {
-    padding: space(4) space(4);
-  }
+  /* padding: 1.5rem 2rem; removed as we already have space in parent component router */
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: space(6); // 1.5rem bottom padding for content overflow
 }
 
 @mixin visually-hidden {
