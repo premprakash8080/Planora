@@ -35,5 +35,19 @@ export const ENDPOINTS = {
   // Batch operations
   batchUpdateTasks: `${environment.apiBaseUrl}/api/tasks/batchupdatetask`,
   batchUpdateSections: `${environment.apiBaseUrl}/api/sections/batch`,
+  
+  // Task Status endpoints
+  getTaskStatuses: `${environment.apiBaseUrl}/api/task-statuses/get-task-statuses`,
+  getTaskStatusById: `${environment.apiBaseUrl}/api/task-statuses/get-task-status-by-id`,
+  createTaskStatus: `${environment.apiBaseUrl}/api/task-statuses/create-task-status`,
+  updateTaskStatus: `${environment.apiBaseUrl}/api/task-statuses/update-task-status`,
+  deleteTaskStatus: `${environment.apiBaseUrl}/api/task-statuses/delete-task-status`,
+  
+  // Priority Label endpoints
+  getPriorityLabels: `${environment.apiBaseUrl}/api/priority-labels/get-priority-labels`,
+  getPriorityLabelById: `${environment.apiBaseUrl}/api/priority-labels/get-priority-label-by-id`,
+  createPriorityLabel: `${environment.apiBaseUrl}/api/priority-labels/create-priority-label`,
+  updatePriorityLabel: `${environment.apiBaseUrl}/api/priority-labels/update-priority-label`,
+  deletePriorityLabel: `${environment.apiBaseUrl}/api/priority-labels/delete-priority-label`,
 };
 

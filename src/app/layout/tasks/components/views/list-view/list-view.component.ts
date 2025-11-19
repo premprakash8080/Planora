@@ -3,12 +3,14 @@ import { Component, OnDestroy, OnInit, AfterViewInit, ChangeDetectorRef, NgZone 
 import { FormControl } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { DropdownPopoverComponent, DropdownPopoverItem } from '../../../../../shared/ui/dropdown-popover/dropdown-popover.component';
-import { Subject, combineLatest } from 'rxjs';
+import { Subject, combineLatest, forkJoin } from 'rxjs';
 import { debounceTime, distinctUntilChanged, filter, map, startWith, switchMap, take, takeUntil, tap } from 'rxjs/operators';
-import { Task, TaskPriority, TaskSection, TaskStatus } from '../../../task.model';
+import { Task, TaskPriorityLegacy, TaskSection, TaskStatusLegacy, TaskStatus, PriorityLabel } from '../../../task.model';
 import { TaskService } from '../../../task.service';
 import { MemberService, Member } from '../../../../members/service/member.service';
 import { ProjectService, Project, ProjectMember } from '../../../services/project.service';
+import { TaskStatusService } from '../../../services/task-status.service';
+import { PriorityLabelService } from '../../../services/priority-label.service';
 
 interface TeamMember {
   id: string;
@@ -32,8 +34,8 @@ const PROJECT_NAME_LOOKUP: Record<string, string> = {
   styleUrls: ['./list-view.component.scss']
 })
 export class ListViewComponent implements OnInit, AfterViewInit, OnDestroy {
-  readonly statuses: TaskStatus[] = ['To Do', 'In Progress', 'Done'];
-  readonly priorities: TaskPriority[] = ['Low', 'Medium', 'High'];
+  statuses: TaskStatus[] = []; // Array of TaskStatus objects
+  priorities: PriorityLabel[] = []; // Array of PriorityLabel objects
 
   searchControl = new FormControl('', { nonNullable: true });
   sections: TaskSection[] = [];
@@ -56,17 +58,8 @@ export class ListViewComponent implements OnInit, AfterViewInit, OnDestroy {
     { value: 'To Do', label: 'To Do', color: '#94a3b8' }
   ];
   assigneeItems: DropdownPopoverItem<TeamMember>[] = [];
-  readonly priorityItems: DropdownPopoverItem[] = [
-    { id: 'Low', label: 'Low', color: '#2563eb', data: 'Low' },
-    { id: 'Medium', label: 'Medium', color: '#b45309', data: 'Medium' },
-    { id: 'High', label: 'High', color: '#be185d', data: 'High' }
-  ];
-  readonly statusItems: DropdownPopoverItem[] = this.statusOptions.map(option => ({
-    id: option.value as string,
-    label: option.label,
-    color: option.color,
-    data: option.value
-  }));
+  priorityItems: DropdownPopoverItem[] = [];
+  statusItems: DropdownPopoverItem[] = [];
 
   selectedTask: Task | null = null;
   selectedSection: TaskSection | null = null;
@@ -77,6 +70,8 @@ export class ListViewComponent implements OnInit, AfterViewInit, OnDestroy {
     private readonly route: ActivatedRoute,
     private readonly memberService: MemberService,
     private readonly projectService: ProjectService,
+    private readonly taskStatusService: TaskStatusService,
+    private readonly priorityLabelService: PriorityLabelService,
     private cdr: ChangeDetectorRef,
     private ngZone: NgZone
   ) {}
@@ -276,19 +271,86 @@ export class ListViewComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /** Persist status updates triggered by the detail panel */
-  statusChanged(section: TaskSection, task: Task, status: TaskStatus): void {
+  statusChanged(section: TaskSection, task: Task, statusId: number | null): void {
     if (!this.currentProjectId) {
       return;
     }
-    this.taskService.updateTask(this.currentProjectId, section.id, task.id, { status });
+    this.taskService.updateTask(this.currentProjectId, section.id, task.id, { task_status_id: statusId })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (updatedTask) => {
+          // The task service already updates the sections observable via BehaviorSubject
+          // The sections will be updated automatically through the filterTasks subscription
+          // But we can also update locally for immediate feedback if needed
+          if (updatedTask) {
+            // Update selected task if it's the same task
+            if (this.selectedTask?.id === task.id) {
+              this.selectedTask = {
+                ...this.selectedTask,
+                ...updatedTask,
+                taskStatus: updatedTask.taskStatus || this.selectedTask.taskStatus,
+                priorityLabel: updatedTask.priorityLabel || this.selectedTask.priorityLabel,
+                status: (updatedTask.taskStatus?.name || updatedTask.status) as TaskStatusLegacy,
+                priority: (updatedTask.priorityLabel?.name || updatedTask.priority) as TaskPriorityLegacy,
+              };
+              this.cdr.detectChanges();
+            }
+          }
+        },
+        error: (error) => {
+          console.error('Error updating task status:', error);
+          // Revert optimistic update on error
+          this.ngZone.run(() => {
+            this.loadSections(this.currentProjectId!);
+            this.cdr.detectChanges();
+          });
+        }
+      });
   }
 
   /** Persist priority updates triggered by the detail panel */
-  priorityChanged(section: TaskSection, task: Task, priority: TaskPriority): void {
+  priorityChanged(section: TaskSection, task: Task, priorityId: number | null): void {
     if (!this.currentProjectId) {
       return;
     }
-    this.taskService.updateTask(this.currentProjectId, section.id, task.id, { priority });
+    this.taskService.updateTask(this.currentProjectId, section.id, task.id, { priority_label_id: priorityId })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (updatedTask) => {
+          // The task service already updates the sections observable via BehaviorSubject
+          // The sections will be updated automatically through the filterTasks subscription
+          // But we can also update locally for immediate feedback if needed
+          if (updatedTask) {
+            // Update selected task if it's the same task
+            if (this.selectedTask?.id === task.id) {
+              this.selectedTask = {
+                ...this.selectedTask,
+                ...updatedTask,
+                taskStatus: updatedTask.taskStatus || this.selectedTask.taskStatus,
+                priorityLabel: updatedTask.priorityLabel || this.selectedTask.priorityLabel,
+                status: (updatedTask.taskStatus?.name || updatedTask.status) as TaskStatusLegacy,
+                priority: (updatedTask.priorityLabel?.name || updatedTask.priority) as TaskPriorityLegacy,
+              };
+              this.cdr.detectChanges();
+            }
+          }
+        },
+        error: (error) => {
+          console.error('Error updating task priority:', error);
+          // Revert optimistic update on error
+          this.ngZone.run(() => {
+            this.loadSections(this.currentProjectId!);
+            this.cdr.detectChanges();
+          });
+        }
+      });
+  }
+
+  /**
+   * Load sections (helper method)
+   */
+  private loadSections(projectId: string): void {
+    this.taskService.loadSections(projectId).subscribe();
   }
 
   /** Save inline task name edits when the value actually changed */
@@ -410,12 +472,41 @@ export class ListViewComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!this.currentProjectId) {
       return;
     }
-    const value = item.id as TaskPriority;
-    this.priorityChanged(section, task, value);
-    task.priority = value;
+    const priorityId = typeof item.id === 'string' ? parseInt(item.id) : item.id;
+    const priorityIdValue = priorityId && !isNaN(priorityId) ? priorityId : null;
+    
+    // Find the priorityLabel object for optimistic update
+    const priorityLabel = this.priorities.find(p => p.id === priorityIdValue);
+    
+    // Optimistically update the task in the sections array for immediate UI feedback
+    const sectionIndex = this.sections.findIndex(s => s.id === section.id);
+    if (sectionIndex !== -1) {
+      const taskIndex = this.sections[sectionIndex].tasks.findIndex(t => t.id === task.id);
+      if (taskIndex !== -1) {
+        // Create new task object with updated priority
+        this.sections[sectionIndex].tasks[taskIndex] = {
+          ...this.sections[sectionIndex].tasks[taskIndex],
+          priority_label_id: priorityIdValue,
+          priorityLabel: priorityLabel,
+          priority: priorityLabel?.name as TaskPriorityLegacy
+        };
+        // Create new sections array for OnPush change detection
+        this.sections = [...this.sections];
+        this.cdr.detectChanges();
+      }
+    }
+    
+    // Call the API to persist the change (will update via observable)
+    this.priorityChanged(section, task, priorityIdValue);
 
+    // Update selected task if it's the same task
     if (this.selectedTask?.id === task.id) {
-      this.selectedTask = { ...this.selectedTask, priority: value };
+      this.selectedTask = {
+        ...this.selectedTask,
+        priority_label_id: priorityIdValue,
+        priorityLabel: priorityLabel,
+        priority: priorityLabel?.name as TaskPriorityLegacy
+      };
     }
   }
 
@@ -424,12 +515,41 @@ export class ListViewComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!this.currentProjectId) {
       return;
     }
-    const value = item.id as TaskStatus;
-    this.statusChanged(section, task, value);
-    task.status = value;
+    const statusId = typeof item.id === 'string' ? parseInt(item.id) : item.id;
+    const statusIdValue = statusId && !isNaN(statusId) ? statusId : null;
+    
+    // Find the taskStatus object for optimistic update
+    const taskStatus = this.statuses.find(s => s.id === statusIdValue);
+    
+    // Optimistically update the task in the sections array for immediate UI feedback
+    const sectionIndex = this.sections.findIndex(s => s.id === section.id);
+    if (sectionIndex !== -1) {
+      const taskIndex = this.sections[sectionIndex].tasks.findIndex(t => t.id === task.id);
+      if (taskIndex !== -1) {
+        // Create new task object with updated status
+        this.sections[sectionIndex].tasks[taskIndex] = {
+          ...this.sections[sectionIndex].tasks[taskIndex],
+          task_status_id: statusIdValue,
+          taskStatus: taskStatus,
+          status: taskStatus?.name as TaskStatusLegacy
+        };
+        // Create new sections array for OnPush change detection
+        this.sections = [...this.sections];
+        this.cdr.detectChanges();
+      }
+    }
+    
+    // Call the API to persist the change (will update via observable)
+    this.statusChanged(section, task, statusIdValue);
 
+    // Update selected task if it's the same task
     if (this.selectedTask?.id === task.id) {
-      this.selectedTask = { ...this.selectedTask, status: value };
+      this.selectedTask = {
+        ...this.selectedTask,
+        task_status_id: statusIdValue,
+        taskStatus: taskStatus,
+        status: taskStatus?.name as TaskStatusLegacy
+      };
     }
   }
 
@@ -497,7 +617,12 @@ export class ListViewComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /** Map a status code to its theme color for pills and popover */
-  getStatusColor(status: string | undefined): string {
+  getStatusColor(status: string | undefined, task?: Task): string {
+    // If task has taskStatus object, use its color
+    if (task?.taskStatus?.color) {
+      return task.taskStatus.color;
+    }
+    // Fallback to legacy statusOptions
     if (!status) {
       return '#94a3b8';
     }
@@ -505,7 +630,12 @@ export class ListViewComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /** Prefer friendly labels when the status is a predefined option */
-  getStatusLabel(status: string | undefined): string {
+  getStatusLabel(status: string | undefined, task?: Task): string {
+    // If task has taskStatus object, use its name
+    if (task?.taskStatus?.name) {
+      return task.taskStatus.name;
+    }
+    // Fallback to legacy statusOptions
     if (!status) {
       return 'Set status';
     }
@@ -548,13 +678,17 @@ export class ListViewComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!this.currentProjectId) {
       return;
     }
+    // Get default priority and status IDs if available
+    const defaultPriority = this.priorities.find(p => p.is_default)?.id || null;
+    const defaultStatus = this.statuses.find(s => s.is_default)?.id || null;
+
     this.taskService.addTask(this.currentProjectId, section.id, {
       id: `temp-${Date.now()}`,
       name: 'New Task',
       assignee: undefined,
       dueDate: undefined,
-      priority: 'Medium',
-      status: 'To Do',
+      priority_label_id: defaultPriority,
+      task_status_id: defaultStatus,
       description: '',
       comments: [],
       subtasks: [],
@@ -687,27 +821,50 @@ export class ListViewComponent implements OnInit, AfterViewInit, OnDestroy {
         this.selectedParentTaskId,
         this.selectedTaskId,
         changes
-      );
+      ).subscribe({
+        next: (updatedSubtask) => {
+          // Update selected task with full response including taskStatus and priorityLabel
+          if (this.selectedTask && updatedSubtask) {
+            // Create new object reference for OnPush change detection
+            this.selectedTask = {
+              ...updatedSubtask,
+              // Ensure taskStatus and priorityLabel objects are preserved from response
+              taskStatus: updatedSubtask.taskStatus || this.selectedTask.taskStatus,
+              priorityLabel: updatedSubtask.priorityLabel || this.selectedTask.priorityLabel,
+              // Update legacy fields for backward compatibility
+              status: (updatedSubtask.taskStatus?.name || updatedSubtask.status) as TaskStatusLegacy,
+              priority: (updatedSubtask.priorityLabel?.name || updatedSubtask.priority) as TaskPriorityLegacy,
+              // Preserve comments if not in response
+              comments: updatedSubtask.comments || this.selectedTask.comments,
+              commentsCount: updatedSubtask.commentsCount ?? this.selectedTask.commentsCount,
+            };
+            this.cdr.detectChanges();
+          }
+        }
+      });
     } else {
-      this.taskService.updateTask(this.currentProjectId, this.selectedSectionId, this.selectedTaskId, changes, assigneeId);
-    }
-
-    if (this.selectedTask) {
-      const next: Task = {
-        ...this.selectedTask,
-        ...changes
-      };
-
-      if (changes.subtasks) {
-        next.subtasks = changes.subtasks;
-      }
-
-      if (changes.comments) {
-        next.comments = changes.comments;
-        next.commentsCount = changes.comments.length;
-      }
-
-      this.selectedTask = next;
+      this.taskService.updateTask(this.currentProjectId, this.selectedSectionId, this.selectedTaskId, changes, assigneeId)
+        .subscribe({
+          next: (updatedTask) => {
+            // Update selected task with full response including taskStatus and priorityLabel
+            if (this.selectedTask && updatedTask) {
+              // Create new object reference for OnPush change detection
+              this.selectedTask = {
+                ...updatedTask,
+                // Ensure taskStatus and priorityLabel objects are preserved from response
+                taskStatus: updatedTask.taskStatus || this.selectedTask.taskStatus,
+                priorityLabel: updatedTask.priorityLabel || this.selectedTask.priorityLabel,
+                // Update legacy fields for backward compatibility
+                status: (updatedTask.taskStatus?.name || updatedTask.status) as TaskStatusLegacy,
+                priority: (updatedTask.priorityLabel?.name || updatedTask.priority) as TaskPriorityLegacy,
+                // Preserve comments if not in response
+                comments: updatedTask.comments || this.selectedTask.comments,
+                commentsCount: updatedTask.commentsCount ?? this.selectedTask.commentsCount,
+              };
+              this.cdr.detectChanges();
+            }
+          }
+        });
     }
   }
 
@@ -743,11 +900,54 @@ export class ListViewComponent implements OnInit, AfterViewInit, OnDestroy {
         next: (project) => {
           this.ngZone.run(() => {
             this.currentProject = project;
+            // Load task statuses and priority labels for this project
+            this.loadTaskStatusesAndPriorities(parseInt(projectId));
             this.cdr.detectChanges();
           });
         },
         error: (error) => {
           console.error('Error loading project:', error);
+        }
+      });
+  }
+
+  /**
+   * Load task statuses and priority labels for the current project
+   */
+  private loadTaskStatusesAndPriorities(projectId: number): void {
+    forkJoin({
+      statuses: this.taskStatusService.getTaskStatuses(projectId),
+      priorities: this.priorityLabelService.getPriorityLabels(projectId)
+    })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: ({ statuses, priorities }) => {
+          this.ngZone.run(() => {
+            this.statuses = statuses;
+            this.priorities = priorities;
+
+            // Update status items for dropdown
+            // console.log('statuses', statuses);
+            this.statusItems = statuses.map(status => ({
+              id: status.id.toString(),
+              label: status.name,
+              color: status.color || '#6b7280',
+              data: status
+            }));
+
+            // Update priority items for dropdown
+            this.priorityItems = priorities.map(priority => ({
+              id: priority.id.toString(),
+              label: priority.name,
+              color: priority.color || '#2563eb',
+              data: priority
+            }));
+
+            this.cdr.detectChanges();
+          });
+        },
+        error: (error) => {
+          console.error('Error loading task statuses and priority labels:', error);
         }
       });
   }

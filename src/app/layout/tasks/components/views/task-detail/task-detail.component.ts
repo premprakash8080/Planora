@@ -1,9 +1,13 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, HostListener, Input, OnChanges, Output, SimpleChanges, ChangeDetectorRef } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, HostListener, Input, OnChanges, Output, SimpleChanges, ChangeDetectorRef, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { Task, TaskPriority, TaskStatus, TaskComment } from '../../../task.model';
+import { Task, TaskPriorityLegacy, TaskStatusLegacy, TaskComment, TaskStatus, PriorityLabel } from '../../../task.model';
 import { TaskService } from '../../../task.service';
 import { TaskApiService } from '../../../services/task-api.service';
+import { TaskStatusService } from '../../../services/task-status.service';
+import { PriorityLabelService } from '../../../services/priority-label.service';
 import { DropdownPopoverItem } from '../../../../../shared/ui/dropdown-popover/dropdown-popover.component';
+import { forkJoin } from 'rxjs';
+import { take } from 'rxjs/operators';
 
 @Component({
   selector: 'app-task-detail',
@@ -11,13 +15,13 @@ import { DropdownPopoverItem } from '../../../../../shared/ui/dropdown-popover/d
   styleUrls: ['./task-detail.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TaskDetailComponent implements OnChanges {
+export class TaskDetailComponent implements OnInit, OnChanges {
   @Input() task: Task | null = null;
   @Input() projectName = '';
   @Input() sectionTitle = '';
   @Input() open = false;
-  @Input() statuses: TaskStatus[] = [];
-  @Input() priorities: TaskPriority[] = [];
+  @Input() statuses: TaskStatus[] = []; // Array of TaskStatus objects
+  @Input() priorities: PriorityLabel[] = []; // Array of PriorityLabel objects
   @Input() assigneeItems: DropdownPopoverItem[] = [];
   @Input() getAssigneeAvatar: (assignee: string | undefined) => string | null = () => null;
   @Input() getAssigneeInitials: (assignee: string | undefined) => string = () => 'NA';
@@ -48,8 +52,18 @@ export class TaskDetailComponent implements OnChanges {
   constructor(
     private taskService: TaskService,
     private taskApiService: TaskApiService,
+    private taskStatusService: TaskStatusService,
+    private priorityLabelService: PriorityLabelService,
     private cdr: ChangeDetectorRef
   ) {}
+
+  ngOnInit(): void {
+    // If statuses or priorities are not provided, try to load them
+    // This is a fallback in case the parent component hasn't loaded them yet
+    if (this.statuses.length === 0 || this.priorities.length === 0) {
+      this.loadStatusesAndPriorities();
+    }
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['task'] && this.task) {
@@ -61,7 +75,40 @@ export class TaskDetailComponent implements OnChanges {
       if (this.task.id && (!this.task.comments || this.task.comments.length === 0)) {
         this.loadTaskComments();
       }
+      
+      // If statuses/priorities are not loaded, try to load them (will load global ones)
+      if (this.statuses.length === 0 || this.priorities.length === 0) {
+        this.loadStatusesAndPriorities();
+      }
     }
+    
+    // Statuses and priorities are now properly handled
+  }
+
+  /**
+   * Load task statuses and priority labels (fallback if not provided by parent)
+   */
+  private loadStatusesAndPriorities(projectId?: number): void {
+    forkJoin({
+      statuses: this.taskStatusService.getTaskStatuses(projectId || null),
+      priorities: this.priorityLabelService.getPriorityLabels(projectId || null)
+    })
+      .pipe(take(1))
+      .subscribe({
+        next: ({ statuses, priorities }) => {
+          // Only update if arrays are still empty (don't override parent-provided data)
+          if (this.statuses.length === 0) {
+            this.statuses = statuses;
+          }
+          if (this.priorities.length === 0) {
+            this.priorities = priorities;
+          }
+          this.cdr.markForCheck();
+        },
+        error: (error) => {
+          console.error('Error loading task statuses and priority labels in task-detail:', error);
+        }
+      });
   }
 
   /**
@@ -120,26 +167,222 @@ export class TaskDetailComponent implements OnChanges {
     this.taskUpdated.emit({ changes: { dueDate: iso } });
   }
 
-  updatePriority(priority: TaskPriority | string): void {
+  updatePriority(priorityId: number | string | null): void {
     if (!this.task) {
       return;
     }
-    const next = priority as TaskPriority;
-    if (next === this.task.priority) {
+    
+    // Handle null, string, or number input
+    let priorityIdNum: number | null = null;
+    if (priorityId === null || priorityId === 'null' || priorityId === '') {
+      priorityIdNum = null;
+    } else {
+      priorityIdNum = typeof priorityId === 'string' ? parseInt(priorityId) : priorityId;
+      if (isNaN(priorityIdNum)) {
+        priorityIdNum = null;
+      }
+    }
+    
+    // Only update if the value actually changed
+    if (priorityIdNum === this.task.priority_label_id) {
       return;
     }
-    this.taskUpdated.emit({ changes: { priority: next } });
+    
+    // Update local task optimistically with full priorityLabel object
+    const updatedPriorityLabel = this.priorities.find(p => p.id === priorityIdNum);
+    if (updatedPriorityLabel) {
+      this.task = {
+        ...this.task,
+        priority_label_id: priorityIdNum,
+        priorityLabel: updatedPriorityLabel,
+        priority: updatedPriorityLabel.name as TaskPriorityLegacy
+      };
+    } else if (priorityIdNum === null) {
+      // Handle null case (removing priority)
+      this.task = {
+        ...this.task,
+        priority_label_id: null,
+        priorityLabel: undefined,
+        priority: undefined
+      };
+    }
+    this.cdr.markForCheck();
+    
+    // Emit ONLY priority_label_id change - do not include task_status_id
+    this.taskUpdated.emit({ 
+      changes: { 
+        priority_label_id: priorityIdNum
+        // Explicitly NOT including task_status_id here
+      } 
+    });
   }
 
-  updateStatus(status: TaskStatus | string): void {
+  updateStatus(statusId: number | string | null): void {
     if (!this.task) {
       return;
     }
-    const next = status as TaskStatus;
-    if (next === this.task.status) {
+    
+    // Handle null, string, or number input
+    let statusIdNum: number | null = null;
+    if (statusId === null || statusId === 'null' || statusId === '') {
+      statusIdNum = null;
+    } else {
+      statusIdNum = typeof statusId === 'string' ? parseInt(statusId) : statusId;
+      if (isNaN(statusIdNum)) {
+        statusIdNum = null;
+      }
+    }
+    
+    // Only update if the value actually changed
+    if (statusIdNum === this.task.task_status_id) {
       return;
     }
-    this.taskUpdated.emit({ changes: { status: next } });
+    
+    // Update local task optimistically with full taskStatus object
+    const updatedTaskStatus = this.statuses.find(s => s.id === statusIdNum);
+    if (updatedTaskStatus) {
+      this.task = {
+        ...this.task,
+        task_status_id: statusIdNum,
+        taskStatus: updatedTaskStatus,
+        status: updatedTaskStatus.name as TaskStatusLegacy
+      };
+    } else if (statusIdNum === null) {
+      // Handle null case (removing status)
+      this.task = {
+        ...this.task,
+        task_status_id: null,
+        taskStatus: undefined,
+        status: undefined
+      };
+    }
+    this.cdr.markForCheck();
+    
+    // Emit ONLY task_status_id change - do not include priority_label_id
+    this.taskUpdated.emit({ 
+      changes: { 
+        task_status_id: statusIdNum
+        // Explicitly NOT including priority_label_id here
+      } 
+    });
+  }
+
+  /**
+   * Get current priority label ID for display
+   */
+  getCurrentPriorityId(): number | null {
+    return this.task?.priority_label_id ?? null;
+  }
+
+  /**
+   * Get current task status ID for display
+   */
+  getCurrentStatusId(): number | null {
+    return this.task?.task_status_id ?? null;
+  }
+
+  /**
+   * Get current priority name for display
+   */
+  getCurrentPriorityName(): string | undefined {
+    if (this.task?.priorityLabel?.name) {
+      return this.task.priorityLabel.name;
+    }
+    if (this.task?.priority_label_id !== undefined && this.task.priority_label_id !== null) {
+      const priority = this.priorities.find(p => p.id === this.task!.priority_label_id);
+      if (priority?.name) {
+        return priority.name;
+      }
+    }
+    return this.task?.priority;
+  }
+
+  /**
+   * Get current priority color for display
+   */
+  getCurrentPriorityColor(): string {
+    if (this.task?.priorityLabel?.color) {
+      return this.task.priorityLabel.color;
+    }
+    if (this.task?.priority_label_id !== undefined && this.task.priority_label_id !== null) {
+      const priority = this.priorities.find(p => p.id === this.task!.priority_label_id);
+      if (priority?.color) {
+        return priority.color;
+      }
+    }
+    // Fallback based on priority name
+    const priorityName = this.getCurrentPriorityName()?.toLowerCase() || '';
+    if (priorityName === 'high' || priorityName === 'critical' || priorityName === 'urgent') {
+      return '#ef4444';
+    } else if (priorityName === 'medium') {
+      return '#3b82f6';
+    }
+    return '#10b981'; // Low
+  }
+
+  /**
+   * Get current status name for display
+   */
+  getCurrentStatusName(): string | undefined {
+    if (this.task?.taskStatus?.name) {
+      return this.task.taskStatus.name;
+    }
+    if (this.task?.task_status_id !== undefined && this.task.task_status_id !== null) {
+      const status = this.statuses.find(s => s.id === this.task!.task_status_id);
+      if (status?.name) {
+        return status.name;
+      }
+    }
+    return this.task?.status;
+  }
+
+  /**
+   * Get current status color for display
+   */
+  getCurrentStatusColor(): string {
+    if (this.task?.taskStatus?.color) {
+      return this.task.taskStatus.color;
+    }
+    if (this.task?.task_status_id !== undefined && this.task.task_status_id !== null) {
+      const status = this.statuses.find(s => s.id === this.task!.task_status_id);
+      if (status?.color) {
+        return status.color;
+      }
+    }
+    return '#6b7280'; // Default gray
+  }
+
+  /**
+   * Get priority text color based on background color (for contrast)
+   */
+  getPriorityTextColor(bgColor: string): string {
+    if (!bgColor) return '#000000';
+    
+    // Convert hex to RGB
+    const hex = bgColor.replace('#', '');
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    
+    // Calculate luminance
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    
+    // Return white for dark backgrounds, dark for light
+    return luminance < 0.5 ? '#ffffff' : '#000000';
+  }
+
+  /**
+   * Track by function for status options
+   */
+  trackByStatusId(index: number, status: TaskStatus): number {
+    return status.id;
+  }
+
+  /**
+   * Track by function for priority options
+   */
+  trackByPriorityId(index: number, priority: PriorityLabel): number {
+    return priority.id;
   }
 
   handleAssigneeSelect(item: DropdownPopoverItem): void {
@@ -223,8 +466,8 @@ export class TaskDetailComponent implements OnChanges {
         name,
         assignee: '',
         dueDate: undefined,
-        priority: 'Medium' as TaskPriority,
-        status: 'To Do' as TaskStatus,
+        priority_label_id: null,
+        task_status_id: null,
         completed: false,
         subtasks: [],
         parentId: this.task.id

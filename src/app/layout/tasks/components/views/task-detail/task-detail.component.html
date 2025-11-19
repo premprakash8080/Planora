@@ -80,16 +80,59 @@
 
       <div class="task-detail__field">
         <span class="task-detail__field-label">Status</span>
-        <mat-select [value]="task.status" (selectionChange)="updateStatus($event.value)">
-          <mat-option *ngFor="let status of statuses" [value]="status">{{ status }}</mat-option>
+        <mat-select [value]="getCurrentStatusId()" (selectionChange)="updateStatus($event.value)">
+          <mat-select-trigger>
+            <span class="task-detail__select-trigger" *ngIf="getCurrentStatusName(); else noStatusTrigger">
+              <span class="task-detail__status-dot" [style.backgroundColor]="getCurrentStatusColor()"></span>
+              <span>{{ getCurrentStatusName() }}</span>
+            </span>
+            <ng-template #noStatusTrigger>
+              <span>No Status</span>
+            </ng-template>
+          </mat-select-trigger>
+          <mat-option [value]="null">
+            <span class="task-detail__select-option">
+              <span class="task-detail__status-dot" style="background-color: transparent;"></span>
+              <span>No Status</span>
+            </span>
+          </mat-option>
+          <mat-option *ngFor="let status of statuses; trackBy: trackByStatusId" [value]="status.id">
+            <span class="task-detail__select-option">
+              <span class="task-detail__status-dot" [style.backgroundColor]="status.color || '#6b7280'"></span>
+              <span>{{ status.name }}</span>
+            </span>
+          </mat-option>
         </mat-select>
+        <div *ngIf="statuses.length === 0" class="task-detail__field-hint">Loading statuses...</div>
       </div>
 
       <div class="task-detail__field">
         <span class="task-detail__field-label">Priority</span>
-        <mat-select [value]="task.priority" (selectionChange)="updatePriority($event.value)">
-          <mat-option *ngFor="let priority of priorities" [value]="priority">{{ priority }}</mat-option>
+        <mat-select [value]="getCurrentPriorityId()" (selectionChange)="updatePriority($event.value)">
+          <mat-select-trigger>
+            <span class="task-detail__select-trigger" *ngIf="getCurrentPriorityName(); else noPriorityTrigger">
+              <span class="task-detail__priority-pill" [style.backgroundColor]="getCurrentPriorityColor()" [style.color]="getPriorityTextColor(getCurrentPriorityColor())">
+                {{ getCurrentPriorityName() }}
+              </span>
+            </span>
+            <ng-template #noPriorityTrigger>
+              <span>No Priority</span>
+            </ng-template>
+          </mat-select-trigger>
+          <mat-option [value]="null">
+            <span class="task-detail__select-option">
+              <span class="task-detail__priority-indicator" style="background-color: transparent;"></span>
+              <span>No Priority</span>
+            </span>
+          </mat-option>
+          <mat-option *ngFor="let priority of priorities; trackBy: trackByPriorityId" [value]="priority.id">
+            <span class="task-detail__select-option">
+              <span class="task-detail__priority-indicator" [style.backgroundColor]="priority.color || '#2563eb'"></span>
+              <span>{{ priority.name }}</span>
+            </span>
+          </mat-option>
         </mat-select>
+        <div *ngIf="priorities.length === 0" class="task-detail__field-hint">Loading priorities...</div>
       </div>
     </section>
 

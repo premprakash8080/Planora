@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, combineLatest, of } from 'rxjs';
+import { BehaviorSubject, Observable, combineLatest, of, throwError } from 'rxjs';
 import { map, switchMap, tap, catchError } from 'rxjs/operators';
 import { Task, TaskSection, TaskComment } from './task.model';
 import { TaskApiService } from './services/task-api.service';
@@ -119,28 +119,46 @@ export class TaskService {
   /**
    * Update task
    */
-  updateTask(projectId: string, sectionId: string, taskId: string, changes: Partial<Task>, assigneeId?: number): void {
+  updateTask(projectId: string, sectionId: string, taskId: string, changes: Partial<Task>, assigneeId?: number): Observable<Task> {
     // Optimistic update
     const subject = this.getProjectSubject(projectId);
+    const currentSections = subject.value;
+    const currentTask = currentSections
+      .find(s => s.id === sectionId)
+      ?.tasks.find(t => t.id === taskId);
+    
     subject.next(
-      subject.value.map(section => {
+      currentSections.map(section => {
         if (section.id !== sectionId) {
           return section;
         }
         return {
           ...section,
-          tasks: section.tasks.map(task =>
-            task.id === taskId
-              ? { ...task, ...changes }
-              : task
-          )
+          tasks: section.tasks.map(task => {
+            if (task.id !== taskId) {
+              return task;
+            }
+            // Preserve taskStatus and priorityLabel objects if they exist and aren't being changed
+            const updatedTask = {
+              ...task,
+              ...changes,
+              // Preserve objects unless they're being explicitly updated
+              taskStatus: changes.task_status_id !== undefined 
+                ? undefined // Will be set from API response
+                : task.taskStatus,
+              priorityLabel: changes.priority_label_id !== undefined
+                ? undefined // Will be set from API response
+                : task.priorityLabel,
+            };
+            return updatedTask;
+          })
         };
       })
     );
 
-    // API call
-    this.taskApiService.updateTask(taskId, changes, projectId, sectionId, assigneeId).subscribe({
-      next: (updatedTask) => {
+    // API call - return Observable so caller can handle the response
+    return this.taskApiService.updateTask(taskId, changes, projectId, sectionId, assigneeId).pipe(
+      tap((updatedTask) => {
         // Update with server response
         const currentSections = subject.value;
         subject.next(
@@ -156,14 +174,15 @@ export class TaskService {
             };
           })
         );
-      },
-      error: (error) => {
+      }),
+      catchError((error) => {
         console.error('Error updating task:', error);
         this.snackBarService.showError('Failed to update task');
         // Revert optimistic update
         this.loadSections(projectId).subscribe();
-      }
-    });
+        return throwError(() => error);
+      })
+    );
   }
 
   /**
@@ -368,7 +387,7 @@ export class TaskService {
   /**
    * Update subtask
    */
-  updateSubtask(projectId: string, sectionId: string, parentTaskId: string, subtaskId: string, changes: Partial<Task>): void {
+  updateSubtask(projectId: string, sectionId: string, parentTaskId: string, subtaskId: string, changes: Partial<Task>): Observable<Task> {
     // Optimistic update
     const subject = this.getProjectSubject(projectId);
     subject.next(
@@ -397,8 +416,8 @@ export class TaskService {
     );
 
     // API call - subtasks are handled as regular tasks with parent_id
-    this.taskApiService.updateTask(subtaskId, changes, projectId, sectionId).subscribe({
-      next: (updatedSubtask) => {
+    return this.taskApiService.updateTask(subtaskId, changes, projectId, sectionId).pipe(
+      tap((updatedSubtask) => {
         // Update with server response
         const currentSections = subject.value;
         subject.next(
@@ -422,14 +441,15 @@ export class TaskService {
             };
           })
         );
-      },
-      error: (error) => {
+      }),
+      catchError((error) => {
         console.error('Error updating subtask:', error);
         this.snackBarService.showError('Failed to update subtask');
         // Revert optimistic update
         this.loadSections(projectId).subscribe();
-      }
-    });
+        return throwError(() => error);
+      })
+    );
   }
 
   /**

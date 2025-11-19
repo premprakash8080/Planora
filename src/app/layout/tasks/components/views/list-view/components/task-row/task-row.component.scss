@@ -33,6 +33,9 @@
   width: 10px;
   height: 10px;
   border-radius: 50%;
+  // Reset any inherited background
+  // Inline style from [style.backgroundColor] will override
+  background-color: transparent;
 }
 
 /* Assignee column */
@@ -105,6 +108,10 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
+  // Reset any inherited or class-based background/color
+  // Inline styles from [style.backgroundColor] and [style.color] will override
+  background-color: transparent;
+  color: inherit;
 }
 
 /* Status column */

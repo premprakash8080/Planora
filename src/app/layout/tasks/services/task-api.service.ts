@@ -3,7 +3,7 @@ import { Observable, throwError } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { HttpService } from 'src/app/shared/services/http.service';
 import { ENDPOINTS } from './api.collection';
-import { Task, TaskSection, TaskComment } from '../task.model';
+import { Task, TaskSection, TaskComment, TaskStatus, PriorityLabel } from '../task.model';
 
 export interface BackendTask {
   id: number;
@@ -19,6 +19,11 @@ export interface BackendTask {
     initials?: string;
   };
   due_date?: string;
+  priority_label_id?: number | null;
+  task_status_id?: number | null;
+  priorityLabel?: PriorityLabel;
+  taskStatus?: TaskStatus;
+  // Legacy fields for backward compatibility
   priority?: string;
   status?: string;
   completed?: boolean;
@@ -89,8 +94,14 @@ export class TaskApiService {
       assignee: backendTask.assignee?.full_name,
       assigneeAvatar: backendTask.assignee?.initials,
       dueDate: backendTask.due_date,
-      priority: (backendTask.priority as any) || 'Medium',
-      status: (backendTask.status as any) || 'To Do',
+      // New: Use IDs and objects from backend
+      priority_label_id: backendTask.priority_label_id ?? null,
+      task_status_id: backendTask.task_status_id ?? null,
+      priorityLabel: backendTask.priorityLabel,
+      taskStatus: backendTask.taskStatus,
+      // Legacy: Map from objects for backward compatibility
+      priority: backendTask.priorityLabel?.name || (backendTask.priority as any) || 'Medium',
+      status: backendTask.taskStatus?.name || (backendTask.status as any) || 'To Do',
       description: backendTask.description,
       commentsCount: backendTask.comments_count || comments.length,
       completed: backendTask.completed || false,
@@ -112,8 +123,41 @@ export class TaskApiService {
       // Allow null to unset due date
       payload.due_date = task.dueDate === null || task.dueDate === '' ? null : task.dueDate;
     }
-    if (task.priority !== undefined && task.priority !== null) payload.priority = task.priority;
-    if (task.status !== undefined && task.status !== null) payload.status = task.status;
+    
+    // New: Use IDs instead of string values
+    // Only include if explicitly provided (undefined means don't update this field)
+    if (task.priority_label_id !== undefined) {
+      // Allow null to unset, preserve 0 as a valid ID
+      if (task.priority_label_id === null) {
+        payload.priority_label_id = null;
+      } else {
+        const parsed = typeof task.priority_label_id === 'string' 
+          ? parseInt(task.priority_label_id) 
+          : task.priority_label_id;
+        payload.priority_label_id = isNaN(parsed) ? null : parsed;
+      }
+    }
+    if (task.task_status_id !== undefined) {
+      // Allow null to unset, preserve 0 as a valid ID
+      if (task.task_status_id === null) {
+        payload.task_status_id = null;
+      } else {
+        const parsed = typeof task.task_status_id === 'string' 
+          ? parseInt(task.task_status_id) 
+          : task.task_status_id;
+        payload.task_status_id = isNaN(parsed) ? null : parsed;
+      }
+    }
+    
+    // Legacy: Support old priority/status strings for backward compatibility
+    // (These will be ignored if priority_label_id/task_status_id are provided)
+    if (task.priority !== undefined && task.priority !== null && task.priority_label_id === undefined) {
+      payload.priority = task.priority;
+    }
+    if (task.status !== undefined && task.status !== null && task.task_status_id === undefined) {
+      payload.status = task.status;
+    }
+    
     if (task.completed !== undefined) payload.completed = task.completed;
     if (sectionId) payload.section_id = parseInt(sectionId);
     if (projectId) payload.project_id = parseInt(projectId);

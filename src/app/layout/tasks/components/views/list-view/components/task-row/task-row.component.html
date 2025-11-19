@@ -69,13 +69,18 @@
   <div class="grid-cell grid-cell--priority" (click)="$event.stopPropagation()">
     <app-dropdown-popover
       [items]="priorityItems"
-      [selectedId]="task.priority"
+      [selectedId]="getPriorityId()"
       [width]="240"
       (select)="prioritySelect.emit($event)"
     >
       <button type="button" class="priority-trigger" appDropdownTrigger>
-        <span class="priority-pill" [ngClass]="(task.priority || 'Low').toLowerCase()">
-          {{ task.priority || 'Low' }}
+        <span 
+          class="priority-pill" 
+          [style.backgroundColor]="getPriorityColorValue()"
+          [style.color]="getPriorityTextColor()"
+          [style.border]="'none'"
+        >
+          {{ getPriorityName() || 'Low' }}
         </span>
         <mat-icon class="priority-expand">expand_more</mat-icon>
       </button>
@@ -85,13 +90,13 @@
   <div class="grid-cell grid-cell--status" (click)="$event.stopPropagation()">
     <app-dropdown-popover
       [items]="statusItems"
-      [selectedId]="task.status"
+      [selectedId]="getStatusId()"
       [width]="260"
       (select)="statusSelect.emit($event)"
     >
       <button type="button" class="status-trigger" appDropdownTrigger>
-        <span class="status-dot" [style.backgroundColor]="getStatusColor(task.status)"></span>
-        {{ getStatusLabel(task.status) }}
+        <span class="status-dot" [style.backgroundColor]="getStatusColorValue()"></span>
+        {{ getStatusName() || 'Set status' }}
         <mat-icon>expand_more</mat-icon>
       </button>
     </app-dropdown-popover>

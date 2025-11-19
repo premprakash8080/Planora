@@ -30,6 +30,43 @@ export interface TaskDashboardResponse {
   doneTasks: any[];
 }
 
+export interface Project {
+  id: number;
+  name: string;
+  description?: string;
+  color?: string;
+  status?: string;
+  due_date?: string;
+  is_archived?: boolean;
+  is_favorite?: boolean;
+  created_by?: number;
+  team_id?: number;
+  creator?: {
+    id: number;
+    full_name: string;
+    email: string;
+    avatar_url?: string;
+    avatar_color?: string;
+    initials?: string;
+  };
+  members?: Array<{
+    id: number;
+    project_id: number;
+    user_id: number;
+    role: string;
+    user: {
+      id: number;
+      full_name: string;
+      email: string;
+      avatar_url?: string;
+      avatar_color?: string;
+      initials?: string;
+    };
+  }>;
+  created_at?: string;
+  updated_at?: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -90,6 +127,28 @@ export class DashboardService {
   updateNoticeBoard(message: string): Observable<{ success: boolean; message: string }> {
     return this.httpService.post(ENDPOINTS.updateNoticeBoard, { message }).pipe(
       map((response) => response),
+      catchError((error) => {
+        return throwError(() => this.handleError(error));
+      })
+    );
+  }
+
+  /**
+   * Get all projects
+   */
+  getProjects(includeArchived = false): Observable<Project[]> {
+    return this.httpService.get(ENDPOINTS.getProjects, { includeArchived }).pipe(
+      map((response: any) => {
+        // Handle unified response format
+        if (response.success && response.data?.projects) {
+          return response.data.projects;
+        }
+        // Fallback for direct array response (backward compatibility)
+        if (Array.isArray(response)) {
+          return response;
+        }
+        return [];
+      }),
       catchError((error) => {
         return throwError(() => this.handleError(error));
       })

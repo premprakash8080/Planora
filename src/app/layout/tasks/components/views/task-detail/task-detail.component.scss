@@ -188,6 +188,53 @@
     align-items: center;
   }
 
+  .task-detail__select-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .task-detail__status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: inline-block;
+  }
+
+  .task-detail__priority-indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    flex-shrink: 0;
+    display: inline-block;
+  }
+
+  .task-detail__priority-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .task-detail__select-trigger {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .task-detail__field-hint {
+    margin-top: 4px;
+    font-size: 12px;
+    color: var(--color-text-subtle, #6b7280);
+    font-style: italic;
+  }
+
   .task-detail__assignee-trigger {
     display: flex;
     align-items: center;

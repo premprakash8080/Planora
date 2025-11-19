@@ -1,11 +1,13 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Project } from '../../services/dashboard.service';
 
 @Component({
   selector: 'app-schedule-detail',
   templateUrl: './schedule-detail.component.html',
   styleUrls: ['./schedule-detail.component.scss']
 })
-export class ScheduleDetailComponent implements OnInit {
+export class ScheduleDetailComponent implements OnInit, OnChanges {
+  @Input() project: Project | null = null;
   @Output() closeScheduleSidebarEvent = new EventEmitter<void>();
 
   cancel() {
@@ -79,6 +81,13 @@ export class ScheduleDetailComponent implements OnInit {
   constructor() { }
 
   ngOnInit(): void {
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['project'] && this.project) {
+      // Project data has been updated
+      console.log('Schedule detail - Project received:', this.project);
+    }
   }
 
 }
