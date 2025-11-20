@@ -3,7 +3,8 @@
 .tasks-view--messages {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 64px);
+  height: 100vh;
+  max-height: 100vh;
   background: var(--color-background, #f9fafb);
   overflow: hidden;
 

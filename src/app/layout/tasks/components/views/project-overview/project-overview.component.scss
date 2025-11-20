@@ -3,6 +3,11 @@
 /* ── Page wrapper ───────────────────────────────────────────────── */
 .page-container {
   @include page-container;
+  height: 100vh;
+  max-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 /* ── Loading & Error States ─────────────────────────────────────── */
@@ -17,7 +22,7 @@
   gap: space(3);
 
   p {
-    color: $color-text-body;
+    color: var(--color-text-body);
     font-size: font-size(md);
   }
 }
@@ -25,7 +30,7 @@
 .error-container {
   .error-icon {
     font-size: 48px;
-    color: $color-danger;
+    color: var(--color-danger);
     margin-bottom: space(2);
   }
 }
@@ -36,8 +41,37 @@
   grid-template-columns: 1fr 380px;
   gap: space(6);
   padding: space(5);
-  background: $color-background;
+  background: var(--color-background);
   font-family: $font-family-base;
+  transition: background 0.3s ease;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  // Custom scrollbar styling
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: var(--color-border);
+    opacity: 0.6;
+    border-radius: 999px;
+    transition: opacity 0.2s ease;
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  // Firefox scrollbar
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
 
   @media (max-width: 1200px) {
     grid-template-columns: 1fr;
@@ -70,12 +104,16 @@
   width: 32px;
   height: 32px;
   line-height: 32px;
-  color: $color-muted;
+  color: var(--color-text-subtle);
   transition: all 0.2s ease;
 
   &:hover {
     color: var(--color-primary);
-    background: rgba(139, 92, 246, 0.12);
+    background: rgba(var(--color-primary-rgb), 0.12);
+  }
+
+  mat-icon {
+    color: inherit;
   }
 
   mat-icon {
@@ -97,27 +135,30 @@
 .section-title {
   font-size: font-size(lg);
   font-weight: 600;
-  color: $color-text-heading;
+  color: var(--color-text-heading);
   margin: 0;
+  transition: color 0.3s ease;
 }
 
 .section-subtitle {
   font-size: font-size(sm);
-  color: $color-text-subtle;
+  color: var(--color-text-subtle);
   margin: 0 0 space(3);
+  transition: color 0.3s ease;
 }
 
 .description-text,
 .empty-text,
 .connect-text {
   font-size: font-size(md);
-  color: $color-text-body;
+  color: var(--color-text-body);
   margin: 0;
   line-height: 1.6;
+  transition: color 0.3s ease;
 }
 
 .empty-text {
-  color: $color-muted;
+  color: var(--color-text-subtle);
   font-style: italic;
   display: flex;
   align-items: center;
@@ -174,11 +215,15 @@
 }
 
 .add-member-btn-icon {
-  color: $color-primary;
+  color: var(--color-primary);
   transition: all 0.2s ease;
 
   &:hover {
-    background: rgba(139, 92, 246, 0.12);
+    background: rgba(var(--color-primary-rgb), 0.12);
+  }
+
+  mat-icon {
+    color: inherit;
   }
 }
 
@@ -208,31 +253,37 @@
 
 .member-name {
   font-weight: 500;
-  color: $color-text-body;
+  color: var(--color-text-body);
   font-size: font-size(md);
+  transition: color 0.3s ease;
 }
 
 .member-role {
   font-size: font-size(sm);
-  color: $color-muted;
+  color: var(--color-text-subtle);
   text-transform: capitalize;
+  transition: color 0.3s ease;
 }
 
 .remove-member-btn {
   opacity: 0;
   transition: all 0.2s ease;
-  color: $color-danger;
+  color: var(--color-danger);
   width: 28px;
   height: 28px;
   line-height: 28px;
 
   &:hover {
-    background: rgba(239, 68, 68, 0.12);
+    background: rgba(var(--color-danger-rgb), 0.12);
 
     [data-theme="dark"] &,
     .dark-theme & {
-      background: rgba(239, 68, 68, 0.25);
+      background: rgba(var(--color-danger-rgb), 0.25);
     }
+  }
+
+  mat-icon {
+    color: inherit;
   }
 
   mat-icon {

@@ -1,12 +1,14 @@
 @use 'src/styles/tokens' as *;
 
 .tasks-view--placeholder {
-  min-height: calc(100vh - 64px);
+  height: 100vh;
+  max-height: 100vh;
   display: flex;
   flex-direction: column;
   background: var(--color-background, #f9fafb);
   color: var(--color-text-body, #1f2937);
   font-family: $font-family-base;
+  overflow: hidden;
 }
 
 .placeholder-content {

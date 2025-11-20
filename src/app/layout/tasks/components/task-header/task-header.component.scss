@@ -10,6 +10,20 @@
   color: var(--color-text-body);
   font-family: $font-family-base;
   box-shadow: var(--shadow-xs);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  flex-shrink: 0;
+}
+
+// Wrapper to contain both header and nav
+:host {
+  display: block;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--color-background);
+  flex-shrink: 0;
 }
 
 .header-left { 
@@ -232,6 +246,7 @@
   overflow-x: auto;
   scrollbar-width: none;
   font-size: font-size(md);
+  flex-shrink: 0;
 
   &::-webkit-scrollbar { 
     display: none; 

@@ -1,8 +1,8 @@
 @use 'src/styles/tokens' as *;
 
 .tasks-view--timeline {
-  height: calc(100vh - 64px);
-  max-height: calc(100vh - 64px);
+  height: 100vh;
+  max-height: 100vh;
   display: flex;
   flex-direction: column;
   background: var(--color-background, #f9fafb);
@@ -19,8 +19,9 @@
   background: var(--color-surface, #ffffff);
   border-bottom: 1px solid var(--color-border, #e5e7eb);
   position: sticky;
-  top: 64px;
-  z-index: 3;
+  top: 112px; // task-header + nav combined height
+  z-index: 98;
+  flex-shrink: 0;
 
    .toolbar-left {
      display: flex;
@@ -87,7 +88,7 @@
  .timeline-header {
    display: flex;
   position: sticky;
-  top: 128px;
+  top: 160px; // task-header + nav + toolbar combined height
    background: var(--color-surface, #ffffff);
    z-index: 2;
   border-bottom: 1px solid var(--color-border, #e5e7eb);
