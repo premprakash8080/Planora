@@ -39,8 +39,10 @@ import { TaskWorkflowComponent } from './components/views/task-workflow/task-wor
 import { TaskMessagesComponent } from './components/views/task-messages/task-messages.component';
 import { TaskFilesComponent } from './components/views/task-files/task-files.component';
 import { ProjectMembersModalComponent } from './components/project-members-modal/project-members-modal.component';
+import { TimelineGroupRowComponent } from './components/views/timeline-view/components/timeline-group-row/timeline-group-row.component';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 
 @NgModule({
@@ -63,7 +65,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     TaskWorkflowComponent,
     TaskMessagesComponent,
     TaskFilesComponent,
-    ProjectMembersModalComponent
+    ProjectMembersModalComponent,
+    TimelineGroupRowComponent
   ],
   imports: [
     CommonModule,
@@ -87,6 +90,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
     MatDatepickerModule,
     MatNativeDateModule,
     MatDialogModule,
+    MatSlideToggleModule,
     MatProgressSpinnerModule,
     QuillModule.forRoot(),
     SharedUiModule

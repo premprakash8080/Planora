@@ -55,10 +55,28 @@ export const ENDPOINTS = {
   updateBoardViewTask: `${environment.apiBaseUrl}/api/board-view/tasks/:taskId`,
   createBoardViewSection: `${environment.apiBaseUrl}/api/board-view/projects/:projectId/sections`,
   updateBoardViewSection: `${environment.apiBaseUrl}/api/board-view/sections/:sectionId`,
+
+  // Calendar View endpoints
+  getCalendarViewData: `${environment.apiBaseUrl}/api/projects/:projectId/getCalendarViewData`,
+  updateCalendarTask: `${environment.apiBaseUrl}/api/tasks/:taskId/updateCalendarTask`,
+
+  // Dashboard View endpoints
+  getProjectDashboardData: `${environment.apiBaseUrl}/api/projects/:projectId/getDashboardData`,
+  
+  // Timeline View endpoints
+  getTimelineViewData: `${environment.apiBaseUrl}/api/timeline-view/projects/:projectId/data`,
+  updateTimelineViewTask: `${environment.apiBaseUrl}/api/timeline-view/tasks/:taskId`,
   
   // Project Overview endpoints
   getProjectOverview: `${environment.apiBaseUrl}/api/projects/:projectId/overview`,
   updateProjectOverview: `${environment.apiBaseUrl}/api/projects/:projectId/overview`,
   getProjectActivities: `${environment.apiBaseUrl}/api/projects/:projectId/activities`,
+  
+  // Project Messages endpoints
+  getProjectMessages: `${environment.apiBaseUrl}/api/projects/:projectId/getMessages`,
+  createProjectMessage: `${environment.apiBaseUrl}/api/projects/:projectId/messages`,
+  updateProjectMessage: `${environment.apiBaseUrl}/api/project-messages/:messageId`,
+  pinProjectMessage: `${environment.apiBaseUrl}/api/project-messages/:messageId/pin`,
+  deleteProjectMessage: `${environment.apiBaseUrl}/api/project-messages/:messageId`,
 };
 

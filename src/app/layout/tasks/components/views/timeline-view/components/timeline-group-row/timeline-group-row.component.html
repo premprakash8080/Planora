@@ -1,0 +1,45 @@
+<div
+  class="timeline-row"
+  [class.is-collapsed]="group.collapsed"
+  [style.gridTemplateColumns]="groupColumnWidth + 'px 1fr'"
+>
+  <div class="group-column">
+    <button class="collapse-btn" (click)="onToggleCollapse($event)">
+      <mat-icon>{{ group.collapsed ? 'chevron_right' : 'expand_more' }}</mat-icon>
+    </button>
+    <div class="group-meta">
+      <div class="group-title">{{ group.title }}</div>
+      <div class="group-subtitle">{{ group.taskCount }} tasks</div>
+    </div>
+  </div>
+
+  <div class="timeline-grid" #gridRef [style.width.px]="timelineWidthPx">
+    <div class="today-line" *ngIf="todayOffsetPx !== null" [style.left.px]="todayOffsetPx"></div>
+
+    <ng-container *ngIf="!group.collapsed; else collapsedState">
+      <div
+        class="timeline-task"
+        *ngFor="let task of group.tasks; trackBy: trackTaskById"
+        cdkDrag
+        cdkDragAxis="x"
+        [cdkDragBoundary]="gridRef"
+        [style.left.px]="getTaskOffset(task)"
+        [style.width.px]="getTaskWidth(task)"
+        (cdkDragEnded)="onTaskDragEnded($event, task)"
+      >
+        <div class="task-title">{{ task.title }}</div>
+        <div class="task-meta">
+          <span>{{ task.startDateDisplay || task.startDate }}</span>
+          <mat-icon>trending_flat</mat-icon>
+          <span>{{ task.dueDateDisplay || task.dueDate }}</span>
+        </div>
+      </div>
+    </ng-container>
+
+    <ng-template #collapsedState>
+      <div class="collapsed-placeholder">Section collapsed</div>
+    </ng-template>
+  </div>
+</div>
+
+

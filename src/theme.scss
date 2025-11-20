@@ -52,20 +52,13 @@ $dark-theme: mat.define-dark-theme((
 @include mat.core();
 @include mat.all-component-themes($light-theme);
 
-.mat-dark-theme {
-  @include mat.all-component-colors($dark-theme);
-}
-
 .mat-typography {
   @include mat.typography-hierarchy($typography-config);
 }
 
+// Dark theme Material components
 [data-theme="dark"],
-.dark-theme {
-  --color-background: #1e1e1e;
-  --color-surface: #262626;
-  --color-border: rgba(255, 255, 255, 0.08);
-  --color-text-heading: #f3f4f6;
-  --color-text-body: #e5e7eb;
-  --color-muted: #9ca3af;
+.dark-theme,
+body.dark-theme {
+  @include mat.all-component-colors($dark-theme);
 }

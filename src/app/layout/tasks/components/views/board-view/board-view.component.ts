@@ -130,6 +130,7 @@ export class BoardViewComponent implements OnInit, OnDestroy {
               taskCount: column.tasks?.length ?? 0,
               tasks: column.tasks ?? [],
             }));
+            this.error = null;
             this.loading = false;
             this.cdr.detectChanges();
           });

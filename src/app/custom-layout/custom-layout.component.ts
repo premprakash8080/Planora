@@ -1,5 +1,5 @@
 import { BreakpointObserver } from '@angular/cdk/layout';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { NavigationEnd, Router } from '@angular/router';
 import { Observable, Subject, BehaviorSubject } from 'rxjs';
@@ -7,6 +7,7 @@ import { filter, map, shareReplay, takeUntil } from 'rxjs/operators';
 import { SidebarSection, SidebarNavItem } from '../shared/ui/app-sidebar/app-sidebar.component';
 import { ProjectService, Project } from '../layout/tasks/services/project.service';
 import { ProjectDialogComponent } from './components/project-dialog/project-dialog.component';
+import { ThemeService } from '../shared/services/theme.service';
 
 interface ProjectNavItem {
   id: string;
@@ -20,7 +21,7 @@ interface ProjectNavItem {
   styleUrls: ['./custom-layout.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CustomLayoutComponent implements OnDestroy {
+export class CustomLayoutComponent implements OnInit, OnDestroy {
   readonly isMobile$: Observable<boolean> = this.breakpointObserver
     .observe('(max-width: 1024px)')
     .pipe(
@@ -43,7 +44,8 @@ export class CustomLayoutComponent implements OnDestroy {
     private readonly router: Router,
     private readonly projectService: ProjectService,
     private readonly dialog: MatDialog,
-    private readonly cdr: ChangeDetectorRef
+    private readonly cdr: ChangeDetectorRef,
+    private readonly themeService: ThemeService
   ) {
     this.loadProjects();
     
@@ -57,6 +59,12 @@ export class CustomLayoutComponent implements OnDestroy {
           this.mobileSidebarOpen = false;
         }
       });
+  }
+
+  ngOnInit(): void {
+    // Initialize theme service - this will apply the saved theme or system preference
+    // The service is already initialized in its constructor, but we ensure it's ready
+    this.themeService.theme$.pipe(takeUntil(this.destroy$)).subscribe();
   }
 
   handleMenuToggle(): void {

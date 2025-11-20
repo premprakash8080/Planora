@@ -1,10 +1,223 @@
-<div class="tasks-view tasks-view--placeholder">
-  <app-task-header [projectTitle]="'Calendar View'"></app-task-header>
+<div class="tasks-view tasks-view--calendar">
+  <app-task-header [projectTitle]="projectTitle"></app-task-header>
 
-  <div class="placeholder-content">
-    <mat-icon>calendar_month</mat-icon>
-    <h2>Calendar View</h2>
-    <p>Plan and schedule your tasks on a calendar grid. This feature is coming soon.</p>
-    <button mat-flat-button color="primary" disabled>Coming Soon</button>
+  <div class="calendar-toolbar">
+    <div class="toolbar-left">
+      <button mat-flat-button color="primary" (click)="startQuickAdd(activeDayDetail || weeks[0]?.days[0], $event)">
+        <mat-icon>add</mat-icon>
+        Add task
+      </button>
+
+      <button mat-stroked-button class="today-btn" (click)="goToToday()">
+        <mat-icon>today</mat-icon>
+        Today
+      </button>
+
+      <div class="nav-buttons">
+        <button mat-icon-button (click)="previousMonth()" matTooltip="Previous month">
+          <mat-icon>chevron_left</mat-icon>
+        </button>
+        <div class="month-title">{{ monthLabel }}</div>
+        <button mat-icon-button (click)="nextMonth()" matTooltip="Next month">
+          <mat-icon>chevron_right</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <div class="toolbar-right">
+      <div class="view-switcher">
+        <button type="button" [class.active]="viewMode === 'month'">Month</button>
+        <button type="button" disabled>Week</button>
+        <button type="button" disabled>Agenda</button>
+      </div>
+
+      <mat-slide-toggle color="primary" [(ngModel)]="syncEnabled" (change)="toggleSync($event.checked)">
+        Sync calendar
+      </mat-slide-toggle>
+
+      <button mat-icon-button matTooltip="Filter calendar">
+        <mat-icon>filter_list</mat-icon>
+      </button>
+
+      <mat-form-field appearance="outline" class="calendar-search">
+        <mat-icon matPrefix>search</mat-icon>
+        <input matInput placeholder="Search tasks" [formControl]="searchControl" />
+      </mat-form-field>
+
+      <button mat-icon-button (click)="refresh()" [disabled]="loading" matTooltip="Refresh calendar">
+        <mat-icon>refresh</mat-icon>
+      </button>
+    </div>
   </div>
+
+  <div class="calendar-wrapper" *ngIf="!loading && !error; else calendarState">
+    <div *ngIf="isEmptyState" class="calendar-empty-state">
+      <mat-icon>calendar_month</mat-icon>
+      <h3>No tasks with dates</h3>
+      <p>Add start or due dates to your tasks to see them on the calendar.</p>
+    </div>
+
+    <div class="calendar-grid" *ngIf="!isEmptyState">
+      <div class="weekday-row">
+        <div class="weekday" *ngFor="let name of weekdayLabels">{{ name }}</div>
+      </div>
+
+      <div
+        class="calendar-week"
+        *ngFor="let week of weeks; let weekIndex = index; trackBy: trackByWeek"
+        #weekGrid
+      >
+        <div class="week-grid" [style.gridTemplateRows]="'100px repeat(' + max(week.maxRows, 1) + ', 32px)'">
+          <div
+            class="day-cell"
+            *ngFor="let day of week.days; trackBy: trackByDay"
+            [class.is-outside]="!day.inCurrentMonth"
+            [class.is-today]="day.isToday"
+            (click)="showDayDetails(day, $event)"
+          >
+            <div class="day-header">
+              <span class="day-number">{{ day.label }}</span>
+              <button
+                class="day-add-btn"
+                mat-icon-button
+                (click)="startQuickAdd(day, $event)"
+                matTooltip="Add task"
+              >
+                <mat-icon>add</mat-icon>
+              </button>
+            </div>
+
+            <div class="day-tasks">
+              <button
+                class="day-task"
+                *ngFor="let task of day.visibleTasks"
+                [class.completed]="task.completed"
+                matTooltip="{{ task.title }}"
+                (click)="onTaskClick(task)"
+              >
+                <span class="dot" [style.background]="task.projectColor || '#94a3b8'"></span>
+                <span class="task-title">{{ task.title }}</span>
+              </button>
+              <button
+                *ngIf="day.hiddenCount > 0"
+                class="more-pill"
+                (click)="showDayDetails(day, $event)"
+              >
+                +{{ day.hiddenCount }} more
+              </button>
+            </div>
+
+            <form
+              class="quick-add"
+              *ngIf="addingDay?.iso === day.iso"
+              (submit)="saveQuickAdd()"
+              (click)="$event.stopPropagation()"
+            >
+              <input
+                type="text"
+                placeholder="New task..."
+                [(ngModel)]="newTaskTitle"
+                name="newTaskTitle"
+                required
+                autofocus
+              />
+              <div class="quick-add-actions">
+                <button mat-stroked-button type="button" (click)="cancelQuickAdd()">Cancel</button>
+                <button mat-flat-button color="primary" type="submit">Add</button>
+              </div>
+            </form>
+          </div>
+
+          <div
+            class="task-layer"
+            [style.gridTemplateColumns]="'repeat(7, 1fr)'"
+            [style.gridTemplateRows]="'repeat(' + max(week.maxRows, 1) + ', 32px)'"
+          >
+            <div
+              class="task-bar"
+              *ngFor="let segment of week.segments; trackBy: trackBySegment"
+              [style.gridColumn]="segment.startColumn + ' / span ' + segment.span"
+              [style.gridRow]="(segment.row + 1)"
+              [style.background]="segment.task.projectColor || '#8b5cf6'"
+              [class.completed]="segment.task.completed"
+              cdkDrag
+              cdkDragLockAxis="x"
+              [cdkDragBoundary]="weekGrid"
+              (cdkDragEnded)="onSegmentDragEnded($event, segment)"
+            >
+              <div class="task-bar-content" (click)="onTaskClick(segment.task)">
+                <span class="task-title">{{ segment.task.title }}</span>
+                <span class="assignee-pill" *ngIf="segment.task.assignee">
+                  {{ segment.task.assignee.initials || segment.task.assignee.name | slice:0:2 }}
+                </span>
+              </div>
+              <span
+                class="resize-handle start"
+                *ngIf="segment.isStart"
+                cdkDrag
+                cdkDragLockAxis="x"
+                [cdkDragBoundary]="weekGrid"
+                (cdkDragEnded)="onResizeDragEnded($event, segment, 'start')"
+              ></span>
+              <span
+                class="resize-handle end"
+                *ngIf="segment.isEnd"
+                cdkDrag
+                cdkDragLockAxis="x"
+                [cdkDragBoundary]="weekGrid"
+                (cdkDragEnded)="onResizeDragEnded($event, segment, 'end')"
+              ></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="day-detail-overlay" *ngIf="activeDayDetail">
+        <div class="overlay-header">
+          <div>
+            <div class="overlay-date">{{ activeDayDetail.date | date: 'EEEE, MMM d' }}</div>
+            <div class="overlay-count">{{ activeDayDetail.tasks.length }} tasks</div>
+          </div>
+          <button mat-icon-button (click)="closeDayDetails()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+        <div class="overlay-body">
+          <button
+            class="overlay-task"
+            *ngFor="let task of activeDayDetail.tasks"
+            (click)="onTaskClick(task)"
+          >
+            <span class="dot" [style.background]="task.projectColor || '#94a3b8'"></span>
+            <div class="overlay-task-info">
+              <div class="overlay-task-title" [class.completed]="task.completed">{{ task.title }}</div>
+              <div class="overlay-task-meta">
+                <span *ngIf="task.assignee">{{ task.assignee.name }}</span>
+                <span *ngIf="task.description">· {{ task.description }}</span>
+              </div>
+            </div>
+          </button>
+        </div>
+        <div class="overlay-footer">
+          <button mat-stroked-button (click)="startQuickAdd(activeDayDetail, $event)">
+            <mat-icon>add</mat-icon>
+            Add task
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <ng-template #calendarState>
+    <div class="calendar-loading" *ngIf="loading">
+      <mat-progress-spinner diameter="40" mode="indeterminate"></mat-progress-spinner>
+      <span>Loading calendar…</span>
+    </div>
+
+    <div class="calendar-error" *ngIf="!loading && error">
+      <mat-icon color="warn">error</mat-icon>
+      <p>{{ error }}</p>
+      <button mat-stroked-button color="primary" (click)="refresh()">Retry</button>
+    </div>
+  </ng-template>
 </div>

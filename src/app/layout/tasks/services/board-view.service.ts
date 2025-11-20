@@ -11,6 +11,8 @@ export interface BoardViewTask {
   description?: string;
   completed: boolean;
   order: number;
+  startDate?: string | null;
+  startDateDisplay?: string | null;
   dueDate?: string | null;
   dueDateDisplay?: string | null;
   dueDateRelative?: string | null;

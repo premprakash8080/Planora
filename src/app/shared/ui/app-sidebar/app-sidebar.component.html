@@ -93,5 +93,20 @@
       </div>
     </div>
   </div>
+
+  <!-- Theme Toggle -->
+  <div class="app-sidebar__theme-toggle">
+    <button
+      mat-button
+      type="button"
+      class="app-sidebar__theme-button"
+      (click)="toggleTheme()"
+      [attr.aria-label]="currentTheme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'"
+      [title]="currentTheme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'"
+    >
+      <mat-icon>{{ currentTheme === 'dark' ? 'light_mode' : 'dark_mode' }}</mat-icon>
+      <span class="app-sidebar__theme-label" *ngIf="!collapsed">{{ currentTheme === 'dark' ? 'Light Mode' : 'Dark Mode' }}</span>
+    </button>
+  </div>
 </aside>
 

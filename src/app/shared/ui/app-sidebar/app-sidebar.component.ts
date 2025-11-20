@@ -1,4 +1,6 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, OnDestroy, Output } from '@angular/core';
+import { Subject, takeUntil } from 'rxjs';
+import { ThemeService, Theme } from '../../services/theme.service';
 
 export interface SidebarNavItem {
   label: string;
@@ -22,7 +24,7 @@ export interface SidebarSection {
   styleUrls: ['./app-sidebar.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class AppSidebarComponent {
+export class AppSidebarComponent implements OnDestroy {
   @Input() appName = 'Planora';
   @Input() logoUrl?: string;
   @Input() sections: SidebarSection[] = [];
@@ -31,6 +33,21 @@ export class AppSidebarComponent {
   @Output() collapsedChange = new EventEmitter<boolean>();
   @Output() navigate = new EventEmitter<SidebarNavItem>();
   @Output() createProject = new EventEmitter<void>();
+
+  currentTheme: Theme = 'light';
+  private readonly destroy$ = new Subject<void>();
+
+  constructor(
+    private readonly themeService: ThemeService,
+    private readonly cdr: ChangeDetectorRef
+  ) {
+    this.themeService.theme$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(theme => {
+        this.currentTheme = theme;
+        this.cdr.markForCheck();
+      });
+  }
 
   toggleCollapse(): void {
     this.collapsed = !this.collapsed;
@@ -51,6 +68,15 @@ export class AppSidebarComponent {
 
   trackByItem(index: number, item: SidebarNavItem): string {
     return `${item.route || item.label}-${index}`;
+  }
+
+  toggleTheme(): void {
+    this.themeService.toggleTheme();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }
 

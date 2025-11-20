@@ -9,30 +9,54 @@
 @import "./@vex/styles/core";
 @import "./assets/cus_theme";
 
-:root {
+// Light Theme (Default)
+:root,
+[data-theme="light"] {
+  // Primary Colors
   --color-primary: #{tokens.$color-primary};
   --color-primary-dark: #{tokens.$color-primary-dark};
+  --color-primary-light: #{tokens.$color-primary-light};
   --color-accent: #{tokens.$color-accent};
+  --color-accent-dark: #{tokens.$color-accent-dark};
+  --color-warning: #{tokens.$color-warning};
+  --color-danger: #{tokens.$color-danger};
 
+  // Background & Surface
   --color-bg: #{tokens.$color-background};
+  --color-background: #{tokens.$color-background};
   --color-surface: #{tokens.$color-surface};
+  --color-surface-dark: #{tokens.$color-surface-dark};
+  --color-surface-hover: rgba(37, 99, 235, 0.04);
+  --color-surface-secondary: #f9fafb;
+  --color-surface-tertiary: #f1f3f5;
+
+  // Text Colors
   --color-text-heading: #{tokens.$color-text-heading};
   --color-text-body: #{tokens.$color-text-body};
   --color-text-subtle: #{tokens.$color-text-subtle};
-  --color-border: #{tokens.$color-border};
+  --color-muted: #{tokens.$color-muted};
 
+  // Borders & Dividers
+  --color-border: #{tokens.$color-border};
+  --color-border-dark: #{tokens.$color-border-dark};
+
+  // Radius
   --radius-sm: #{tokens.$radius-sm};
   --radius-md: #{tokens.$radius-md};
   --radius-lg: #{tokens.$radius-lg};
   --radius-xl: #{tokens.$radius-xl};
+  --radius-full: #{tokens.$radius-full};
 
+  // Typography
   --font-family-base: #{tokens.$font-family-base};
 
+  // Shadows
   --shadow-xs: #{tokens.$shadow-xs};
   --shadow-sm: #{tokens.$shadow-sm};
   --shadow-md: #{tokens.$shadow-md};
   --shadow-lg: #{tokens.$shadow-lg};
 
+  // Spacing
   --spacing-1: #{tokens.space(1)};
   --spacing-2: #{tokens.space(2)};
   --spacing-3: #{tokens.space(3)};
@@ -45,12 +69,43 @@
   --spacing-10: #{tokens.space(10)};
 }
 
+// Dark Theme
+[data-theme="dark"],
+.dark-theme,
 body.dark-theme {
+  // Primary Colors (same for both themes)
+  --color-primary: #{tokens.$color-primary};
+  --color-primary-dark: #{tokens.$color-primary-dark};
+  --color-primary-light: #{tokens.$color-primary-light};
+  --color-accent: #{tokens.$color-accent};
+  --color-accent-dark: #{tokens.$color-accent-dark};
+  --color-warning: #{tokens.$color-warning};
+  --color-danger: #{tokens.$color-danger};
+
+  // Background & Surface
   --color-bg: #{tokens.$color-background-dark};
+  --color-background: #{tokens.$color-background-dark};
   --color-surface: #{tokens.$color-surface-dark};
+  --color-surface-dark: #1f2937;
+  --color-surface-hover: rgba(148, 163, 184, 0.1);
+  --color-surface-secondary: #1f2937;
+  --color-surface-tertiary: #111827;
+
+  // Text Colors
   --color-text-heading: #{tokens.$color-text-heading-dark};
   --color-text-body: #{tokens.$color-text-body-dark};
+  --color-text-subtle: #9ca3af;
+  --color-muted: #9ca3af;
+
+  // Borders & Dividers
   --color-border: #{tokens.$color-border-dark};
+  --color-border-dark: rgba(255, 255, 255, 0.12);
+
+  // Shadows (lighter in dark mode)
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 20px 45px rgba(0, 0, 0, 0.6);
 }
 
 *,
