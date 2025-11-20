@@ -23,6 +23,7 @@
       [getAssigneeAvatar]="getAssigneeAvatar" [getAssigneeInitials]="getAssigneeInitials"
       [getAssigneeColor]="getAssigneeColor" [formatDueDate]="formatDueDate" [getDueDate]="getDueDate"
       [getStatusColor]="getStatusColor" [getStatusLabel]="getStatusLabel"
+      [gridTemplateColumns]="gridTemplateColumns"
       (rowClick)="openTaskDetail.emit({section, task})" (toggleCompleted)="toggleCompleted.emit({section, task})"
       (nameChange)="onNameChange(task, $event)" (assigneeSelect)="onAssigneeSelect(task, $event)"
       (dueDateChange)="onDueDateChange(task, $event)" (prioritySelect)="onPrioritySelect(task, $event)"

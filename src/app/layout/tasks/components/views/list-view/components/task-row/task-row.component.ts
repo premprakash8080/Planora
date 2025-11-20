@@ -46,6 +46,7 @@ export class TaskRowComponent {
   @Input() assigneeItems: DropdownPopoverItem[] = [];
   @Input() priorityItems: DropdownPopoverItem[] = [];
   @Input() statusItems: DropdownPopoverItem[] = [];
+  @Input() gridTemplateColumns: string = '';
 
   // helpers from parent
   @Input() getAssigneeAvatar!: (assignee: string | undefined) => string | null;

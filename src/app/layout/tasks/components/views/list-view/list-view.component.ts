@@ -65,6 +65,20 @@ export class ListViewComponent implements OnInit, AfterViewInit, OnDestroy {
   selectedSection: TaskSection | null = null;
   currentProject: Project | null = null;
 
+  // Column resize state
+  columnWidths: { [key: string]: number } = {
+    name: 300,
+    assignee: 150,
+    dueDate: 150,
+    priority: 100,
+    status: 100,
+    comments: 80
+  };
+  private isResizing = false;
+  private resizingColumn: string | null = null;
+  private startX = 0;
+  private startWidth = 0;
+
   constructor(
     private readonly taskService: TaskService,
     private readonly route: ActivatedRoute,
@@ -77,6 +91,8 @@ export class ListViewComponent implements OnInit, AfterViewInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    // Load column widths from localStorage
+    this.loadColumnWidths();
     // Load members for assignee dropdown
     this.loadMembers();
 
@@ -1009,7 +1025,71 @@ export class ListViewComponent implements OnInit, AfterViewInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+    // Save column widths to localStorage
+    this.saveColumnWidths();
   }
+
+  // Column resize methods
+  loadColumnWidths(): void {
+    const saved = localStorage.getItem('task-list-column-widths');
+    if (saved) {
+      try {
+        this.columnWidths = { ...this.columnWidths, ...JSON.parse(saved) };
+      } catch (e) {
+        console.warn('Failed to load column widths:', e);
+      }
+    }
+  }
+
+  saveColumnWidths(): void {
+    try {
+      localStorage.setItem('task-list-column-widths', JSON.stringify(this.columnWidths));
+    } catch (e) {
+      console.warn('Failed to save column widths:', e);
+    }
+  }
+
+  getGridTemplateColumns(): string {
+    return `${this.columnWidths.name}px ${this.columnWidths.assignee}px ${this.columnWidths.dueDate}px ${this.columnWidths.priority}px ${this.columnWidths.status}px ${this.columnWidths.comments}px`;
+  }
+
+  onResizeStart(event: MouseEvent, column: string): void {
+    event.preventDefault();
+    event.stopPropagation();
+    this.isResizing = true;
+    this.resizingColumn = column;
+    this.startX = event.clientX;
+    this.startWidth = this.columnWidths[column];
+    
+    document.addEventListener('mousemove', this.onResizeMove);
+    document.addEventListener('mouseup', this.onResizeEnd);
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+  }
+
+  onResizeMove = (event: MouseEvent): void => {
+    if (!this.isResizing || !this.resizingColumn) {
+      return;
+    }
+    
+    const diff = event.clientX - this.startX;
+    const newWidth = Math.max(80, this.startWidth + diff); // Minimum width 80px
+    this.columnWidths[this.resizingColumn] = newWidth;
+    this.cdr.detectChanges();
+  };
+
+  onResizeEnd = (): void => {
+    if (this.isResizing) {
+      this.isResizing = false;
+      this.resizingColumn = null;
+      this.saveColumnWidths();
+    }
+    
+    document.removeEventListener('mousemove', this.onResizeMove);
+    document.removeEventListener('mouseup', this.onResizeEnd);
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+  };
 
   /** Handle project title change */
   onProjectTitleChange(newTitle: string): void {

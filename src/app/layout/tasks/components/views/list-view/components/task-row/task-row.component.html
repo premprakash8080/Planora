@@ -1,6 +1,7 @@
 <div
   class="task-grid-row"
   [class.task-grid-row--selected]="selected"
+  [style.grid-template-columns]="gridTemplateColumns"
   (click)="rowClick.emit()"
 >
   <div class="grid-cell grid-cell--name">
@@ -19,7 +20,6 @@
         (blur)="nameChange.emit(localNameDraft || task.name || '')"
         (keydown.enter)="$event.preventDefault(); nameChange.emit(localNameDraft || task.name || '')"
         (keydown.escape)="localNameDraft = task.name || ''"
-        [style.width.px]="180"
         (click)="$event.stopPropagation()"
       />
     </div>

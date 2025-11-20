@@ -27,6 +27,7 @@ export class TaskSectionComponent {
   @Input() assigneeItems: DropdownPopoverItem[] = [];
   @Input() priorityItems: DropdownPopoverItem[] = [];
   @Input() statusItems: DropdownPopoverItem[] = [];
+  @Input() gridTemplateColumns: string = '';
 
   @Output() toggleSection = new EventEmitter<TaskSection>();
   @Output() openTaskDetail = new EventEmitter<{ section: TaskSection; task: Task }>();
