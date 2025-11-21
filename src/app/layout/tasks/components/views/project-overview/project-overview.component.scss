@@ -574,7 +574,8 @@
     min-width: 80px;
     padding: space(1.25) space(2);
     font-size: font-size(xs);
-    flex: 1 1 calc(50% - space(0.75));
+    // Calculate width accounting for gap: 50% minus half the gap (space(1) = 0.25rem)
+    flex: 1 1 calc(50% - #{space(1)});
   }
 
   &:hover:not(:disabled) {
