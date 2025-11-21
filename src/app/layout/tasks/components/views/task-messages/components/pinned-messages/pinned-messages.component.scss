@@ -1,0 +1,33 @@
+@use 'src/styles/tokens' as *;
+
+.pinned-section {
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+  margin-bottom: space(3);
+  padding-bottom: space(3);
+
+  &.dark-theme {
+    border-bottom-color: var(--color-border-dark, #374151);
+  }
+}
+
+.section-divider {
+  display: flex;
+  align-items: center;
+  gap: space(1);
+  margin-bottom: space(3);
+  font-size: font-size(xs);
+  font-weight: 600;
+  color: var(--color-muted, #6b7280);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+
+  &.dark-theme {
+    color: var(--color-muted, #9ca3af);
+  }
+
+  .pin-icon {
+    font-size: 16px;
+    color: var(--color-primary, #8b5cf6);
+  }
+}
+

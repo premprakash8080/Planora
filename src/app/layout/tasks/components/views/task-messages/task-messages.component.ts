@@ -22,7 +22,6 @@ import { SnackBarService } from 'src/app/shared/services/snackbar.service';
 })
 export class TaskMessagesComponent implements OnInit, OnDestroy {
   @ViewChild('messagesContainer', { static: false }) messagesContainer!: ElementRef<HTMLElement>;
-  @ViewChild('composerTextarea', { static: false }) composerTextarea?: ElementRef<HTMLTextAreaElement>;
 
   projectTitle = 'Messages';
   projectId: string | null = null;
@@ -184,27 +183,29 @@ export class TaskMessagesComponent implements OnInit, OnDestroy {
     this.editingContent = '';
   }
 
-  saveEdit(): void {
-    if (!this.editingMessageId || !this.editingContent.trim()) {
+  saveEdit(messageId?: string, content?: string): void {
+    const id = messageId || this.editingMessageId;
+    const editContent = content || this.editingContent;
+    
+    if (!id || !editContent?.trim()) {
       return;
     }
 
-    const content = this.editingContent.trim();
-    const messageId = this.editingMessageId;
+    const trimmedContent = editContent.trim();
 
     // Optimistic update
     this.messages = this.messages.map(m =>
-      m.id === messageId ? { ...m, content, updatedAt: new Date().toISOString() } : m
+      m.id === id ? { ...m, content: trimmedContent, updatedAt: new Date().toISOString() } : m
     );
     this.updateMessageLists();
     this.editingMessageId = null;
     this.editingContent = '';
     this.cdr.markForCheck();
 
-    this.messagesService.updateMessage(messageId, content).pipe(takeUntil(this.destroy$)).subscribe({
+    this.messagesService.updateMessage(id, trimmedContent).pipe(takeUntil(this.destroy$)).subscribe({
       next: (updated) => {
         this.ngZone.run(() => {
-          this.messages = this.messages.map(m => m.id === messageId ? updated : m);
+          this.messages = this.messages.map(m => m.id === id ? updated : m);
           this.updateMessageLists();
           this.cdr.markForCheck();
         });
@@ -280,105 +281,31 @@ export class TaskMessagesComponent implements OnInit, OnDestroy {
     });
   }
 
-  canEdit(message: ProjectMessage): boolean {
+  canEditMessage(message: ProjectMessage): boolean {
     return this.currentUserId === message.author?.id;
   }
 
-  canDelete(message: ProjectMessage): boolean {
+  canDeleteMessage(message: ProjectMessage): boolean {
     return this.currentUserId === message.author?.id || this.isProjectAdmin;
   }
 
-  canPin(): boolean {
+  get canPinMessage(): boolean {
     return this.isProjectAdmin;
-  }
-
-  formatTime(dateString: string): string {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMs / 3600000);
-    const diffDays = Math.floor(diffMs / 86400000);
-
-    if (diffMins < 1) {
-      return 'Just now';
-    } else if (diffMins < 60) {
-      return `${diffMins}m ago`;
-    } else if (diffHours < 24) {
-      return `${diffHours}h ago`;
-    } else if (diffDays < 7) {
-      return `${diffDays}d ago`;
-    } else {
-      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    }
-  }
-
-  onComposerKeyDown(event: KeyboardEvent): void {
-    if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) {
-      event.preventDefault();
-      this.sendMessage();
-    }
-  }
-
-  adjustComposerHeight(event: Event): void {
-    const textarea = event.target as HTMLTextAreaElement;
-    if (textarea) {
-      // Reset height to auto to get the correct scrollHeight
-      textarea.style.height = 'auto';
-      // Set height based on scrollHeight, with min and max constraints
-      const newHeight = Math.min(Math.max(textarea.scrollHeight, 40), 200);
-      textarea.style.height = `${newHeight}px`;
-    }
   }
 
   trackByMessageId(index: number, message: ProjectMessage): string {
     return message.id;
   }
 
-  formatMessageContent(content: string): string {
-    // Simple markdown-like formatting (basic implementation)
-    let formatted = content
-      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.+?)\*/g, '<em>$1</em>')
-      .replace(/`(.+?)`/g, '<code>$1</code>')
-      .replace(/\n/g, '<br>');
-    
-    // Basic link detection
-    formatted = formatted.replace(
-      /(https?:\/\/[^\s]+)/g,
-      '<a href="$1" target="_blank" rel="noopener">$1</a>'
-    );
-    
-    return formatted;
+  onContentChange(content: string): void {
+    this.newMessageContent = content;
   }
 
-  focusComposer(): void {
-    if (this.composerTextarea?.nativeElement) {
-      this.composerTextarea.nativeElement.focus();
-    }
-  }
-
-  insertMarkdown(before: string, after: string): void {
-    if (!this.composerTextarea?.nativeElement) {
-      return;
-    }
-    
-    const textarea = this.composerTextarea.nativeElement;
-    const start = textarea.selectionStart;
-    const end = textarea.selectionEnd;
-    const selectedText = this.newMessageContent.substring(start, end);
-    const replacement = before + selectedText + after;
-    
-    this.newMessageContent =
-      this.newMessageContent.substring(0, start) +
-      replacement +
-      this.newMessageContent.substring(end);
-    
-    // Restore cursor position
-    setTimeout(() => {
-      textarea.focus();
-      textarea.setSelectionRange(start + before.length, start + before.length + selectedText.length);
-    }, 0);
+  onInsertMarkdown(before: string, after: string): void {
+    // This will be handled by the composer component
+    // For now, just insert at the end
+    this.newMessageContent = this.newMessageContent + before + after;
+    this.cdr.markForCheck();
   }
 
   private updateMessageLists(): void {

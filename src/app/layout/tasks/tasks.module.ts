@@ -43,6 +43,10 @@ import { TimelineGroupRowComponent } from './components/views/timeline-view/comp
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MessageItemComponent } from './components/views/task-messages/components/message-item/message-item.component';
+import { MessageComposerComponent } from './components/views/task-messages/components/message-composer/message-composer.component';
+import { MessagesEmptyStateComponent } from './components/views/task-messages/components/empty-state/empty-state.component';
+import { PinnedMessagesComponent } from './components/views/task-messages/components/pinned-messages/pinned-messages.component';
 
 
 @NgModule({
@@ -66,7 +70,11 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
     TaskMessagesComponent,
     TaskFilesComponent,
     ProjectMembersModalComponent,
-    TimelineGroupRowComponent
+    TimelineGroupRowComponent,
+    MessageItemComponent,
+    MessageComposerComponent,
+    MessagesEmptyStateComponent,
+    PinnedMessagesComponent
   ],
   imports: [
     CommonModule,
