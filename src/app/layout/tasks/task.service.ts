@@ -214,6 +214,74 @@ export class TaskService {
   }
 
   /**
+   * Reorder tasks within a section (for drag-and-drop within same section)
+   */
+  reorderTasksInSection(sectionId: string, taskPositions: Array<{ task_id: string; position: number }>): Observable<any> {
+    return this.taskApiService.reorderTasksInSection(sectionId, taskPositions).pipe(
+      tap(() => {
+        // Reload sections to get updated positions
+        // Find which project this section belongs to
+        for (const [projectId, subject] of this.projectSections.entries()) {
+          const section = subject.value.find(s => s.id === sectionId);
+          if (section) {
+            this.loadSections(projectId).subscribe();
+            break;
+          }
+        }
+      }),
+      catchError((error) => {
+        this.snackBarService.showError('Failed to reorder tasks');
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
+   * Move task to a different section (for drag-and-drop between sections)
+   */
+  moveTaskToSection(taskId: string, newSectionId: string, position: number): Observable<Task> {
+    return this.taskApiService.moveTaskToSection(taskId, newSectionId, position).pipe(
+      tap((updatedTask) => {
+        // Reload sections to get updated data
+        // Find which project this section belongs to
+        for (const [projectId, subject] of this.projectSections.entries()) {
+          const section = subject.value.find(s => s.id === newSectionId);
+          if (section) {
+            this.loadSections(projectId).subscribe();
+            break;
+          }
+        }
+      }),
+      catchError((error) => {
+        this.snackBarService.showError('Failed to move task');
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
+   * Move task with before/after task support (Asana-style drag & drop)
+   * @param taskId - The task ID to move
+   * @param options - Move options including sectionId (target section), beforeTaskId, afterTaskId
+   */
+  moveTask(taskId: string, options: { taskId?: string; sectionId?: string; beforeTaskId?: string; afterTaskId?: string }): Observable<Task> {
+    return this.taskApiService.moveTask(taskId, options).pipe(
+      tap((updatedTask) => {
+        // Reload sections to get updated data
+        // Find which project this task belongs to
+        for (const [projectId] of this.projectSections.entries()) {
+          this.loadSections(projectId).subscribe();
+          break;
+        }
+      }),
+      catchError((error) => {
+        this.snackBarService.showError('Failed to move task');
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
    * Delete task comment
    */
   deleteTaskComment(commentId: string, taskId: string): Observable<void> {

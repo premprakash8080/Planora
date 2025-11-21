@@ -20,6 +20,7 @@ import { AppCardComponent } from './app-card/app-card.component';
 import { AppButtonComponent } from './app-button/app-button.component';
 import { AppTableComponent } from './app-table/app-table.component';
 import { AppCalendarComponent } from './app-calendar/app-calendar.component';
+import { AppDateRangePickerComponent } from './app-date-range-picker/app-date-range-picker.component';
 import { AppAvatarComponent } from './app-avatar/app-avatar.component';
 import { AppLoadingComponent } from './app-loading/app-loading.component';
 import { AppPaginationComponent } from './app-pagination/app-pagination.component';
@@ -36,6 +37,7 @@ import { DropdownContentDirective } from './dropdown-popover/dropdown-content.di
     AppButtonComponent,
     AppTableComponent,
     AppCalendarComponent,
+    AppDateRangePickerComponent,
     AppAvatarComponent,
     AppLoadingComponent,
     AppPaginationComponent,
@@ -68,6 +70,7 @@ import { DropdownContentDirective } from './dropdown-popover/dropdown-content.di
     AppButtonComponent,
     AppTableComponent,
     AppCalendarComponent,
+    AppDateRangePickerComponent,
     AppAvatarComponent,
     AppLoadingComponent,
     AppPaginationComponent,

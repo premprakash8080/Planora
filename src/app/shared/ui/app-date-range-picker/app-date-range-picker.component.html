@@ -1,0 +1,53 @@
+<div class="date-range-picker" #calendarContainer>
+  <!-- Header -->
+  <div class="picker-header">
+    <button type="button" class="nav-button" (click)="previousMonth()" matTooltip="Previous month">
+      <mat-icon>chevron_left</mat-icon>
+    </button>
+    <div class="month-label">
+      <button type="button" class="month-button" (click)="goToToday()">
+        {{ getMonthLabel() }}
+      </button>
+    </div>
+    <button type="button" class="nav-button" (click)="nextMonth()" matTooltip="Next month">
+      <mat-icon>chevron_right</mat-icon>
+    </button>
+  </div>
+
+  <!-- Day names header -->
+  <div class="day-names">
+    <div class="day-name" *ngFor="let dayIndex of [0, 1, 2, 3, 4, 5, 6]">
+      {{ getDayName(dayIndex) }}
+    </div>
+  </div>
+
+  <!-- Calendar grid -->
+  <div class="calendar-grid">
+    <div class="week" *ngFor="let week of weeks">
+      <div
+        class="day-cell"
+        *ngFor="let date of week"
+        [class.day-cell--other-month]="!isCurrentMonth(date)"
+        [class.day-cell--today]="isToday(date)"
+        [class.day-cell--selected]="isSelected(date)"
+        [class.day-cell--in-range]="isInRange(date) || isInHoverRange(date)"
+        [class.day-cell--range-start]="isStart(date)"
+        [class.day-cell--range-end]="isEnd(date)"
+        [class.day-cell--hover-start]="isHoverStart(date)"
+        [class.day-cell--hover-end]="isHoverEnd(date)"
+        (click)="onDateClick(date)"
+        (mouseenter)="onDateHover(date)"
+        (mouseleave)="onDateLeave()"
+      >
+        <span class="day-number">{{ date.getDate() }}</span>
+        <span class="day-label" *ngIf="isToday(date)">Today</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hint text -->
+  <div class="picker-hint">
+    {{ getHintText() }}
+  </div>
+</div>
+

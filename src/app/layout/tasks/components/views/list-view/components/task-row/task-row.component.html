@@ -1,9 +1,19 @@
 <div
   class="task-grid-row"
   [class.task-grid-row--selected]="selected"
+  [class.task-grid-row--dragging]="isDragging"
   [style.grid-template-columns]="gridTemplateColumns"
   (click)="rowClick.emit()"
+  cdkDrag
+  [cdkDragDisabled]="false"
+  (cdkDragStarted)="onDragStarted()"
+  (cdkDragEnded)="onDragEnded($event)"
 >
+  <!-- 6-dot drag handle -->
+  <div class="drag-handle" cdkDragHandle>
+    <mat-icon class="drag-handle-icon">drag_indicator</mat-icon>
+  </div>
+
   <div class="grid-cell grid-cell--name">
     <div class="grid-name-wrapper">
       <mat-checkbox
@@ -49,19 +59,30 @@
     </app-dropdown-popover>
   </div>
 
-  <div class="grid-cell grid-cell--due" (click)="$event.stopPropagation()">
-    <app-dropdown-popover #dueDatePopover="appDropdownPopover" [width]="360" [maxHeight]="400">
-      <button type="button" class="due-date-trigger" appDropdownTrigger>
-        <mat-icon>calendar_today</mat-icon>
-        <span>{{ formatDueDate(task.dueDate) }}</span>
-        <mat-icon>expand_more</mat-icon>
+  <div class="grid-cell grid-cell--dates" (click)="$event.stopPropagation()">
+    <app-dropdown-popover #datePopover="appDropdownPopover" [width]="340" [maxHeight]="500">
+      <button 
+        type="button" 
+        class="date-pill" 
+        [class.date-pill--single]="isSingleDate()"
+        [class.date-pill--range]="isDateRange()"
+        [class.date-pill--today]="isToday()"
+        [class.date-pill--overdue]="isOverdue()"
+        [class.date-pill--add]="!hasDate()"
+        appDropdownTrigger
+      >
+        <mat-icon *ngIf="!hasDate()" class="date-add-icon">add</mat-icon>
+        <span class="date-text" *ngIf="hasDate()">{{ getFormattedDate() }}</span>
+        <span class="date-text" *ngIf="!hasDate()">Add date</span>
+        <mat-icon class="date-arrow" *ngIf="isDateRange()">arrow_forward</mat-icon>
       </button>
       <ng-template appDropdownContent>
-        <app-calendar
-          [selected]="getDueDate(task)"
-          (dateChange)="dueDateChange.emit($event); dueDatePopover.close()"
-          (cancel)="dueDatePopover.close()"
-        ></app-calendar>
+        <app-date-range-picker
+          [startDate]="getStartDate(task)"
+          [dueDate]="getDueDate(task)"
+          (dateRangeChange)="onDateRangeChange($event, datePopover)"
+          (cancel)="datePopover.close()"
+        ></app-date-range-picker>
       </ng-template>
     </app-dropdown-popover>
   </div>

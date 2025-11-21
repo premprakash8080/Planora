@@ -35,6 +35,9 @@ export const ENDPOINTS = {
   // Batch operations
   batchUpdateTasks: `${environment.apiBaseUrl}/api/tasks/batchupdatetask`,
   batchUpdateSections: `${environment.apiBaseUrl}/api/sections/batch`,
+  reorderTasksInSection: `${environment.apiBaseUrl}/api/tasks/reorder-tasks`,
+  moveTaskToSection: `${environment.apiBaseUrl}/api/tasks/move-task`,
+  moveTask: `${environment.apiBaseUrl}/api/tasks/move`,
   
   // Task Status endpoints
   getTaskStatuses: `${environment.apiBaseUrl}/api/task-statuses/get-task-statuses`,

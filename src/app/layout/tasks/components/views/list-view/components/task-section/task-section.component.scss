@@ -74,6 +74,64 @@
 .section-body {
   padding: 0;
   background: var(--color-surface);
+  min-height: 40px;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+  border-radius: 4px;
+  position: relative;
+
+  // Collapsed state - still accepts drops but with minimal height
+  &:not(.section-body--expanded) {
+    min-height: 20px;
+    padding: 8px 0;
+  }
+
+  // Expanded state
+  &.section-body--expanded {
+    padding: 0;
+  }
+
+  // Drop zone active state (when dragging over)
+  &.drop-zone--active {
+    background: rgba(var(--color-primary-rgb), 0.08);
+    border: 2px dashed var(--color-primary);
+    border-radius: 8px;
+    margin: 4px;
+    box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb), 0.1);
+
+    [data-theme="dark"] &,
+    .dark-theme & {
+      background: rgba(var(--color-primary-rgb), 0.15);
+    }
+  }
+
+  // CDK Drag Drop classes for better visual feedback
+  ::ng-deep {
+    // Placeholder for where item will be dropped
+    .cdk-drag-placeholder {
+      opacity: 0.4;
+      background: var(--color-surface-hover);
+      border: 2px dashed var(--color-primary);
+      border-radius: 4px;
+      transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+      height: 48px;
+    }
+
+    // Preview of dragged item
+    .cdk-drag-preview {
+      box-sizing: border-box;
+      border-radius: 4px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+      opacity: 0.95;
+      background: var(--color-surface);
+      transform: rotate(1deg) scale(1.02);
+      transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);
+    }
+
+    // Animate items when reordering within same section
+    .cdk-drop-list-dragging .cdk-drag:not(.cdk-drag-placeholder) {
+      transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+    }
+  }
 }
 
 .add-area {

@@ -18,6 +18,7 @@ export interface BackendTask {
     avatar_color?: string;
     initials?: string;
   };
+  start_date?: string;
   due_date?: string;
   priority_label_id?: number | null;
   task_status_id?: number | null;
@@ -93,7 +94,9 @@ export class TaskApiService {
       name: backendTask.title,
       assignee: backendTask.assignee?.full_name,
       assigneeAvatar: backendTask.assignee?.initials,
+      startDate: backendTask.start_date,
       dueDate: backendTask.due_date,
+      position: backendTask.position ? parseFloat(backendTask.position.toString()) : undefined,
       // New: Use IDs and objects from backend
       priority_label_id: backendTask.priority_label_id ?? null,
       task_status_id: backendTask.task_status_id ?? null,
@@ -119,6 +122,10 @@ export class TaskApiService {
     // Only include fields that are explicitly provided (not undefined)
     if (task.name !== undefined && task.name !== null) payload.title = task.name;
     if (task.description !== undefined) payload.description = task.description; // Allow empty string
+    if (task.startDate !== undefined) {
+      // Allow null to unset start date
+      payload.start_date = task.startDate === null || task.startDate === '' ? null : task.startDate;
+    }
     if (task.dueDate !== undefined) {
       // Allow null to unset due date
       payload.due_date = task.dueDate === null || task.dueDate === '' ? null : task.dueDate;
@@ -188,12 +195,24 @@ export class TaskApiService {
           sections = response.data;
         }
 
-        return sections.map((section: BackendSection) => ({
-          id: section.id.toString(),
-          title: (section as any).title || (section as any).name || 'Untitled Section',
-          expanded: true,
-          tasks: (section.tasks || []).map((task: BackendTask) => this.mapBackendTaskToTask(task))
-        }));
+        return sections.map((section: BackendSection) => {
+          // Sort tasks by position to ensure correct ordering
+          const tasks = (section.tasks || [])
+            .map((task: BackendTask) => this.mapBackendTaskToTask(task))
+            .sort((a, b) => {
+              // Sort by position (ascending), with fallback for tasks without position
+              const posA = a.position ?? 0;
+              const posB = b.position ?? 0;
+              return posA - posB;
+            });
+          
+          return {
+            id: section.id.toString(),
+            title: (section as any).title || (section as any).name || 'Untitled Section',
+            expanded: true,
+            tasks: tasks
+          };
+        });
       }),
       catchError((error) => {
         return throwError(() => this.handleError(error));
@@ -383,6 +402,122 @@ export class TaskApiService {
     const url = ENDPOINTS.deleteTaskComment.replace(':commentId', commentId);
     return this.httpService.delete(url).pipe(
       map(() => {}),
+      catchError((error) => {
+        return throwError(() => this.handleError(error));
+      })
+    );
+  }
+
+  /**
+   * Reorder tasks within a section (for drag-and-drop within same section)
+   */
+  reorderTasksInSection(sectionId: string, taskPositions: Array<{ task_id: string; position: number }>): Observable<any> {
+    return this.httpService.post(ENDPOINTS.reorderTasksInSection, {
+      section_id: parseInt(sectionId),
+      task_positions: taskPositions.map(tp => ({
+        task_id: parseInt(tp.task_id),
+        position: tp.position
+      }))
+    }).pipe(
+      map((response: any) => {
+        return response.success && response.data ? response.data : response;
+      }),
+      catchError((error) => {
+        return throwError(() => this.handleError(error));
+      })
+    );
+  }
+
+  /**
+   * Move task to a different section (for drag-and-drop between sections)
+   */
+  moveTaskToSection(taskId: string, newSectionId: string, position: number): Observable<Task> {
+    return this.httpService.post(ENDPOINTS.moveTaskToSection, {
+      task_id: parseInt(taskId),
+      new_section_id: parseInt(newSectionId),
+      position: position
+    }).pipe(
+      map((response: any) => {
+        const task = response.success && response.data?.task ? response.data.task : response;
+        return this.mapBackendTaskToTask(task);
+      }),
+      catchError((error) => {
+        return throwError(() => this.handleError(error));
+      })
+    );
+  }
+
+  /**
+   * Move task with before/after task support (Asana-style drag & drop)
+   */
+  moveTask(taskId: string, options: { taskId?: string; sectionId?: string; beforeTaskId?: string; afterTaskId?: string }): Observable<Task> {
+    const url = ENDPOINTS.moveTask;
+    // Build request body, only including defined values
+    const body: any = {};
+    
+    // Always include taskId from options if provided, otherwise use the taskId parameter
+    const taskIdToUse = options.taskId || taskId;
+    if (taskIdToUse) {
+      const taskIdNum = parseInt(String(taskIdToUse));
+      if (!isNaN(taskIdNum)) {
+        body.taskId = taskIdNum;
+      }
+    }
+    
+    // ALWAYS include sectionId - this is the target section where the task is being moved to
+    // Example: task is in section 3, moved to section 2, then sectionId = 2
+    if (options.sectionId !== undefined && options.sectionId !== null && options.sectionId !== '') {
+      const sectionIdNum = parseInt(String(options.sectionId));
+      if (!isNaN(sectionIdNum)) {
+        body.sectionId = sectionIdNum;
+      }
+    }
+    
+    // Check and add beforeTaskId (optional, for positioning)
+    if (options.beforeTaskId !== undefined && options.beforeTaskId !== null && options.beforeTaskId !== '') {
+      const beforeTaskIdNum = parseInt(String(options.beforeTaskId));
+      if (!isNaN(beforeTaskIdNum)) {
+        body.beforeTaskId = beforeTaskIdNum;
+      }
+    }
+    
+    // Check and add afterTaskId (optional, for positioning)
+    if (options.afterTaskId !== undefined && options.afterTaskId !== null && options.afterTaskId !== '') {
+      const afterTaskIdNum = parseInt(String(options.afterTaskId));
+      if (!isNaN(afterTaskIdNum)) {
+        body.afterTaskId = afterTaskIdNum;
+      }
+    }
+    
+    // Debug: Log the request body
+    console.log('moveTask API call:', {
+      url,
+      taskId,
+      options,
+      body,
+      bodyKeys: Object.keys(body),
+      bodyLength: Object.keys(body).length
+    });
+    
+    // Ensure body is not empty - we always need taskId and sectionId
+    // sectionId is the target section where the task is being moved to
+    if (!body.taskId || !body.sectionId) {
+      console.error('moveTask: Request body is missing required fields!', { 
+        taskId, 
+        options,
+        body,
+        hasTaskId: !!body.taskId,
+        hasSectionId: !!body.sectionId,
+        sectionIdValue: options.sectionId
+      });
+      return throwError(() => new Error('Cannot move task: taskId and sectionId (target section) are required.'));
+    }
+    
+    return this.httpService.patch(url, body).pipe(
+      map((response: any) => {
+        const task = response.success && response.data?.task ? response.data.task : response;
+        return this.mapBackendTaskToTask(task);
+      }),
       catchError((error) => {
         return throwError(() => this.handleError(error));
       })

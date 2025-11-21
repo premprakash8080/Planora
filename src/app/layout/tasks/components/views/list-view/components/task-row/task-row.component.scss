@@ -1,11 +1,89 @@
 .task-grid-row {
   display: grid;
-  grid-template-columns: 3fr 1.5fr 1.5fr 1fr 1fr 0.8fr;
+  grid-template-columns: 24px 3fr 1.5fr 1.5fr 1fr 1fr 0.8fr;
   align-items: center;
   padding: 0 16px;
   gap: 12px;
   border-bottom: 1px solid var(--color-border);
   background: var(--color-surface);
+  position: relative;
+  transition: opacity 0.2s ease, background 0.2s ease;
+  cursor: pointer;
+
+  // Drag handle styling
+  .drag-handle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    cursor: grab;
+    border-radius: 4px;
+    margin-left: -8px;
+
+    &:active {
+      cursor: grabbing;
+    }
+
+    .drag-handle-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      color: var(--color-text-subtle);
+      transition: color 0.2s ease;
+    }
+
+    &:hover {
+      background: var(--color-surface-hover);
+      
+      .drag-handle-icon {
+        color: var(--color-text-body);
+      }
+    }
+  }
+
+  // Show drag handle on hover
+  &:hover .drag-handle {
+    opacity: 1;
+  }
+
+  // Dragging state
+  &.task-grid-row--dragging {
+    opacity: 0.6;
+    cursor: grabbing;
+    transform: scale(0.98);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+
+    .drag-handle {
+      opacity: 1;
+      cursor: grabbing;
+    }
+  }
+
+  // CDK Drag Drop classes
+  &.cdk-drag-preview {
+    box-sizing: border-box;
+    border-radius: 4px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+    opacity: 0.95;
+    background: var(--color-surface);
+    transform: rotate(1deg) scale(1.02);
+    transition: transform 200ms cubic-bezier(0, 0, 0.2, 1);
+  }
+
+  &.cdk-drag-placeholder {
+    opacity: 0.25;
+    background: var(--color-surface-hover);
+    border: 2px dashed var(--color-primary);
+    border-radius: 4px;
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+  }
+
+  &.cdk-drag-animating {
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+  }
 }
 .task-grid-row--selected {
   background: rgba(var(--color-primary-rgb), 0.08);
@@ -105,22 +183,157 @@
   color: var(--color-text-subtle);
 }
 
-/* Due date column */
-.due-date-trigger {
+/* Date column */
+.grid-cell--dates {
   display: flex;
   align-items: center;
-  width: 100%;
-  gap: 8px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: transparent;
+  justify-content: flex-start;
+}
+
+.date-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
   border: none;
   cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+
+  .date-text {
+    line-height: 1;
+  }
+
+  .date-arrow {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    margin-left: 2px;
+  }
+
+  // Single date style
+  &.date-pill--single {
+    background: #f3f4f6;
+    color: #374151;
+    border: 1px solid transparent;
+
+    [data-theme="dark"] &,
+    .dark-theme & {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--color-text-body);
+    }
+  }
+
+  // Range style
+  &.date-pill--range {
+    background: #8b5cf6;
+    color: #ffffff;
+    border: 1px solid transparent;
+
+    [data-theme="dark"] &,
+    .dark-theme & {
+      background: var(--color-primary);
+      color: #ffffff;
+    }
+  }
+
+  // Today style
+  &.date-pill--today {
+    background: #fff3cd;
+    color: #d97706;
+    border: 1px solid #ffd666;
+
+    [data-theme="dark"] &,
+    .dark-theme & {
+      background: rgba(255, 243, 205, 0.2);
+      color: #fbbf24;
+      border-color: #f59e0b;
+    }
+  }
+
+  // Overdue style
+  &.date-pill--overdue {
+    background: #fee2e2;
+    color: #dc2626;
+    border: 1px solid #fca5a5;
+
+    [data-theme="dark"] &,
+    .dark-theme & {
+      background: rgba(254, 226, 226, 0.15);
+      color: #ef4444;
+      border-color: #f87171;
+    }
+  }
+
+  // Add date button
+  &.date-pill--add {
+    background: transparent;
+    color: var(--color-text-subtle);
+    border: 1px dashed var(--color-border);
+    padding: 4px 8px;
+    font-size: 12px;
+
+    &:hover {
+      background: var(--color-surface-hover);
+      border-color: var(--color-primary);
+      color: var(--color-primary);
+    }
+
+    .date-add-icon {
+      font-size: 14px;
+      width: 14px;
+      height: 14px;
+      margin-right: 4px;
+    }
+  }
+
+  &:hover:not(.date-pill--add) {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
 }
-.due-date-trigger mat-icon:first-child,
-.priority-expand,
-.assignee-expand {
-  font-size: 18px;
+
+.date-picker-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 12px;
+  max-height: 480px;
+  overflow-y: auto;
+
+  // Custom scrollbar
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: var(--color-border);
+    border-radius: 3px;
+    opacity: 0.6;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+.date-picker-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.date-picker-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-heading);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0 8px 4px;
+  transition: color 0.3s ease;
 }
 
 /* Priority column */
