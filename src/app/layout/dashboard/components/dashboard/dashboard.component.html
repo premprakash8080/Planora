@@ -4,7 +4,7 @@
       <div class=" flex flex-wrap -m-8c items-stretch">
         <div class="p-8c w-full">
           <h2 class="heading-1 text-black-primary">
-            G’day, Jake!
+            G'day, {{ userName || 'User' }}!
           </h2>
         </div>
         <div class="p-8c 2xl:w-1/4 sm:w-2/4 w-full">
@@ -17,7 +17,7 @@
               Upcoming
             </h4>
             <h2 class="heading-1 text-gray-200 mt-auto">
-              16
+              {{ stats.upcoming }}
             </h2>
           </div>
         </div>
@@ -31,7 +31,7 @@
               Over Due
             </h4>
             <h2 class="heading-1 text-gray-200 mt-auto">
-              37
+              {{ stats.overdue }}
             </h2>
           </div>
         </div>
@@ -47,7 +47,7 @@
               On-Going
             </h4>
             <h2 class="heading-1 text-gray-200 mt-auto">
-              21
+              {{ stats.ongoing }}
             </h2>
           </div>
         </div>
@@ -61,7 +61,7 @@
               Complete
             </h4>
             <h2 class="heading-1 text-gray-200 mt-auto">
-              156
+              {{ stats.complete }}
             </h2>
           </div>
         </div>
@@ -80,7 +80,7 @@
               <div class="ml-auto">
                 <button mat-stroked-button color="primary" type="button" (click)="editNotice()" *ngIf="!editing"
                   mat-button class="button-small-outline"
-                  style="--mdc-outlined-button-outline-color:var(--red-primary)">
+                  style="--mdc-outlined-button-outline-color:var(--color-primary)">
                   Edit
                 </button>
                 <button *ngIf="editing" (click)="clearNotice()" color="" mat-button
@@ -92,45 +92,19 @@
               </div>
             </div>
 
-            <div id="noticeBoard" class="max-h-[200px] overflow-auto" *ngIf="!editing">
+            <div id="noticeBoard" class="max-h-[200px] overflow-auto" *ngIf="!editing && message">
               <div class="border-b-2 border-text-gray-200 3xl:pb-24c lg:pb-18c md:pb-16c pb-8c">
                 <h4 class="fs-16 mt-12c text-gray-100">
-                  07 Feb 2023</h4>
-                <h2 class="fs-18 md:mt-12c mt-8cc text-black-primary">
-                  Hi Team!
-                </h2>
-                <h2 class="fs-18 md:mt-12c mt-8cc text-black-primary">
-                  We will be having our end of month meeting this Friday 5:30pm. Please make sure you’re back on site
-                  before
-                  that time. Cheers!
-                </h2>
+                  {{ getCurrentDate() }}
+                </h4>
+                <div class="fs-18 md:mt-12c mt-8cc text-black-primary whitespace-pre-line">
+                  {{ message }}
+                </div>
               </div>
-              <div
-                class="border-b-2 border-text-gray-200 3xl:pb-24c lg:pb-18c md:pb-16c pb-8c 3xl:pt-32c lg:pt-24c md:pt-18c pt-10c">
-                <h4 class="fs-16 mt-12c text-gray-300">
-                  07 Feb 2023</h4>
-                <h2 class="fs-18 md:mt-12c mt-8cc text-gray-300">
-                  Hi Team!
-                </h2>
-                <h2 class="fs-18 md:mt-12c mt-8cc text-gray-300">
-                  We will be having our end of month meeting this Friday 5:30pm. Please make sure you’re back on site
-                  before
-                  that time. Cheers!
-                </h2>
-              </div>
-              <div
-                class="border-b-2 border-text-gray-200 3xl:pb-24c lg:pb-18c md:pb-16c pb-8c 3xl:pt-32c lg:pt-24c md:pt-18c pt-10c">
-                <h4 class="fs-16 mt-12c text-gray-300">
-                  07 Feb 2023</h4>
-                <h2 class="fs-18 md:mt-12c mt-8cc text-gray-300">
-                  Hi Team!
-                </h2>
-                <h2 class="fs-18 md:mt-12c mt-8cc text-gray-300">
-                  We will be having our end of month meeting this Friday 5:30pm. Please make sure you’re back on site
-                  before
-                  that time. Cheers!
-                </h2>
-              </div>
+            </div>
+            
+            <div *ngIf="!editing && !message" class="text-center py-8c text-gray-300">
+              No notices available
             </div>
 
             <div id="noticeBoard" class="3xl:mt-16c mt-12c" *ngIf="editing">
@@ -201,10 +175,10 @@
               <option value="">FY 2022/2023</option>
             </select> -->
               <mat-form-field appearance="outline" class="cus-select">
-                <mat-select [(value)]="selectedValue" required>
+                <mat-select [(value)]="selectedValue" (selectionChange)="onFiscalYearChange()" required>
                   <mat-option value="FY 2022/2023">FY 2022/2023</mat-option>
-                  <mat-option value="FY 2022/2023">FY 2023/2024</mat-option>
-                  <mat-option value="FY 2022/2023">FY 2024/2025</mat-option>
+                  <mat-option value="FY 2023/2024">FY 2023/2024</mat-option>
+                  <mat-option value="FY 2024/2025">FY 2024/2025</mat-option>
                 </mat-select>
               </mat-form-field>
 
@@ -221,7 +195,7 @@
                 <div class="flex items-center mt-8c">
                   <div>
                     <h2 class="heading-1 text-gray-200">
-                      5
+                      {{ monthlyStats.newJobs }}
                     </h2>
                   </div>
                   <div class="max-w-32px max-h-[17px] 3xl:ml-24c lg:ml-16c ml-8c">
@@ -238,7 +212,7 @@
                 <div class="flex items-center mt-8c">
                   <div>
                     <h2 class="heading-1 text-gray-200">
-                      6
+                      {{ monthlyStats.housesOut }}
                     </h2>
                   </div>
                   <div class="max-w-32px max-h-[17px] 3xl:ml-24c lg:ml-16c ml-8c">
@@ -255,7 +229,7 @@
                 <div class="flex items-center mt-8c">
                   <div>
                     <h2 class="heading-1 text-gray-200">
-                      3
+                      {{ monthlyStats.completed }}
                     </h2>
                   </div>
                   <div class="max-w-32px max-h-[17px] 3xl:ml-24c lg:ml-16c ml-8c">

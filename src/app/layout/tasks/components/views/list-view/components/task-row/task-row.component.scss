@@ -1,0 +1,179 @@
+.task-grid-row {
+  display: grid;
+  grid-template-columns: 3fr 1.5fr 1.5fr 1fr 1fr 0.8fr;
+  align-items: center;
+  padding: 0 16px;
+  gap: 12px;
+  border-bottom: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+.task-grid-row--selected {
+  background: rgba(var(--color-primary-rgb), 0.08);
+  box-shadow: inset 3px 0 0 var(--color-primary);
+
+  [data-theme="dark"] &,
+  .dark-theme & {
+    background: rgba(var(--color-primary-rgb), 0.15);
+  }
+}
+.grid-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  width: 100%;
+  padding: 0 12px;
+  border-right: 1px solid var(--color-border);
+}
+.grid-cell:last-child {
+  border-right: none;
+}
+
+.grid-cell--name {
+  .grid-name-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    flex: 1;
+    width: 100%;
+  }
+
+  mat-checkbox {
+    flex-shrink: 0;
+  }
+}
+
+.task-grid-name {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  background: transparent;
+  border: none;
+  font-size: 15px;
+  font-weight: 500;
+  padding: 6px 8px;
+  box-sizing: border-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  
+  &:focus {
+    outline: none;
+    border: 1px solid var(--color-primary);
+    background: var(--color-surface-hover);
+    box-shadow: 0 0 0 2px rgba(var(--color-primary-rgb), 0.2);
+    border-radius: 6px;
+  }
+}
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  // Reset any inherited background
+  // Inline style from [style.backgroundColor] will override
+  background-color: transparent;
+}
+
+/* Assignee column */
+.assignee-trigger {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  gap: 8px;
+  padding: 6px 10px 6px 6px;
+  border-radius: 999px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+}
+.assignee-trigger app-avatar {
+  flex-shrink: 0;
+}
+.assignee-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.assignee-expand {
+  margin-left: auto;
+  font-size: 18px;
+  color: var(--color-text-subtle);
+}
+
+/* Due date column */
+.due-date-trigger {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 8px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+.due-date-trigger mat-icon:first-child,
+.priority-expand,
+.assignee-expand {
+  font-size: 18px;
+}
+
+/* Priority column */
+.priority-trigger {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 10px;
+  padding: 6px 10px 6px 6px;
+  border-radius: 999px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+.priority-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  // Reset any inherited or class-based background/color
+  // Inline styles from [style.backgroundColor] and [style.color] will override
+  background-color: transparent;
+  color: inherit;
+}
+
+/* Status column */
+.status-trigger {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 10px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+.status-trigger .status-dot {
+  flex-shrink: 0;
+}
+
+/* Comments column */
+.grid-cell--comments {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.grid-cell--comments mat-icon {
+  font-size: 18px;
+  color: var(--color-text-subtle);
+}

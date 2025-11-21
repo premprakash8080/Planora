@@ -1,0 +1,30 @@
+@use 'src/styles/tokens' as *;
+
+.add-section {
+  // width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: space(2);                     // 8px
+  padding: space(0) space(5);        // 16px 20px
+  margin-top: space(4);              // 16px
+  color: var(--color-text-subtle);
+  background: var(--color-background);
+  border: 2px dashed var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: font-size(md);          // 14px
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .2s ease;
+
+  &:hover {
+    color: var(--color-text-heading);
+    background: var(--color-surface-hover);
+    border-color: var(--color-primary);
+  }
+
+  mat-icon {
+    font-size: 20px;
+    color: inherit;
+  }
+}

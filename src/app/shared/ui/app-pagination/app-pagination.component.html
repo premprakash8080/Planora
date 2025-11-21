@@ -1,0 +1,59 @@
+<div class="app-pagination" *ngIf="config && config.totalPages > 0">
+  <div class="app-pagination__info">
+    <span class="app-pagination__text">
+      Showing {{ startItem }} - {{ endItem }} of {{ config.totalItems }} results
+    </span>
+    
+    <div class="app-pagination__page-size" *ngIf="config.showPageSize && config.pageSizeOptions">
+      <span class="app-pagination__text">Items per page:</span>
+      <select 
+        class="app-pagination__select"
+        [value]="config.pageSize"
+        (change)="onPageSizeChange(+$any($event.target).value)"
+      >
+        <option *ngFor="let size of config.pageSizeOptions" [value]="size">
+          {{ size }}
+        </option>
+      </select>
+    </div>
+  </div>
+
+  <div class="app-pagination__controls">
+    <button
+      class="app-pagination__button"
+      [class.app-pagination__button--disabled]="config.currentPage === 1"
+      [disabled]="config.currentPage === 1"
+      (click)="previousPage()"
+      aria-label="Previous page"
+    >
+      <mat-icon>chevron_left</mat-icon>
+    </button>
+
+    <div class="app-pagination__pages">
+      <button
+        *ngFor="let page of pages"
+        class="app-pagination__page-button"
+        [class.app-pagination__page-button--active]="page === config.currentPage"
+        [class.app-pagination__page-button--ellipsis]="isEllipsis(page)"
+        [disabled]="isEllipsis(page)"
+        (click)="!isEllipsis(page) && goToPage(page)"
+        [attr.aria-label]="isEllipsis(page) ? 'More pages' : 'Go to page ' + page"
+        [attr.aria-current]="page === config.currentPage ? 'page' : null"
+      >
+        <span *ngIf="!isEllipsis(page)">{{ page }}</span>
+        <mat-icon *ngIf="isEllipsis(page)">more_horiz</mat-icon>
+      </button>
+    </div>
+
+    <button
+      class="app-pagination__button"
+      [class.app-pagination__button--disabled]="config.currentPage === config.totalPages"
+      [disabled]="config.currentPage === config.totalPages"
+      (click)="nextPage()"
+      aria-label="Next page"
+    >
+      <mat-icon>chevron_right</mat-icon>
+    </button>
+  </div>
+</div>
+

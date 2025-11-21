@@ -1,0 +1,54 @@
+<div class="task-card">
+    <!-- Header: checkbox + name -->
+    <div class="task-header">
+      <mat-checkbox
+        [checked]="task.completed"
+        (click)="$event.stopPropagation()"
+        color="primary"
+        class="task-checkbox"
+      ></mat-checkbox>
+  
+      <span class="task-name" [title]="task.title">
+        {{ task.title }}
+      </span>
+    </div>
+  
+    <!-- Priority + Status pills -->
+    <div class="task-tags">
+      <span
+        class="pill priority-pill"
+        [ngStyle]="getPriorityStyles()"
+      >
+        {{ task.priorityLabel?.name || 'No priority' }}
+      </span>
+  
+      <span
+        class="pill status-pill"
+        [ngStyle]="getStatusStyles()"
+      >
+        {{ task.status?.name || 'No status' }}
+      </span>
+    </div>
+  
+    <!-- Footer: avatar + due date + attachments + more -->
+    <div class="task-footer">
+      <app-avatar
+        *ngIf="getAssigneeInitials()"
+        size="sm"
+        [initials]="getAssigneeInitials()!"
+        [color]="task.assigneeColor || '#94a3b8'"
+        class="assignee-avatar"
+      ></app-avatar>
+  
+      <span class="due-date" *ngIf="getDueDateLabel()">
+        {{ getDueDateLabel() }}
+      </span>
+  
+      <!-- Attachment count (from screenshot) -->
+      <span class="attachment-count" *ngIf="task.attachmentCount">
+        {{ task.attachmentCount }} attachment
+      </span>
+  
+      <mat-icon class="more-icon">more_horiz</mat-icon>
+    </div>
+  </div>

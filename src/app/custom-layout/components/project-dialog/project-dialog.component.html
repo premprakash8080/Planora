@@ -1,0 +1,64 @@
+<h2 mat-dialog-title>{{ isEditMode ? 'Edit Project' : 'Create New Project' }}</h2>
+<mat-dialog-content>
+  <form [formGroup]="projectForm" class="project-form">
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Project Name</mat-label>
+      <input matInput placeholder="Enter project name" formControlName="name" required>
+      <mat-error *ngIf="projectForm.get('name')?.hasError('required')">
+        Project name is required
+      </mat-error>
+      <mat-error *ngIf="projectForm.get('name')?.hasError('maxlength')">
+        Project name must be less than 255 characters
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Description</mat-label>
+      <textarea matInput rows="3" placeholder="Enter project description (optional)" formControlName="description"></textarea>
+    </mat-form-field>
+
+    <div class="form-row">
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>Color</mat-label>
+        <mat-select formControlName="color">
+          <mat-option *ngFor="let color of colorOptions" [value]="color.value">
+            <div class="color-option">
+              <span class="color-preview" [style.background-color]="color.value"></span>
+              <span>{{ color.label }}</span>
+            </div>
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="half-width">
+        <mat-label>Status</mat-label>
+        <mat-select formControlName="status">
+          <mat-option value="not-started">Not Started</mat-option>
+          <mat-option value="in-progress">In Progress</mat-option>
+          <mat-option value="on-hold">On Hold</mat-option>
+          <mat-option value="completed">Completed</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Due Date</mat-label>
+      <input matInput [matDatepicker]="picker" formControlName="due_date" placeholder="Select due date (optional)">
+      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()" [disabled]="saving">Cancel</button>
+  <button 
+    mat-raised-button 
+    color="primary" 
+    (click)="save()" 
+    [disabled]="projectForm.invalid || saving">
+    <mat-icon *ngIf="!saving">{{ isEditMode ? 'save' : 'add' }}</mat-icon>
+    <mat-icon *ngIf="saving" class="spinning">hourglass_empty</mat-icon>
+    {{ saving ? 'Saving...' : (isEditMode ? 'Save' : 'Create') }}
+  </button>
+</mat-dialog-actions>
+

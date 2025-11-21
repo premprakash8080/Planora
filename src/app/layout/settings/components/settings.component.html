@@ -1,0 +1,125 @@
+<div class="page-container settings-page">
+  <app-page-title
+    title="Settings"
+    description="Manage your account settings and preferences"
+  >
+  </app-page-title>
+
+  <div class="settings-content">
+    <app-card padding="lg" class="settings-section">
+      <h3 class="section-title">Notifications</h3>
+      <div class="settings-list">
+        <div class="setting-item">
+          <div class="setting-info">
+            <span class="setting-label">Email Notifications</span>
+            <span class="setting-description">Receive notifications via email</span>
+          </div>
+          <mat-slide-toggle [(ngModel)]="settings.notifications.email"></mat-slide-toggle>
+        </div>
+        <div class="setting-item">
+          <div class="setting-info">
+            <span class="setting-label">Push Notifications</span>
+            <span class="setting-description">Receive push notifications</span>
+          </div>
+          <mat-slide-toggle [(ngModel)]="settings.notifications.push"></mat-slide-toggle>
+        </div>
+        <div class="setting-item">
+          <div class="setting-info">
+            <span class="setting-label">SMS Notifications</span>
+            <span class="setting-description">Receive notifications via SMS</span>
+          </div>
+          <mat-slide-toggle [(ngModel)]="settings.notifications.sms"></mat-slide-toggle>
+        </div>
+      </div>
+    </app-card>
+
+    <app-card padding="lg" class="settings-section">
+      <h3 class="section-title">Privacy</h3>
+      <div class="settings-list">
+        <div class="setting-item">
+          <div class="setting-info">
+            <span class="setting-label">Profile Visibility</span>
+            <span class="setting-description">Who can see your profile</span>
+          </div>
+          <mat-form-field appearance="outline" class="setting-select">
+            <mat-select [(ngModel)]="settings.privacy.profileVisibility">
+              <mat-option value="public">Public</mat-option>
+              <mat-option value="team">Team Only</mat-option>
+              <mat-option value="private">Private</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class="setting-item">
+          <div class="setting-info">
+            <span class="setting-label">Show Email</span>
+            <span class="setting-description">Display your email on profile</span>
+          </div>
+          <mat-slide-toggle [(ngModel)]="settings.privacy.showEmail"></mat-slide-toggle>
+        </div>
+        <div class="setting-item">
+          <div class="setting-info">
+            <span class="setting-label">Show Phone</span>
+            <span class="setting-description">Display your phone on profile</span>
+          </div>
+          <mat-slide-toggle [(ngModel)]="settings.privacy.showPhone"></mat-slide-toggle>
+        </div>
+      </div>
+    </app-card>
+
+    <app-card padding="lg" class="settings-section">
+      <h3 class="section-title">Preferences</h3>
+      <div class="settings-list">
+        <div class="setting-item">
+          <div class="setting-info">
+            <span class="setting-label">Theme</span>
+            <span class="setting-description">Choose your preferred theme</span>
+          </div>
+          <mat-form-field appearance="outline" class="setting-select">
+            <mat-select [(ngModel)]="settings.preferences.theme">
+              <mat-option *ngFor="let theme of themes" [value]="theme">
+                {{ theme.charAt(0).toUpperCase() + theme.slice(1) }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class="setting-item">
+          <div class="setting-info">
+            <span class="setting-label">Language</span>
+            <span class="setting-description">Select your preferred language</span>
+          </div>
+          <mat-form-field appearance="outline" class="setting-select">
+            <mat-select [(ngModel)]="settings.preferences.language">
+              <mat-option *ngFor="let lang of languages" [value]="lang.code">
+                {{ lang.name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class="setting-item">
+          <div class="setting-info">
+            <span class="setting-label">Timezone</span>
+            <span class="setting-description">Set your timezone</span>
+          </div>
+          <mat-form-field appearance="outline" class="setting-select">
+            <mat-select [(ngModel)]="settings.preferences.timezone">
+              <mat-option *ngFor="let tz of timezones" [value]="tz">
+                {{ tz }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+    </app-card>
+
+    <div class="settings-actions">
+      <app-button variant="secondary" (pressed)="onCancel()">
+        Cancel
+      </app-button>
+      <app-button variant="primary" (pressed)="onSave()">
+        <mat-icon>save</mat-icon>
+        Save Changes
+      </app-button>
+    </div>
+  </div>
+</div>
+

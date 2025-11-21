@@ -4,9 +4,11 @@
     [class.app-shell__sidebar-wrapper--mobile-open]="mobileSidebarOpen"
   >
     <app-sidebar
-      [sections]="sidebarSections"
+      [sections]="sidebarSections$ | async"
       [collapsed]="sidebarCollapsed"
       (collapsedChange)="handleSidebarCollapseChange($event)"
+      (navigate)="handleSidebarNavigate($event)"
+      (createProject)="openCreateProjectDialog()"
     ></app-sidebar>
   </aside>
 
@@ -21,7 +23,7 @@
       (menuToggle)="handleMenuToggle()"
     ></app-header>
 
-    <main class="app-shell__content">
+    <main class="app-shell__content" [@fadeIn]>
       <router-outlet></router-outlet>
     </main>
   </div>

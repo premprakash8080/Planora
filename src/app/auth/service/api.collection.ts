@@ -1,9 +1,18 @@
 import { environment } from "src/environments/environment";
 
+/**
+ * API Endpoints Collection
+ * Centralized endpoint definitions matching backend API structure
+ */
 export const ENDPOINTS = {
-    Login:environment.apiBaseUrl+'/api/users/authorise',
-    forgot_password:environment.apiBaseUrl+'/api/users/forgot/password',
-    API_ENDPOINT_VERIFY_TOKEN : environment.apiBaseUrl +'/api/users/validate/token',
-    API_ENDPOINT_RESET_PASSWORD: environment.apiBaseUrl +'/api/users/reset/password',
-    get_permissions_by_role_id :environment.apiBaseUrl+'/api/roles/get_permissions_by_role_id'
-}
+  // Authentication endpoints
+  login: `${environment.apiBaseUrl}/api/users/login`,
+  register: `${environment.apiBaseUrl}/api/users/register`,
+  profile: `${environment.apiBaseUrl}/api/users/profile`,
+  updateProfile: `${environment.apiBaseUrl}/api/users/profile`,
+  
+  // Legacy endpoints (for backward compatibility if needed)
+  forgot_password: `${environment.apiBaseUrl}/api/users/forgot/password`,
+  verify_token: `${environment.apiBaseUrl}/api/users/validate/token`,
+  reset_password: `${environment.apiBaseUrl}/api/users/reset/password`,
+};

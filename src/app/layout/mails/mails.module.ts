@@ -4,15 +4,17 @@ import { CommonModule } from '@angular/common';
 import { MailsRoutingModule } from './mails-routing.module';
 import { SharedModule } from 'src/app/shared/shared/shared.module';
 import { SharedUiModule } from 'src/app/shared/ui/ui.module';
-import { MailListComponent } from './mail-list/mail-list.component';
-import { MailViewComponent } from './mail-view/mail-view.component';
-import { MailComposeComponent } from './mail-compose/mail-compose.component';
+import { MailListComponent } from './components/mail-list/mail-list.component';
+import { MailViewComponent } from './components/mail-view/mail-view.component';
+import { MailComposeComponent } from './components/mail-compose/mail-compose.component';
+import { MailTabComponent } from './components/mail-tab/mail-tab.component';
 
 @NgModule({
   declarations: [
     MailListComponent,
     MailViewComponent,
-    MailComposeComponent
+    MailComposeComponent,
+    MailTabComponent
   ],
   imports: [
     CommonModule,

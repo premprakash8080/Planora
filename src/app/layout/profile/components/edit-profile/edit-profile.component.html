@@ -1,0 +1,127 @@
+<div class="page-container profile-page">
+  <app-page-title
+    title="Edit Profile"
+    description="Update your personal information"
+  >
+    <ng-container pageActions>
+      <app-button variant="primary" (pressed)="onSave()" [disabled]="!form || form.invalid || loading">
+        <mat-icon>save</mat-icon>
+        Save Changes
+      </app-button>
+    </ng-container>
+  </app-page-title>
+
+  <div class="profile-content" *ngIf="form; else loadingTemplate">
+    <!-- Profile Header Card -->
+    <app-card padding="lg" class="profile-card">
+      <div class="profile-header">
+        <div class="avatar-section">
+          <app-avatar
+            [src]="previewAvatar || form.value.avatar_url"
+            [initials]="getInitials(form.value.full_name || '')"
+            [color]="form.value.avatar_color"
+            size="lg"
+          ></app-avatar>
+          
+          <div class="upload-avatar">
+            <input 
+              type="file" 
+              accept="image/*" 
+              (change)="onAvatarChange($event)" 
+              hidden 
+              #fileInput 
+            />
+            <app-button variant="ghost" size="sm" (pressed)="fileInput.click()">
+              <mat-icon>photo_camera</mat-icon>
+              Change Avatar
+            </app-button>
+          </div>
+        </div>
+      </div>
+    </app-card>
+
+    <!-- Personal Information Card -->
+    <app-card padding="lg" class="profile-details-card">
+      <h3 class="card-title">
+        <mat-icon class="title-icon">edit</mat-icon>
+        Personal Information
+      </h3>
+
+      <form [formGroup]="form" class="edit-form" (ngSubmit)="onSave()">
+        <div class="form-grid">
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Full Name</mat-label>
+            <input 
+              matInput 
+              formControlName="full_name" 
+              placeholder="Enter your full name"
+              autocomplete="name"
+            />
+            <mat-icon matPrefix>person</mat-icon>
+            <mat-error *ngIf="form.controls.full_name.invalid && form.controls.full_name.touched">
+              Full name is required
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Email Address</mat-label>
+            <input 
+              matInput 
+              formControlName="email" 
+              type="email"
+              autocomplete="email"
+            />
+            <mat-icon matPrefix>email</mat-icon>
+            <mat-hint>Email cannot be changed</mat-hint>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="form-field">
+            <mat-label>Account Status</mat-label>
+            <mat-select formControlName="status">
+              <mat-option value="active">
+                <span class="status-option">
+                  <span class="status-dot status-active"></span>
+                  Active
+                </span>
+              </mat-option>
+              <mat-option value="inactive">
+                <span class="status-option">
+                  <span class="status-dot status-inactive"></span>
+                  Inactive
+                </span>
+              </mat-option>
+            </mat-select>
+            <mat-icon matPrefix>verified_user</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <div class="form-actions">
+          <app-button variant="secondary" (pressed)="onCancel()" [disabled]="loading">
+            <mat-icon>close</mat-icon>
+            Cancel
+          </app-button>
+
+          <app-button 
+            variant="primary" 
+            (pressed)="onSave()" 
+            [disabled]="form.invalid || loading"
+            type="submit"
+          >
+            <mat-icon *ngIf="!loading">save</mat-icon>
+            <mat-icon *ngIf="loading" class="spinning">hourglass_empty</mat-icon>
+            {{ loading ? 'Saving...' : 'Save Changes' }}
+          </app-button>
+        </div>
+      </form>
+    </app-card>
+  </div>
+
+  <ng-template #loadingTemplate>
+    <app-loading 
+      size="lg" 
+      variant="spinner" 
+      message="Loading profile..."
+      [fullScreen]="false">
+    </app-loading>
+  </ng-template>
+</div>

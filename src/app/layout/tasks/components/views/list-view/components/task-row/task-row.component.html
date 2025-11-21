@@ -1,0 +1,111 @@
+<div
+  class="task-grid-row"
+  [class.task-grid-row--selected]="selected"
+  [style.grid-template-columns]="gridTemplateColumns"
+  (click)="rowClick.emit()"
+>
+  <div class="grid-cell grid-cell--name">
+    <div class="grid-name-wrapper">
+      <mat-checkbox
+        color="primary"
+        [checked]="task.completed"
+        (change)="toggleCompleted.emit()"
+        (click)="$event.stopPropagation()"
+      ></mat-checkbox>
+      <input
+        class="task-grid-name"
+        [value]="nameDraft"
+        (input)="localNameDraft = ($any($event.target)).value"
+        (focus)="localNameDraft = localNameDraft || task.name || ''"
+        (blur)="nameChange.emit(localNameDraft || task.name || '')"
+        (keydown.enter)="$event.preventDefault(); nameChange.emit(localNameDraft || task.name || '')"
+        (keydown.escape)="localNameDraft = task.name || ''"
+        (click)="$event.stopPropagation()"
+      />
+    </div>
+  </div>
+
+  <div class="grid-cell grid-cell--assignee" (click)="$event.stopPropagation()">
+    <app-dropdown-popover
+      [items]="assigneeItems"
+      [selectedId]="task.assignee ?? null"
+      [width]="520"
+      [maxHeight]="320"
+      [hasSearch]="true"
+      (select)="assigneeSelect.emit($event)"
+    >
+      <button type="button" class="assignee-trigger" appDropdownTrigger>
+        <app-avatar
+          size="sm"
+          [src]="getAssigneeAvatar(task.assignee)"
+          [initials]="getAssigneeInitials(task.assignee)"
+          [color]="getAssigneeColor(task.assignee)"
+        ></app-avatar>
+        <span class="assignee-name" [title]="task.assignee || 'Unassigned'">
+          {{ task.assignee || 'Unassigned' }}
+        </span>
+        <mat-icon class="assignee-expand">expand_more</mat-icon>
+      </button>
+    </app-dropdown-popover>
+  </div>
+
+  <div class="grid-cell grid-cell--due" (click)="$event.stopPropagation()">
+    <app-dropdown-popover #dueDatePopover="appDropdownPopover" [width]="360" [maxHeight]="400">
+      <button type="button" class="due-date-trigger" appDropdownTrigger>
+        <mat-icon>calendar_today</mat-icon>
+        <span>{{ formatDueDate(task.dueDate) }}</span>
+        <mat-icon>expand_more</mat-icon>
+      </button>
+      <ng-template appDropdownContent>
+        <app-calendar
+          [selected]="getDueDate(task)"
+          (dateChange)="dueDateChange.emit($event); dueDatePopover.close()"
+          (cancel)="dueDatePopover.close()"
+        ></app-calendar>
+      </ng-template>
+    </app-dropdown-popover>
+  </div>
+
+  <div class="grid-cell grid-cell--priority" (click)="$event.stopPropagation()">
+    <app-dropdown-popover
+      [items]="priorityItems"
+      [selectedId]="getPriorityId()"
+      [width]="240"
+      (select)="prioritySelect.emit($event)"
+    >
+      <button type="button" class="priority-trigger" appDropdownTrigger>
+        <span 
+          class="priority-pill" 
+          [style.backgroundColor]="getPriorityColorValue()"
+          [style.color]="getPriorityTextColor()"
+          [style.border]="'none'"
+        >
+          {{ getPriorityName() || 'Low' }}
+        </span>
+        <mat-icon class="priority-expand">expand_more</mat-icon>
+      </button>
+    </app-dropdown-popover>
+  </div>
+
+  <div class="grid-cell grid-cell--status" (click)="$event.stopPropagation()">
+    <app-dropdown-popover
+      [items]="statusItems"
+      [selectedId]="getStatusId()"
+      [width]="260"
+      (select)="statusSelect.emit($event)"
+    >
+      <button type="button" class="status-trigger" appDropdownTrigger>
+        <span class="status-dot" [style.backgroundColor]="getStatusColorValue()"></span>
+        {{ getStatusName() || 'Set status' }}
+        <mat-icon>expand_more</mat-icon>
+      </button>
+    </app-dropdown-popover>
+  </div>
+
+  <div class="grid-cell grid-cell--comments">
+    <mat-icon>chat_bubble_outline</mat-icon>
+    <span>{{ task.comments?.length ?? task.commentsCount ?? 0 }}</span>
+  </div>
+</div>
+
+

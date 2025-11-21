@@ -17,13 +17,37 @@
   border-radius: var(--radius-md);
   border: 1px solid transparent;
   cursor: pointer;
-  transition: background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+  transition: background 0.2s ease,
+              box-shadow 0.2s ease,
+              transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.2s ease;
   background: transparent;
   color: var(--color-text-heading);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transform: translate(-50%, -50%);
+    transition: width 0.4s ease, height 0.4s ease;
+  }
+
+  &:hover::before {
+    width: 300px;
+    height: 300px;
+  }
 
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+    transform: none !important;
   }
 
   &--primary {
@@ -34,15 +58,36 @@
     &:hover:not(:disabled) {
       background: var(--color-primary-dark);
       box-shadow: var(--shadow-sm);
+      transform: translateY(-1px);
+    }
+
+    &:active:not(:disabled) {
+      transform: translateY(0);
+      box-shadow: var(--shadow-xs);
     }
   }
 
   &--secondary {
-    background: rgba(95, 102, 117, 0.1);
+    background: rgba(var(--color-primary-rgb), 0.12);
     color: var(--color-primary);
 
+    [data-theme="dark"] &,
+    .dark-theme & {
+      background: rgba(var(--color-primary-rgb), 0.2);
+    }
+
     &:hover:not(:disabled) {
-      background: rgba(37, 99, 235, 0.16);
+      background: rgba(var(--color-primary-rgb), 0.16);
+      transform: translateY(-1px);
+
+      [data-theme="dark"] &,
+      .dark-theme & {
+        background: rgba(var(--color-primary-rgb), 0.25);
+      }
+    }
+
+    &:active:not(:disabled) {
+      transform: translateY(0);
     }
   }
 
@@ -51,7 +96,7 @@
     border-color: var(--color-border);
 
     &:hover:not(:disabled) {
-      background: rgba(148, 163, 184, 0.12);
+      background: var(--color-surface-hover);
     }
   }
 

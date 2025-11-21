@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  apiBaseUrl:''
+  apiBaseUrl: 'http://localhost:2019' // Backend API base URL
 };
 
 /*

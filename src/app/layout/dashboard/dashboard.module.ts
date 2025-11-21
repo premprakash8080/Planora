@@ -9,6 +9,9 @@ import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { NotificationComponent } from 'src/@vex/layout/toolbar/notification/notification.component';
 import { ProfileComponent } from 'src/@vex/layout/toolbar/profile/profile.component';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { SharedUiModule } from '../../shared/ui/ui.module';
 
 @NgModule({
@@ -24,6 +27,9 @@ import { SharedUiModule } from '../../shared/ui/ui.module';
     DashboardRoutingModule,
     SharedModule,
     MatProgressBarModule,
+    MatProgressSpinnerModule,
+    MatButtonModule,
+    MatIconModule,
     SharedUiModule
   ]
 })

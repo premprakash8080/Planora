@@ -4,6 +4,34 @@
   display: flex;
   flex-direction: column;
   gap: tokens.space(6);
+  min-height: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  
+  // Custom scrollbar styling
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: var(--color-border);
+    opacity: 0.6;
+    border-radius: 999px;
+    transition: opacity 0.2s ease;
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  // Firefox scrollbar
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) transparent;
 }
 
 .report-metrics {
@@ -78,11 +106,11 @@
   font-size: tokens.font-size(sm);
 
   &.positive {
-    color: #16a34a;
+    color: var(--color-accent);
   }
 
   &.negative {
-    color: #dc2626;
+    color: var(--color-danger);
   }
 
   .change-icon {
@@ -155,7 +183,7 @@
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.05);
+  box-shadow: 0 0 0 3px rgba(var(--color-text-heading-rgb), 0.05);
 }
 
 .status-meta {
@@ -183,7 +211,8 @@
   width: 100%;
   height: 10px;
   border-radius: 999px;
-  background: rgba(148, 163, 184, 0.2);
+  background: var(--color-border);
+  opacity: 0.3;
   overflow: hidden;
 
   .status-progress-fill {
@@ -202,7 +231,7 @@
     width: 40px;
     height: 40px;
     border-radius: var(--radius-md);
-    background: rgba(37, 99, 235, 0.12);
+    background: rgba(var(--color-primary-rgb), 0.12);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -232,7 +261,8 @@
     flex: 1;
     height: 6px;
     border-radius: 999px;
-    background: rgba(148, 163, 184, 0.2);
+    background: var(--color-border);
+    opacity: 0.3;
     overflow: hidden;
 
     .completion-fill {
@@ -254,22 +284,22 @@
   text-transform: uppercase;
 
   &.status-success {
-    background: rgba(16, 185, 129, 0.12);
-    color: #047857;
+    background: rgba(var(--color-accent-rgb), 0.12);
+    color: var(--color-accent);
   }
 
   &.status-warning {
-    background: rgba(251, 191, 36, 0.16);
-    color: #b45309;
+    background: rgba(var(--color-warning-rgb), 0.16);
+    color: var(--color-warning);
   }
 
   &.status-error {
-    background: rgba(248, 113, 113, 0.16);
-    color: #b91c1c;
+    background: rgba(var(--color-danger-rgb), 0.16);
+    color: var(--color-danger);
   }
 
   &.status-default {
-    background: rgba(148, 163, 184, 0.16);
+    background: var(--color-surface-secondary);
     color: var(--color-text-subtle);
   }
 }

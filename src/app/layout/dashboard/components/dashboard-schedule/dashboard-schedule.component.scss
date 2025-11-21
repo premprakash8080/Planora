@@ -37,6 +37,11 @@
 .mat-drawer-backdrop {
   background-color: rgba(0, 0, 0, 0.5) !important;
   pointer-events: none !important;
+
+  [data-theme="dark"] &,
+  .dark-theme & {
+    background-color: rgba(0, 0, 0, 0.7) !important;
+  }
 }
 
 .mat-drawer-content {
@@ -50,9 +55,10 @@
 
 .schedule-container {
   padding: 24px;
-  background: linear-gradient(to bottom, #f8f9fa 0%, #ffffff 100%);
+  background: linear-gradient(to bottom, var(--color-background) 0%, var(--color-surface) 100%);
   border-radius: 16px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--color-border);
 }
 
 .schedule-header {
@@ -61,18 +67,19 @@
   align-items: center;
   gap: 16px;
   margin-bottom: 24px;
+  padding: 0 4px;
 
   .header-content {
     .header-title {
       margin: 0;
       font-size: 24px;
       font-weight: 600;
-      color: #1a1a1a;
+      color: var(--color-text-heading);
     }
 
     .header-subtitle {
       margin: 4px 0 0;
-      color: #6c757d;
+      color: var(--color-text-subtle);
       font-size: 14px;
     }
   }
@@ -94,13 +101,16 @@
 
 .project-item {
   border-radius: 16px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-xs);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   padding: 0;
 
   &:hover {
     transform: translateY(-4px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    box-shadow: var(--shadow-md);
+    border-color: var(--color-border);
   }
 }
 
@@ -155,7 +165,7 @@
   margin: 0;
   font-size: 18px;
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--color-text-heading);
 }
 
 .status-chip {
@@ -167,8 +177,8 @@
   font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
-  background: rgba(25, 118, 210, 0.1);
-  color: #1976d2;
+  background: rgba(139, 92, 246, 0.1);
+  color: var(--color-primary);
 }
 
 .project-item__tags {
@@ -183,13 +193,13 @@
   gap: 6px;
   padding: 6px 12px;
   border-radius: 999px;
-  background-color: #f1f3f5;
-  color: #495057;
+  background-color: var(--color-surface-secondary);
+  color: var(--color-text-body);
   font-size: 13px;
 
   mat-icon {
     font-size: 16px;
-    color: #1976d2;
+    color: var(--color-primary);
   }
 }
 
@@ -198,7 +208,7 @@
   flex-direction: column;
   gap: 10px;
   min-width: 180px;
-  color: #495057;
+  color: var(--color-text-body);
 
   mat-progress-bar {
     margin-top: 4px;
@@ -214,7 +224,7 @@
 
   mat-icon {
     font-size: 18px;
-    color: #1976d2;
+    color: var(--color-primary);
   }
 }
 

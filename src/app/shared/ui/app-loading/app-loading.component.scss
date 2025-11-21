@@ -1,0 +1,195 @@
+@use 'src/styles/tokens' as tokens;
+
+.app-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: tokens.space(4);
+  
+  &.full-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 9999;
+    min-height: 100vh;
+    padding: 0;
+  }
+  
+  &.with-overlay {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(4px);
+    
+    [data-theme="dark"] &,
+    .dark-theme & {
+      background: rgba(0, 0, 0, 0.8);
+    }
+  }
+}
+
+.loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: tokens.space(3);
+}
+
+// Spinner Variant
+.loading-spinner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  .spinner-icon {
+    color: var(--color-primary);
+    animation: spin 2s linear infinite;
+  }
+}
+
+// Dots Variant
+.loading-dots {
+  display: flex;
+  align-items: center;
+  gap: tokens.space(1);
+  
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    animation: bounce 1.4s infinite ease-in-out both;
+    
+    &:nth-child(1) {
+      animation-delay: -0.32s;
+    }
+    
+    &:nth-child(2) {
+      animation-delay: -0.16s;
+    }
+  }
+}
+
+// Pulse Variant
+.loading-pulse {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  .pulse-circle {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    opacity: 0.6;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+}
+
+// Size Variants
+.app-loading--sm {
+  .spinner-icon {
+    font-size: 32px;
+    width: 32px;
+    height: 32px;
+  }
+  
+  .loading-dots .dot {
+    width: 6px;
+    height: 6px;
+  }
+  
+  .pulse-circle {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .loading-message {
+    font-size: tokens.font-size(sm);
+  }
+}
+
+.app-loading--md {
+  .spinner-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+  }
+  
+  .loading-dots .dot {
+    width: 8px;
+    height: 8px;
+  }
+  
+  .pulse-circle {
+    width: 48px;
+    height: 48px;
+  }
+  
+  .loading-message {
+    font-size: tokens.font-size(md);
+  }
+}
+
+.app-loading--lg {
+  .spinner-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+  }
+  
+  .loading-dots .dot {
+    width: 12px;
+    height: 12px;
+  }
+  
+  .pulse-circle {
+    width: 64px;
+    height: 64px;
+  }
+  
+  .loading-message {
+    font-size: tokens.font-size(lg);
+  }
+}
+
+.loading-message {
+  margin: 0;
+  color: var(--color-text-subtle);
+  font-weight: 500;
+  text-align: center;
+}
+
+// Animations
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes bounce {
+  0%, 80%, 100% {
+    transform: scale(0);
+    opacity: 0.5;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(0.8);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.3;
+  }
+}
+

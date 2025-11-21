@@ -1,0 +1,130 @@
+<div class="page-container profile-page">
+  <app-page-title
+    title="My Profile"
+    description="View and manage your profile information"
+  >
+    <ng-container pageActions>
+      <app-button variant="primary" (pressed)="onEdit()">
+        <mat-icon>edit</mat-icon>
+        Edit Profile
+      </app-button>
+    </ng-container>
+  </app-page-title>
+
+  <div class="profile-content" *ngIf="user$ | async as user; else loadingTemplate">
+    <!-- Profile Header Card -->
+    <app-card padding="lg" class="profile-card">
+      <div class="profile-header">
+        <div class="avatar-container">
+          <app-avatar
+            [src]="user.avatar_url"
+            [initials]="user.initials || getInitials(user.full_name)"
+            [color]="user.avatar_color"
+            [alt]="user.full_name"
+            size="lg"
+          ></app-avatar>
+        </div>
+        
+        <div class="profile-info">
+          <h2 class="profile-name">{{ user.full_name }}</h2>
+          <p class="profile-email">{{ user.email }}</p>
+          <span class="profile-status" [class]="'status-' + user.status">
+            <mat-icon class="status-icon">verified</mat-icon>
+            {{ user.status | titlecase }}
+          </span>
+        </div>
+      </div>
+    </app-card>
+
+    <!-- Personal Information Card -->
+    <app-card padding="lg" class="profile-details-card">
+      <h3 class="card-title">
+        <mat-icon class="title-icon">person</mat-icon>
+        Personal Information
+      </h3>
+      
+      <div class="detail-list">
+        <div class="detail-item">
+          <div class="detail-icon-wrapper">
+            <mat-icon class="detail-icon">person</mat-icon>
+          </div>
+          <div class="detail-content">
+            <span class="detail-label">Full Name</span>
+            <span class="detail-value">{{ user.full_name }}</span>
+          </div>
+        </div>
+        
+        <div class="detail-item">
+          <div class="detail-icon-wrapper">
+            <mat-icon class="detail-icon">email</mat-icon>
+          </div>
+          <div class="detail-content">
+            <span class="detail-label">Email Address</span>
+            <span class="detail-value">{{ user.email }}</span>
+          </div>
+        </div>
+        
+        <div class="detail-item" *ngIf="user.initials">
+          <div class="detail-icon-wrapper">
+            <mat-icon class="detail-icon">badge</mat-icon>
+          </div>
+          <div class="detail-content">
+            <span class="detail-label">Initials</span>
+            <span class="detail-value">{{ user.initials }}</span>
+          </div>
+        </div>
+        
+        <div class="detail-item">
+          <div class="detail-icon-wrapper">
+            <mat-icon class="detail-icon">verified_user</mat-icon>
+          </div>
+          <div class="detail-content">
+            <span class="detail-label">Account Status</span>
+            <span class="detail-value">
+              <span class="status-badge" [class]="'status-' + user.status">
+                {{ user.status | titlecase }}
+              </span>
+            </span>
+          </div>
+        </div>
+        
+        <div class="detail-item" *ngIf="user.created_at">
+          <div class="detail-icon-wrapper">
+            <mat-icon class="detail-icon">calendar_today</mat-icon>
+          </div>
+          <div class="detail-content">
+            <span class="detail-label">Member Since</span>
+            <span class="detail-value">{{ formatDate(user.created_at) }}</span>
+          </div>
+        </div>
+        
+        <div class="detail-item" *ngIf="user.updated_at">
+          <div class="detail-icon-wrapper">
+            <mat-icon class="detail-icon">update</mat-icon>
+          </div>
+          <div class="detail-content">
+            <span class="detail-label">Last Updated</span>
+            <span class="detail-value">{{ formatDate(user.updated_at) }}</span>
+          </div>
+        </div>
+      </div>
+    </app-card>
+  </div>
+
+  <!-- Loading Template -->
+  <ng-template #loadingTemplate>
+    <app-loading 
+      size="lg" 
+      variant="spinner" 
+      message="Loading profile..."
+      [fullScreen]="false">
+    </app-loading>
+  </ng-template>
+
+  <!-- No User Template -->
+  <div *ngIf="(user$ | async) === null" class="no-user-container">
+    <mat-icon class="error-icon">error_outline</mat-icon>
+    <h3>Profile Not Found</h3>
+    <p>Unable to load your profile. Please try again later.</p>
+  </div>
+</div>

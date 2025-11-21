@@ -1,0 +1,217 @@
+<div class="tasks-view tasks-view--messages" [class.dark-theme]="isDarkTheme">
+  <app-task-header [projectTitle]="projectTitle"></app-task-header>
+
+  <div class="messages-container" [class.dark-theme]="isDarkTheme">
+    <!-- Header -->
+    <div class="messages-header">
+      <h2 class="messages-title">Messages</h2>
+      <div class="header-actions">
+
+        <!-- <button mat-flat-button color="primary" (click)="focusComposer()">
+          <mat-icon>add</mat-icon> New message
+        </button> -->
+      </div>
+    </div>
+
+    <!-- Messages Scroll Area -->
+    <div class="messages-scroll" #messagesContainer>
+      <!-- Loading / Error -->
+      <div class="messages-state" *ngIf="loading || error">
+        <mat-spinner diameter="40" *ngIf="loading"></mat-spinner>
+        <div class="error-state" *ngIf="error">
+          <mat-icon>error_outline</mat-icon>
+          <p>{{ error }}</p>
+          <button mat-stroked-button (click)="loadMessages()">Retry</button>
+        </div>
+      </div>
+
+      <!-- Pinned Messages -->
+      <div class="pinned-section" *ngIf="pinnedMessages.length > 0 && !loading">
+        <div class="section-divider">
+          <mat-icon class="pin-icon">push_pin</mat-icon>
+          <span class="divider-text">Pinned</span>
+        </div>
+        <div class="message-card pinned" *ngFor="let message of pinnedMessages; trackBy: trackByMessageId">
+          <app-avatar
+            size="sm"
+            [initials]="message.author?.initials || message.author?.fullName?.charAt(0)"
+            [color]="message.author?.avatarColor || '#8b5cf6'"
+            [src]="message.author?.avatarUrl"
+          ></app-avatar>
+
+          <div class="message-content">
+            <div class="message-meta">
+              <span class="author-name">{{ message.author?.fullName || 'Unknown' }}</span>
+              <span class="message-time">{{ formatTime(message.createdAt) }}</span>
+            </div>
+
+            <!-- View Mode -->
+            <div class="message-body" *ngIf="editingMessageId !== message.id">
+              <p class="message-text" [innerHTML]="formatMessageContent(message.content)"></p>
+            </div>
+
+            <!-- Edit Mode -->
+            <div class="message-edit" *ngIf="editingMessageId === message.id">
+              <textarea
+                [(ngModel)]="editingContent"
+                class="edit-textarea"
+                rows="3"
+                placeholder="Edit message..."
+                (keydown.escape)="cancelEditing()"
+                (keydown.ctrl.enter)="saveEdit()"
+                (keydown.meta.enter)="saveEdit()"
+              ></textarea>
+              <div class="edit-actions">
+                <button mat-stroked-button (click)="cancelEditing()">Cancel</button>
+                <button mat-flat-button color="primary" (click)="saveEdit()">Save</button>
+              </div>
+            </div>
+
+            <!-- Actions (only in view mode) -->
+            <div class="message-actions" *ngIf="editingMessageId !== message.id">
+              <button mat-icon-button [matMenuTriggerFor]="pinnedMenu">
+                <mat-icon>more_vert</mat-icon>
+              </button>
+              <mat-menu #pinnedMenu="matMenu">
+                <button mat-menu-item *ngIf="canEdit(message)" (click)="startEditing(message)">
+                  <mat-icon>edit</mat-icon> Edit
+                </button>
+                <button mat-menu-item *ngIf="canPin()" (click)="togglePin(message)">
+                  <mat-icon>push_pin</mat-icon> {{ message.pinned ? 'Unpin' : 'Pin' }}
+                </button>
+                <button mat-menu-item *ngIf="canDelete(message)" (click)="deleteMessage(message)" class="delete-action">
+                  <mat-icon>delete</mat-icon> Delete
+                </button>
+              </mat-menu>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Regular Messages -->
+      <div class="regular-messages" *ngIf="regularMessages.length > 0 && !loading">
+        <div class="message-card" *ngFor="let message of regularMessages; trackBy: trackByMessageId">
+          <app-avatar
+            size="sm"
+            [initials]="message.author?.initials || message.author?.fullName?.charAt(0)"
+            [color]="message.author?.avatarColor || '#8b5cf6'"
+            [src]="message.author?.avatarUrl"
+          ></app-avatar>
+
+          <div class="message-content">
+            <div class="message-meta">
+              <span class="author-name">{{ message.author?.fullName || 'Unknown' }}</span>
+              <span class="message-time">{{ formatTime(message.createdAt) }}</span>
+            </div>
+
+            <!-- View Mode -->
+            <div class="message-body" *ngIf="editingMessageId !== message.id">
+              <p class="message-text" [innerHTML]="formatMessageContent(message.content)"></p>
+            </div>
+
+            <!-- Edit Mode -->
+            <div class="message-edit" *ngIf="editingMessageId === message.id">
+              <textarea
+                [(ngModel)]="editingContent"
+                class="edit-textarea"
+                rows="3"
+                placeholder="Edit message..."
+                (keydown.escape)="cancelEditing()"
+                (keydown.ctrl.enter)="saveEdit()"
+                (keydown.meta.enter)="saveEdit()"
+              ></textarea>
+              <div class="edit-actions">
+                <button mat-stroked-button (click)="cancelEditing()">Cancel</button>
+                <button mat-flat-button color="primary" (click)="saveEdit()">Save</button>
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="message-actions" *ngIf="editingMessageId !== message.id">
+              <button mat-icon-button [matMenuTriggerFor]="regularMenu">
+                <mat-icon>more_vert</mat-icon>
+              </button>
+              <mat-menu #regularMenu="matMenu">
+                <button mat-menu-item *ngIf="canEdit(message)" (click)="startEditing(message)">
+                  <mat-icon>edit</mat-icon> Edit
+                </button>
+                <button mat-menu-item *ngIf="canPin()" (click)="togglePin(message)">
+                  <mat-icon>push_pin</mat-icon> {{ message.pinned ? 'Unpin' : 'Pin' }}
+                </button>
+                <button mat-menu-item *ngIf="canDelete(message)" (click)="deleteMessage(message)" class="delete-action">
+                  <mat-icon>delete</mat-icon> Delete
+                </button>
+              </mat-menu>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div class="empty-state" *ngIf="isEmptyState">
+        <div class="empty-illustration">
+          <mat-icon>chat_bubble_outline</mat-icon>
+          <mat-icon>chat_bubble</mat-icon>
+        </div>
+        <h3 class="empty-title">Connect your words to your work</h3>
+        <p class="empty-subtitle">
+          Send a message to kick off projects. Or discuss tasks. Or brainstorm ideas.<br>
+          You can also send messages from your email too.
+        </p>
+      </div>
+    </div>
+
+    <!-- Composer -->
+    <div class="message-composer">
+      <!-- Toolbar (only when typing) -->
+      <div class="composer-toolbar" *ngIf="newMessageContent">
+        <button mat-icon-button matTooltip="Bold" (click)="insertMarkdown('**', '**')">
+          <mat-icon>format_bold</mat-icon>
+        </button>
+        <button mat-icon-button matTooltip="Italic" (click)="insertMarkdown('*', '*')">
+          <mat-icon>format_italic</mat-icon>
+        </button>
+        <button mat-icon-button matTooltip="Link" (click)="insertMarkdown('[text](', ')')">
+          <mat-icon>link</mat-icon>
+        </button>
+        <button mat-icon-button matTooltip="Mention" (click)="insertMarkdown('@', '')">
+          <mat-icon>alternate_email</mat-icon>
+        </button>
+      </div>
+
+      <!-- Input and Send Button Row -->
+      <div class="composer-row">
+        <div class="composer-input">
+          <textarea
+            #composerTextarea
+            [(ngModel)]="newMessageContent"
+            class="composer-textarea"
+            placeholder="Post an update..."
+            rows="1"
+            (keydown)="onComposerKeyDown($event)"
+            (input)="adjustComposerHeight($event)"
+            [disabled]="sending"
+          ></textarea>
+        </div>
+        <button
+          mat-flat-button
+          color="primary"
+          class="send-button"
+          [disabled]="!canSend || sending"
+          (click)="sendMessage()"
+        >
+          <mat-icon *ngIf="!sending">send</mat-icon>
+          <mat-spinner *ngIf="sending" diameter="16"></mat-spinner>
+          Send
+        </button>
+      </div>
+
+      <!-- Character Count Footer -->
+      <div class="composer-footer" *ngIf="showCharacterCount">
+        <div class="character-count" [class.warning]="characterCount > 4000">
+          {{ characterCount }} / 5000
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

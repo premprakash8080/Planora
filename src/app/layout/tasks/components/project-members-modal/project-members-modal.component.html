@@ -1,0 +1,89 @@
+<div class="project-members-modal">
+  <div class="modal-header">
+    <h2 class="modal-title">Project members</h2>
+    <button mat-icon-button class="close-btn" (click)="close()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="modal-content">
+    <!-- Add Member Section -->
+    <div class="add-member-section">
+      <app-dropdown-popover
+        *ngIf="availableMembers.length > 0"
+        [items]="memberItems"
+        (select)="onAddMember($event)"
+        [width]="320"
+        [hasSearch]="true"
+        [searchPlaceholder]="'Search by name or email...'"
+        #memberDropdown
+      >
+        <div class="add-member-input-wrapper" appDropdownTrigger>
+          <input
+            type="text"
+            class="add-member-input"
+            placeholder="Add teammates"
+            [value]="searchInputValue"
+            (focus)="onInputFocus()"
+            (input)="onInputChange($event)"
+            readonly
+          />
+          <mat-icon class="search-icon">search</mat-icon>
+        </div>
+      </app-dropdown-popover>
+      <p class="no-members-msg" *ngIf="availableMembers.length === 0 && !loading">
+        All users are already members of this project.
+      </p>
+    </div>
+
+    <!-- Members List -->
+    <div class="members-list">
+      <div class="members-count" *ngIf="!loading && projectMembers.length > 0">
+        {{ projectMembers.length }} {{ projectMembers.length === 1 ? 'member' : 'members' }}
+      </div>
+      
+      <div class="loading-state" *ngIf="loading">
+        <mat-spinner diameter="24"></mat-spinner>
+        <span>Loading members...</span>
+      </div>
+
+      <div class="members-grid" *ngIf="!loading && projectMembers.length > 0">
+        <div class="member-item" *ngFor="let member of projectMembers; trackBy: trackByMemberId">
+          <app-avatar
+            [size]="'md'"
+            [initials]="getInitials(member)"
+            [color]="member.user.avatar_color || '#8b5cf6'"
+            [src]="member.user.avatar_url"
+            class="member-avatar"
+          ></app-avatar>
+          
+          <div class="member-info">
+            <div class="member-name-email">
+              <span class="member-name">{{ member.user.full_name }}</span>
+              <span class="member-email">{{ member.user.email }}</span>
+            </div>
+            <div class="member-role-badge" *ngIf="member.role !== 'member'">
+              {{ member.role | titlecase }}
+            </div>
+          </div>
+
+          <button
+            mat-icon-button
+            class="remove-btn"
+            (click)="onRemoveMember(member.user_id)"
+            [disabled]="!canRemoveMember(member)"
+            [title]="canRemoveMember(member) ? 'Remove member' : 'Cannot remove project creator'"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <div class="empty-state" *ngIf="!loading && projectMembers.length === 0">
+        <mat-icon class="empty-icon">people_outline</mat-icon>
+        <p>No members yet. Add members to collaborate on this project.</p>
+      </div>
+    </div>
+  </div>
+</div>
+

@@ -1,13 +1,11 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
-import { Title } from '@angular/platform-browser';
-import { ActivatedRoute, Router } from '@angular/router';
-import { first } from 'rxjs';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { finalize } from 'rxjs/operators';
+import { AuthenticationService } from '../../service/auth.service';
 import { UserSessionService } from 'src/app/shared/services/user-session.service';
 import { SnackBarService } from 'src/app/shared/services/snackbar.service';
 import { UserCreds } from 'src/app/core/models/core.models';
-import { CreationPermissions, DeliveryPermissions } from 'src/@vex/enums/Enumeration';
-import { AuthenticationService } from '../../service/auth.service';
 
 @Component({
   selector: 'vex-login',
@@ -15,175 +13,117 @@ import { AuthenticationService } from '../../service/auth.service';
   styleUrls: ['./login.component.scss']
 })
 export class LoginComponent implements OnInit {
-
   loginForm: FormGroup;
-
-  returnUrl: string;
-  error = '';
   loading = false;
-  companyAccounts: Array<any> = [];
-  visible: Boolean = false;
   hide = true;
+  error = '';
 
   constructor(
     private formBuilder: FormBuilder,
     private router: Router,
-    private titleService: Title,
     private authenticationService: AuthenticationService,
     private userSessionService: UserSessionService,
     private snackBarService: SnackBarService,
-  ) {
-    //this.titleService.setTitle("Login");
-    // this.getAllCompanyAccounts();
-  }
+  ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
+    // Redirect if already authenticated
+    if (this.authenticationService.isAuthenticated) {
+      this.router.navigate(['/']);
+      return;
+    }
+
     this.loginForm = this.formBuilder.group({
       username: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required],
     });
+
+    // Check if remember me is enabled and restore credentials
     this.checkIsRemember();
   }
-  /**
-   * On submit form
-   */
-  onSubmit() {
 
-    // stop here if form is invalid
+  /**
+   * Handle form submission
+   */
+  onSubmit(): void {
+    // Stop here if form is invalid
     this.loginForm.markAllAsTouched();
     if (this.loginForm.invalid) {
       return;
     }
 
-    this.snackBarService.showSuccess('Login Successful');
-    this.userSessionService.accessToken = "1231SAASDSADSA123SDDSAASD213S";
-    this.userSessionService.userSession =  {
-      id:1,
-      first_name:"string",
-      last_name:"string",
-      phone_number:"string",
-      email: "string",
-      address: "string",  
-      role:1,
-      status:1,
-      createdAt:new Date(),
-      updatedAt:new Date(),
-      abn:"any",
-      designation:"any",
-  };
-    this.router.navigate(['/']);
-    return
-    this.authenticationService.Login(this.loginForm.value.username, this.loginForm.value.password, 1).subscribe(res => {
-      if (res.status) {
-        const creds: UserCreds = {
-          username: this.loginForm.value.username,
-          password: this.loginForm.value.password,
+    this.loading = true;
+    this.error = '';
+
+    const email = this.loginForm.value.username;
+    const password = this.loginForm.value.password;
+
+    this.authenticationService.login(email, password)
+      .pipe(
+        finalize(() => {
+          this.loading = false;
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            // Store credentials if remember me is enabled
+            if (this.userSessionService.rememberMe) {
+              const creds: UserCreds = {
+                username: email,
+                password: password,
+              };
+              this.userSessionService.userCredentials = creds;
+            }
+
+            this.snackBarService.showSuccess(response.message || 'Login successful');
+            this.router.navigate(['/']);
+          } else {
+            this.error = response.message || 'Login failed';
+            this.snackBarService.showError(this.error);
+          }
+        },
+        error: (error) => {
+          this.error = error || 'Invalid email or password';
+          this.snackBarService.showError(this.error);
         }
-        this.userSessionService.accessToken = res.token;
-        this.userSessionService.userSession = res.user;
-        this.authenticationService.getUserPermissions(res.user.role).subscribe(res => {
-          let permissions: number[] = [];
-
-          res.permissions.forEach((p: any) => {
-            permissions.push(p.permission_id);
-          });
-
-          this.userSessionService.userPermissions = permissions;
-
-          this.snackBarService.showSuccess('Login Successful');
-          if (this.userSessionService.rememberMe === true) this.userSessionService.userCredentials = creds
-
-          this.userSessionService.userPermissions = this.userSessionService.userPermissions.sort((a, b) => a - b);
-
-          if (this.userSessionService.userPermissions.length == 0) {
-            this.router.navigate(['/']);
-            return
-          }
-
-          if (this.HasDashboardCreationPermissions() || this.HasDeliveryPermissionsPermissions()) {
-            this.router.navigate(['/']);
-            return;
-          }
-
-          switch(this.userSessionService.userPermissions[0])
-          {
-             case 2://CourseSetup
-             this.router.navigate(['/course-setup']);
-              break;
-              case 3://ManageCourses
-             this.router.navigate(['/manage-courses']);
-              break;
-              case 4://Courses
-             this.router.navigate(['/courses']);
-              break;
-              case 5://RoleManagement
-             this.router.navigate(['/role']);
-              break;
-              case 6://NewsFeed
-             this.router.navigate(['/news']);
-              break;
-              case 7://TechSupport
-             this.router.navigate(['/tech-support']);
-              break;
-
-              case 9://DeliverySetup
-             this.router.navigate(['/delivery-setup']);
-              break;
-              case 10://ManageTrainerAssessor
-             this.router.navigate(['/manage-tariner']);
-              break;
-              case 11://ManageStudents
-             this.router.navigate(['/manage-students']);
-              break;
-              case 12://Classes
-             this.router.navigate(['/classes']);
-              break;
-              case 13://MarkingAndFeedback
-             this.router.navigate(['/marking-feedback']);
-              break;
-              case 14://StudentChat
-              this.router.navigate(['/chat']);
-               break;
-          }
-        });
-
-      } else {
-        this.snackBarService.showError('Invalid password! Please try again.');
-      }
-
-    });
-
+      });
   }
 
-  private HasDashboardCreationPermissions() {
-    return this.userSessionService.userPermissions.filter(a => a == CreationPermissions.DashboardCreation).length > 0
-  }
-
-  private HasDeliveryPermissionsPermissions() {
-    return this.userSessionService.userPermissions.filter(a => a == DeliveryPermissions.DashboardDelivery).length > 0
-  }
-
-  getErrorMessage() {
-    if (this.loginForm.controls['username'].hasError('required')) {
+  /**
+   * Get error message for form field
+   */
+  getErrorMessage(): string {
+    const control = this.loginForm.controls['username'];
+    if (control.hasError('required')) {
       return 'You must enter a value';
     }
-
-    return this.loginForm.controls['username'].hasError('email') ? 'Not a valid email' : '';
+    if (control.hasError('email')) {
+      return 'Not a valid email';
+    }
+    return '';
   }
 
-  setIsRemember(event: any) {
+  /**
+   * Handle remember me checkbox change
+   */
+  setIsRemember(event: any): void {
     const target = event.target as HTMLInputElement;
     this.userSessionService.rememberMe = target.checked;
   }
 
-  private checkIsRemember() {
+  /**
+   * Check if remember me is enabled and restore credentials
+   */
+  private checkIsRemember(): void {
     if (this.userSessionService.rememberMe) {
-      this.patchValue(this.loginForm, this.userSessionService.userCredentials);
-
+      const creds = this.userSessionService.userCredentials;
+      if (creds) {
+        this.loginForm.patchValue({
+          username: creds.username,
+          password: creds.password,
+        });
+      }
     }
-  }
-
-  private patchValue(form: FormGroup, data: UserCreds) {
-    form.patchValue(data);
   }
 }

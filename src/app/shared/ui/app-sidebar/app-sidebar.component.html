@@ -26,18 +26,30 @@
   <nav class="app-sidebar__nav">
     <ng-container *ngFor="let section of sections; trackBy: trackBySection">
       <div class="app-sidebar__section">
-        <button
-          type="button"
-          class="app-sidebar__section-trigger"
-          *ngIf="section.title"
-          (click)="toggleSection(section)"
-          [attr.aria-expanded]="!(section.collapsible && section.collapsed)"
-        >
-          <span>{{ section.title }}</span>
-          <mat-icon *ngIf="section.collapsible">
-            {{ section.collapsed ? 'expand_more' : 'expand_less' }}
-          </mat-icon>
-        </button>
+        <div class="app-sidebar__section-header" *ngIf="section.title">
+          <button
+            type="button"
+            class="app-sidebar__section-trigger"
+            (click)="toggleSection(section)"
+            [attr.aria-expanded]="!(section.collapsible && section.collapsed)"
+          >
+            <span>{{ section.title }}</span>
+            <mat-icon *ngIf="section.collapsible">
+              {{ section.collapsed ? 'expand_more' : 'expand_less' }}
+            </mat-icon>
+          </button>
+          <button
+            *ngIf="section.id === 'projects' && !collapsed"
+            mat-icon-button
+            type="button"
+            class="app-sidebar__section-action"
+            (click)="createProject.emit()"
+            aria-label="Create new project"
+            title="Create new project"
+          >
+            <mat-icon>add</mat-icon>
+          </button>
+        </div>
 
         <ul
           class="app-sidebar__list"
@@ -66,20 +78,19 @@
     </ng-container>
   </nav>
 
-  <div class="app-sidebar__footer" *ngIf="!collapsed">
-    <div class="app-sidebar__quick-actions">
-      <span class="app-sidebar__quick-title">Quick actions</span>
-      <div class="app-sidebar__quick-buttons">
-        <button mat-stroked-button color="primary" type="button">
-          <mat-icon>add</mat-icon>
-          New Task
-        </button>
-        <button mat-button type="button">
-          <mat-icon>calendar_today</mat-icon>
-          Calendar
-        </button>
-      </div>
-    </div>
+  <!-- Theme Toggle -->
+  <div class="app-sidebar__theme-toggle">
+    <button
+      mat-button
+      type="button"
+      class="app-sidebar__theme-button"
+      (click)="toggleTheme()"
+      [attr.aria-label]="currentTheme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'"
+      [title]="currentTheme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'"
+    >
+      <mat-icon>{{ currentTheme === 'dark' ? 'light_mode' : 'dark_mode' }}</mat-icon>
+      <span class="app-sidebar__theme-label" *ngIf="!collapsed">{{ currentTheme === 'dark' ? 'Light Mode' : 'Dark Mode' }}</span>
+    </button>
   </div>
 </aside>
 

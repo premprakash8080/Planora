@@ -1,0 +1,68 @@
+<!-- Loading State -->
+<app-loading 
+  *ngIf="loading"
+  size="md"
+  variant="spinner"
+  message="Loading mails..."
+  [fullScreen]="false">
+</app-loading>
+
+<!-- Mail List -->
+<div class="mail-list" *ngIf="!loading && mails.length > 0">
+  <div *ngFor="let mail of mails; trackBy: trackByMailId" class="mail-item-wrapper" [class.unread]="!mail.isRead">
+    <div class="mail-item" (click)="openMail(mail)">
+      <div class="mail-item-left">
+        <app-avatar
+          size="md"
+          [initials]="getAvatarInitials(mail.sender)"
+          [src]="mail.senderAvatarUrl"
+          [color]="mail.senderAvatarColor"
+          [alt]="mail.sender"
+          class="mail-avatar"
+        ></app-avatar>
+        <div class="mail-details">
+          <div class="mail-header">
+            <span class="mail-sender" [class.unread]="!mail.isRead">{{ mail.sender }}</span>
+            <span class="mail-timestamp">{{ formatTimestamp(mail.timestamp) }}</span>
+          </div>
+          <div class="mail-subject" [class.unread]="!mail.isRead">
+            {{ mail.subject }}
+          </div>
+          <div class="mail-preview">
+            {{ mail.preview }}
+          </div>
+        </div>
+      </div>
+      <div class="mail-item-right">
+        <div class="mail-status-indicator" *ngIf="!mail.isRead">
+          <mat-icon class="unread-dot">fiber_manual_record</mat-icon>
+        </div>
+        <div class="mail-actions">
+          <button 
+            mat-icon-button 
+            (click)="toggleStar(mail, $event)"
+            [class.starred]="mail.isStarred"
+            matTooltip="Star"
+            class="action-button">
+            <mat-icon>{{ mail.isStarred ? 'star' : 'star_border' }}</mat-icon>
+          </button>
+          <button 
+            mat-icon-button 
+            (click)="deleteMail(mail, $event)"
+            matTooltip="Delete"
+            class="action-button">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Empty State -->
+<div class="mail-empty" *ngIf="!loading && mails.length === 0">
+  <mat-icon class="empty-icon">mail_outline</mat-icon>
+  <h3 class="empty-title">No mails found</h3>
+  <p class="empty-message">{{ emptyMessage }}</p>
+</div>
+

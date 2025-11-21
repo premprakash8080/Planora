@@ -1,0 +1,81 @@
+<div class="mail-view-container">
+  <!-- Loading State -->
+  <div *ngIf="loading" class="mail-view-loading">
+    <app-loading
+      size="lg"
+      variant="spinner"
+      message="Loading mail..."
+      [fullScreen]="false">
+    </app-loading>
+  </div>
+
+  <!-- Mail View -->
+  <div *ngIf="!loading && mail" class="mail-view-content">
+    <div class="mail-view-header">
+      <button mat-stroked-button (click)="goBack()" class="back-button">
+        <mat-icon>arrow_back</mat-icon>
+        Back
+      </button>
+      <div class="header-actions">
+        <button 
+          mat-icon-button 
+          [class.starred]="mail.isStarred"
+          (click)="toggleStar()"
+          matTooltip="Star"
+          class="action-button">
+          <mat-icon>{{ mail.isStarred ? 'star' : 'star_border' }}</mat-icon>
+        </button>
+        <button 
+          mat-icon-button 
+          (click)="deleteMail()"
+          matTooltip="Delete"
+          class="action-button">
+          <mat-icon>delete</mat-icon>
+        </button>
+        <button mat-raised-button color="primary" class="reply-button" (click)="reply()">
+          <mat-icon>reply</mat-icon>
+          Reply
+        </button>
+      </div>
+    </div>
+
+    <div class="mail-card">
+      <div class="mail-header-section">
+        <h1 class="mail-subject">{{ mail.subject }}</h1>
+        <div class="mail-meta">
+          <span class="mail-date">{{ formatTimestamp(mail.timestamp) }}</span>
+        </div>
+      </div>
+
+      <div class="mail-sender-section">
+        <app-avatar
+          size="md"
+          [src]="mail.senderAvatarUrl"
+          [initials]="getAvatarInitials(mail.sender)"
+          [color]="mail.senderAvatarColor"
+          [alt]="mail.sender"
+          class="sender-avatar"
+        ></app-avatar>
+        <div class="sender-info">
+          <div class="sender-name">{{ mail.sender }}</div>
+          <div class="sender-email">{{ mail.senderEmail }}</div>
+        </div>
+      </div>
+
+      <div class="mail-body-section">
+        <div class="mail-body-content">{{ mail.body }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Not Found State -->
+  <div *ngIf="!loading && !mail" class="mail-not-found">
+    <mat-icon class="error-icon">error_outline</mat-icon>
+    <h3>Mail not found</h3>
+    <p>The mail you're looking for doesn't exist or has been deleted.</p>
+    <button mat-raised-button color="primary" (click)="goBack()">
+      <mat-icon>arrow_back</mat-icon>
+      Back to Inbox
+    </button>
+  </div>
+</div>

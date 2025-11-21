@@ -1,0 +1,34 @@
+<div class="task-section">
+  <div class="section-header" (click)="toggleSection.emit(section)">
+    <mat-icon class="chevron" [class.expanded]="section.expanded">expand_more</mat-icon>
+    <input 
+      class="section-title-input" 
+      [value]="sectionTitleDrafts.get(section.id) ?? section.title"
+      (input)="onTitleInput($event)"
+      (focus)="onTitleFocus()"
+      (blur)="onTitleBlur($event)"
+      (keydown.enter)="onTitleEnter($event)"
+      (keydown.escape)="onTitleEscape($event)"
+      [style.width.px]="getSectionTitleWidth()"
+      (click)="$event.stopPropagation()"
+      (mousedown)="$event.stopPropagation()"
+    />
+    <span class="task-count">{{ section.tasks.length }} tasks</span>
+  </div>
+
+  <div class="section-body" *ngIf="section.expanded">
+    <app-task-row *ngFor="let task of section.tasks; trackBy: trackTask" [task]="task" [section]="section"
+      [selected]="selectedTask?.id === task.id" [nameDraft]="nameDrafts.get(task.id) ?? task.name"
+      [assigneeItems]="assigneeItems" [priorityItems]="priorityItems" [statusItems]="statusItems"
+      [getAssigneeAvatar]="getAssigneeAvatar" [getAssigneeInitials]="getAssigneeInitials"
+      [getAssigneeColor]="getAssigneeColor" [formatDueDate]="formatDueDate" [getDueDate]="getDueDate"
+      [getStatusColor]="getStatusColor" [getStatusLabel]="getStatusLabel"
+      [gridTemplateColumns]="gridTemplateColumns"
+      (rowClick)="openTaskDetail.emit({section, task})" (toggleCompleted)="toggleCompleted.emit({section, task})"
+      (nameChange)="onNameChange(task, $event)" (assigneeSelect)="onAssigneeSelect(task, $event)"
+      (dueDateChange)="onDueDateChange(task, $event)" (prioritySelect)="onPrioritySelect(task, $event)"
+      (statusSelect)="onStatusSelect(task, $event)"></app-task-row>
+
+    <app-add-task-button (addTask)="addTask.emit(section)"></app-add-task-button>
+  </div>
+</div>

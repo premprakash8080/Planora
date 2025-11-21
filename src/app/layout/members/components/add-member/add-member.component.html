@@ -1,0 +1,93 @@
+<div class="page-container add-member-page">
+  <app-page-title
+    [title]="isEditMode ? 'Edit Member' : 'Add New Member'"
+    [description]="isEditMode ? 'Update member information' : 'Invite a new team member to your project'"
+  >
+  </app-page-title>
+
+  <app-card padding="lg">
+    <form [formGroup]="memberForm" (ngSubmit)="onSubmit()" class="add-member-form">
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Full Name</mat-label>
+          <input
+            matInput
+            formControlName="full_name"
+            placeholder="Enter full name"
+            required
+          />
+          <mat-error *ngIf="memberForm.get('full_name')?.invalid && memberForm.get('full_name')?.touched">
+            {{ getErrorMessage('full_name') }}
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Email</mat-label>
+          <input
+            matInput
+            type="email"
+            formControlName="email"
+            placeholder="Enter email address"
+            required
+          />
+          <mat-error *ngIf="memberForm.get('email')?.invalid && memberForm.get('email')?.touched">
+            {{ getErrorMessage('email') }}
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Role</mat-label>
+          <mat-select formControlName="role" required>
+            <mat-option *ngFor="let role of roles" [value]="role">
+              {{ role }}
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="memberForm.get('role')?.invalid && memberForm.get('role')?.touched">
+            {{ getErrorMessage('role') }}
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Status</mat-label>
+          <mat-select formControlName="status" required>
+            <mat-option *ngFor="let status of statuses" [value]="status">
+              {{ status | titlecase }}
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="memberForm.get('status')?.invalid && memberForm.get('status')?.touched">
+            {{ getErrorMessage('status') }}
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row" *ngIf="!isEditMode">
+        <mat-form-field appearance="outline" class="form-field">
+          <mat-label>Password</mat-label>
+          <input
+            matInput
+            type="password"
+            formControlName="password"
+            placeholder="Enter password"
+            required
+          />
+          <mat-error *ngIf="memberForm.get('password')?.invalid && memberForm.get('password')?.touched">
+            {{ getErrorMessage('password') }}
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-actions">
+        <app-button variant="secondary" type="button" (pressed)="onCancel()" [disabled]="loading">
+          Cancel
+        </app-button>
+        <app-button variant="primary" type="submit" [disabled]="memberForm.invalid || loading">
+          <mat-icon>{{ isEditMode ? 'save' : 'person_add' }}</mat-icon>
+          {{ isEditMode ? 'Update Member' : 'Add Member' }}
+        </app-button>
+      </div>
+    </form>
+  </app-card>
+</div>
+

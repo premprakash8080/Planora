@@ -1,0 +1,136 @@
+<div class="page-container inbox-page">
+  <app-page-title
+    title="Inbox"
+    description="Task updates and activity feed"
+  >
+    <ng-container pageActions>
+      <app-button variant="ghost" size="sm">
+        <mat-icon>filter_list</mat-icon>
+        Filters
+      </app-button>
+      <app-button variant="ghost" size="sm">
+        <mat-icon>sort</mat-icon>
+        Sort
+      </app-button>
+    </ng-container>
+  </app-page-title>
+
+  <app-card padding="lg">
+    <div class="task-list-container">
+    <!-- List Header -->
+    <div class="list-header">
+      <div class="header-cell checkbox-cell">
+        <mat-checkbox></mat-checkbox>
+      </div>
+      <div class="header-cell task-cell">Task</div>
+      <div class="header-cell project-cell">Project</div>
+      <div class="header-cell status-cell">Status</div>
+      <div class="header-cell assignee-cell">Updated By</div>
+      <div class="header-cell time-cell">Time</div>
+      <div class="header-cell actions-cell">Actions</div>
+    </div>
+
+      <!-- Task List Items -->
+       <!-- make scrollable -->
+      <div class="task-list" *ngIf="!loading; else loadingTemplate">
+        <div 
+          *ngFor="let update of inboxUpdates" 
+          class="task-list-item"
+          (click)="onUpdateClick(update)">
+          
+          <!-- Checkbox -->
+          <div class="task-cell checkbox-cell">
+            <mat-checkbox (click)="$event.stopPropagation()"></mat-checkbox>
+          </div>
+
+          <!-- Task Info -->
+          <div class="task-cell task-info-cell">
+            <div class="task-main-info">
+              <div class="task-icon-wrapper" [style.background-color]="update.iconBackground">
+                <mat-icon 
+                  [style.color]="update.iconColor" 
+                  class="task-icon">
+                  {{ update.icon }}
+                </mat-icon>
+              </div>
+              <div class="task-details">
+                <div class="task-name">{{ update.taskName }}</div>
+                <div class="task-description">
+                  <span class="user-name">{{ update.userName }}</span>
+                  <span class="action-text">{{ update.updateDescription }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Project -->
+          <div class="task-cell project-cell">
+            <div class="project-badge">
+              <mat-icon class="project-icon">folder</mat-icon>
+              <span class="project-name">{{ update.projectName }}</span>
+            </div>
+          </div>
+
+          <!-- Status -->
+          <div class="task-cell status-cell">
+            <span class="status-badge" [ngClass]="'status-' + update.updateType">
+              {{ update.updateType }}
+            </span>
+          </div>
+
+          <!-- Assignee -->
+          <div class="task-cell assignee-cell">
+            <div class="assignee-info">
+              <div class="assignee-avatar">
+                {{ update.userInitials || update.userName.charAt(0) }}
+              </div>
+              <span class="assignee-name">{{ update.userName }}</span>
+            </div>
+          </div>
+
+          <!-- Time -->
+          <div class="task-cell time-cell">
+            <div class="time-info">
+              <mat-icon class="time-icon">schedule</mat-icon>
+              <span class="time-text">{{ update.timeAgo || update.time }}</span>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="task-cell actions-cell">
+            <button 
+              mat-icon-button 
+              class="action-button"
+              (click)="$event.stopPropagation()"
+              matTooltip="More options">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </app-card>
+
+  <!-- Loading Template -->
+  <ng-template #loadingTemplate>
+    <app-loading 
+      size="lg" 
+      variant="spinner" 
+      message="Loading inbox activities..."
+      [fullScreen]="false">
+    </app-loading>
+  </ng-template>
+
+  <!-- Empty State (if no updates) -->
+  <div *ngIf="!loading && inboxUpdates.length === 0" class="inbox-empty-state">
+    <div class="empty-state-content">
+      <mat-icon class="inbox-empty-icon">inbox</mat-icon>
+      <h3 class="inbox-empty-title">No activities yet</h3>
+      <p class="inbox-empty-text">Task updates and activities will appear here when available</p>
+      <app-button variant="primary">
+        <mat-icon>add</mat-icon>
+        Create Task
+      </app-button>
+    </div>
+  </div>
+</div>

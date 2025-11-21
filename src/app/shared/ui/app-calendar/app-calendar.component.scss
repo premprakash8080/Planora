@@ -20,23 +20,28 @@
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px 12px;
-  background: linear-gradient(135deg, rgba(37, 99, 235, 0.12), rgba(59, 130, 246, 0.08));
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(139, 92, 246, 0.08));
   backdrop-filter: blur(4px);
 
+  [data-theme="dark"] &,
+  .dark-theme & {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(139, 92, 246, 0.15));
+  }
+
   mat-icon {
-    color: #1e3a8a;
+    color: var(--color-primary);
   }
 }
 
 .app-calendar__title {
   font-weight: 600;
   font-size: 16px;
-  color: #1f2937;
+  color: var(--color-text-heading);
 }
 
 .app-calendar__divider {
   margin: 0;
-  border-color: rgba(148, 163, 184, 0.22);
+  border-color: var(--color-border);
 }
 
 .app-calendar__footer {
@@ -44,12 +49,12 @@
   align-items: center;
   gap: 12px;
   padding: 12px 20px 16px;
-  background: rgba(248, 250, 252, 0.9);
+  background: var(--color-surface-secondary);
 }
 
 .app-calendar__selection {
   font-size: 13px;
-  color: #475569;
+  color: var(--color-text-body);
 }
 
 .app-calendar__spacer {
@@ -57,30 +62,35 @@
 }
 
 :host ::ng-deep .mat-calendar-body-selected {
-  background: linear-gradient(135deg, #2563eb, #4f46e5);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
   color: #fff !important;
-  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
+  box-shadow: 0 6px 16px rgba(139, 92, 246, 0.35);
 }
 
 :host ::ng-deep .mat-calendar-body-today:not(.mat-calendar-body-selected) {
-  border-color: rgba(37, 99, 235, 0.6);
+  border-color: var(--color-primary);
 }
 
 :host ::ng-deep .mat-calendar-table-header {
-  color: #64748b;
+  color: var(--color-text-subtle);
   font-weight: 600;
 }
 
 :host ::ng-deep .mat-calendar-body-cell {
   font-weight: 500;
-  color: #1e293b;
+  color: var(--color-text-body);
 
   &::after {
     transition: opacity 0.18s ease;
   }
 
   &:hover .mat-calendar-body-cell-content {
-    background: rgba(37, 99, 235, 0.12);
+    background: rgba(139, 92, 246, 0.12);
+
+    [data-theme="dark"] &,
+    .dark-theme & {
+      background: rgba(139, 92, 246, 0.2);
+    }
   }
 }
 

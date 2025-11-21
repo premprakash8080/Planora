@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ChangeDetectorRef, NgZone } from '@angular/core';
+import { InsightsService, ReportMetric, TaskStatusAnalytic, ProjectPerformance } from '../../service/insights.service';
 
 /**
  * Report Component
@@ -9,164 +10,112 @@ import { Component, OnInit } from '@angular/core';
  * - Project Performance: Project performance table with completion rates
  */
 
-/**
- * Interface for Report Data
- */
-export interface ReportData {
-  id: string;
-  metric: string;
-  value: number;
-  change: number;
-  changeType: 'increase' | 'decrease';
-  icon: string;
-  color: string;
-}
-
-/**
- * Interface for Task Analytics
- */
-export interface TaskAnalytics {
-  status: string;
-  count: number;
-  percentage: number;
-  color: string;
-}
-
 @Component({
   selector: 'app-report',
   templateUrl: './report.component.html',
   styleUrls: ['./report.component.scss']
 })
-export class ReportComponent implements OnInit {
+export class ReportComponent implements OnInit, AfterViewInit {
 
   // Expose Math object to template
   Math = Math;
 
   /**
-   * Dummy data for key metrics
-   * In a real application, this would come from a service/API
+   * Report metrics from API
    */
-  reportMetrics: ReportData[] = [
-    {
-      id: '1',
-      metric: 'Total Tasks',
-      value: 156,
-      change: 12,
-      changeType: 'increase',
-      icon: 'task',
-      color: '#2196f3'
-    },
-    {
-      id: '2',
-      metric: 'Completed Tasks',
-      value: 98,
-      change: 8,
-      changeType: 'increase',
-      icon: 'check_circle',
-      color: '#4caf50'
-    },
-    {
-      id: '3',
-      metric: 'In Progress',
-      value: 42,
-      change: -5,
-      changeType: 'decrease',
-      icon: 'hourglass_empty',
-      color: '#ff9800'
-    },
-    {
-      id: '4',
-      metric: 'Overdue Tasks',
-      value: 16,
-      change: 3,
-      changeType: 'increase',
-      icon: 'warning',
-      color: '#f44336'
-    }
-  ];
+  reportMetrics: ReportMetric[] = [];
 
   /**
-   * Dummy data for task status analytics
-   * In a real application, this would come from a service/API
+   * Task status analytics from API
    */
-  taskStatusAnalytics: TaskAnalytics[] = [
-    {
-      status: 'To Do',
-      count: 45,
-      percentage: 28.8,
-      color: '#9e9e9e'
-    },
-    {
-      status: 'In Progress',
-      count: 42,
-      percentage: 26.9,
-      color: '#ff9800'
-    },
-    {
-      status: 'In Review',
-      count: 23,
-      percentage: 14.7,
-      color: '#2196f3'
-    },
-    {
-      status: 'Completed',
-      count: 98,
-      percentage: 62.8,
-      color: '#4caf50'
-    },
-    {
-      status: 'Blocked',
-      count: 8,
-      percentage: 5.1,
-      color: '#f44336'
-    }
-  ];
+  taskStatusAnalytics: TaskStatusAnalytic[] = [];
 
   /**
-   * Dummy data for project performance
-   * In a real application, this would come from a service/API
+   * Project performance from API
    */
-  projectPerformance = [
-    {
-      projectName: 'Website Redesign',
-      totalTasks: 45,
-      completed: 32,
-      completionRate: 71.1,
-      status: 'On Track'
-    },
-    {
-      projectName: 'Mobile App',
-      totalTasks: 38,
-      completed: 28,
-      completionRate: 73.7,
-      status: 'On Track'
-    },
-    {
-      projectName: 'Marketing Campaign',
-      totalTasks: 29,
-      completed: 18,
-      completionRate: 62.1,
-      status: 'At Risk'
-    },
-    {
-      projectName: 'Backend Services',
-      totalTasks: 44,
-      completed: 20,
-      completionRate: 45.5,
-      status: 'Delayed'
-    }
-  ];
+  projectPerformance: ProjectPerformance[] = [];
+
+  /**
+   * Loading state
+   */
+  loading = false;
 
   /**
    * Displayed columns for the project performance table
    */
   displayedColumns: string[] = ['projectName', 'totalTasks', 'completed', 'completionRate', 'status'];
 
-  constructor() { }
+  constructor(
+    private insightsService: InsightsService,
+    private cdr: ChangeDetectorRef,
+    private ngZone: NgZone
+  ) { }
 
   ngOnInit(): void {
-    // Component initialization
-    // In a real app, you would fetch data from a service here
+    this.loadData();
+  }
+
+  ngAfterViewInit(): void {
+    this.cdr.detectChanges();
+  }
+
+  /**
+   * Load report data from API
+   */
+  loadData(): void {
+    this.loading = true;
+    this.cdr.markForCheck();
+
+    // Load all data in parallel
+    this.insightsService.getReportMetrics().subscribe({
+      next: (metrics) => {
+        this.ngZone.run(() => {
+          this.reportMetrics = metrics;
+          this.cdr.detectChanges();
+        });
+      },
+      error: (error) => {
+        console.error('Error loading report metrics:', error);
+        this.ngZone.run(() => {
+          this.reportMetrics = [];
+          this.cdr.detectChanges();
+        });
+      }
+    });
+
+    this.insightsService.getTaskStatusAnalytics().subscribe({
+      next: (analytics) => {
+        this.ngZone.run(() => {
+          this.taskStatusAnalytics = analytics;
+          this.cdr.detectChanges();
+        });
+      },
+      error: (error) => {
+        console.error('Error loading task status analytics:', error);
+        this.ngZone.run(() => {
+          this.taskStatusAnalytics = [];
+          this.cdr.detectChanges();
+        });
+      }
+    });
+
+    this.insightsService.getProjectPerformance().subscribe({
+      next: (performance) => {
+        this.ngZone.run(() => {
+          this.projectPerformance = performance;
+          this.loading = false;
+          this.cdr.detectChanges();
+        });
+      },
+      error: (error) => {
+        console.error('Error loading project performance:', error);
+        this.ngZone.run(() => {
+          this.projectPerformance = [];
+          this.loading = false;
+          this.cdr.detectChanges();
+        });
+      }
+    });
   }
 
   /**

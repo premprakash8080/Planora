@@ -10,16 +10,25 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatTableModule } from '@angular/material/table';
 import { MatOptionModule } from '@angular/material/core';
 import { MatSortModule } from '@angular/material/sort';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
-import { MembersComponent } from './members.component';
+import { MembersComponent } from './components/list-member/members.component';
 import { MembersRoutingModule } from './members-routing.module';
 import { SharedUiModule } from '../../shared/ui/ui.module';
+import { AddMemberComponent } from './components/add-member/add-member.component';
+import { ViewMemberComponent } from './components/view-member/view-member.component';
+import { ReactiveFormsModule } from '@angular/forms';
 
 @NgModule({
-  declarations: [MembersComponent],
+  declarations: [
+    MembersComponent,
+    AddMemberComponent,
+    ViewMemberComponent
+  ],
   imports: [
     CommonModule,
     FormsModule,
+    ReactiveFormsModule,
     MembersRoutingModule,
     MatButtonModule,
     MatCardModule,
@@ -30,6 +39,7 @@ import { SharedUiModule } from '../../shared/ui/ui.module';
     MatTableModule,
     MatOptionModule,
     MatSortModule,
+    MatProgressSpinnerModule,
     SharedUiModule
   ]
 })

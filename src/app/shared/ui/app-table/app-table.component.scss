@@ -14,6 +14,36 @@
   &__wrapper {
     width: 100%;
     overflow-x: auto;
+    max-height: calc(100vh - 400px);
+    overflow-y: auto;
+    scroll-behavior: smooth;
+    padding-bottom: 1.5rem;
+
+    // Custom scrollbar styling
+    &::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background-color: var(--color-border);
+      border-radius: 999px;
+      transition: background-color 0.2s ease;
+      opacity: 0.6;
+
+      &:hover {
+        background-color: var(--color-border);
+        opacity: 0.8;
+      }
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    // Firefox scrollbar
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border) transparent;
   }
 
   table {
@@ -23,7 +53,7 @@
   }
 
   thead {
-    background: rgba(148, 163, 184, 0.12);
+    background: var(--color-surface-secondary);
 
     th {
       font-size: tokens.font-size(sm);
@@ -39,6 +69,11 @@
   tbody tr {
     transition: background 0.2s ease;
     border-top: 1px solid var(--color-border);
+    background: var(--color-surface);
+
+    &:hover {
+      background: var(--color-surface-hover);
+    }
   }
 
   tbody td {
@@ -50,7 +85,7 @@
 
 :host(.app-table--striped) {
   .app-table tbody tr:nth-child(even) {
-    background: rgba(148, 163, 184, 0.08);
+    background: var(--color-surface-secondary);
   }
 }
 

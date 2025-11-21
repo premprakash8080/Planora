@@ -1,0 +1,273 @@
+<div class="page-container">
+  <app-task-header [projectTitle]="'Project Overview'"></app-task-header>
+
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="loading && !dataLoaded">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading project overview...</p>
+  </div>
+
+  <!-- Error State -->
+  <div class="error-container" *ngIf="error && !loading">
+    <mat-icon class="error-icon">error_outline</mat-icon>
+    <p>{{ error }}</p>
+    <button mat-button color="primary" (click)="loadProjectOverview()">Retry</button>
+  </div>
+
+  <!-- Main Content -->
+  <div class="project-overview" *ngIf="!loading || dataLoaded">
+    <!-- ────────────────────── LEFT COLUMN ────────────────────── -->
+    <div class="left-column">
+      <!-- Project description -->
+      <section class="section">
+        <div class="section-header">
+          <h2 class="section-title">Project description</h2>
+          <button 
+            mat-icon-button 
+            *ngIf="!descriptionEditing"
+            (click)="startEditingDescription()"
+            class="edit-btn"
+            matTooltip="Edit description"
+          >
+            <mat-icon>edit</mat-icon>
+          </button>
+        </div>
+        <p class="section-subtitle">What's this project about?</p>
+        
+        <div *ngIf="!descriptionEditing">
+          <p class="description-text" *ngIf="description; else emptyDesc">{{ description }}</p>
+          <ng-template #emptyDesc>
+            <p class="empty-text" (click)="startEditingDescription()">
+              <mat-icon>add_circle_outline</mat-icon>
+              Click to add a description
+            </p>
+          </ng-template>
+        </div>
+
+        <div *ngIf="descriptionEditing" class="edit-container">
+          <textarea
+            matInput
+            [(ngModel)]="descriptionDraft"
+            placeholder="Enter project description..."
+            class="description-input"
+            rows="4"
+          ></textarea>
+          <div class="edit-actions">
+            <button mat-button (click)="cancelEditingDescription()" [disabled]="saving">Cancel</button>
+            <button mat-raised-button color="primary" (click)="saveDescription()" [disabled]="saving">
+              <mat-spinner diameter="16" *ngIf="saving" class="inline-spinner"></mat-spinner>
+              <span *ngIf="!saving">Save</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Project roles -->
+      <section class="section">
+        <div class="section-header">
+          <h2 class="section-title">Project roles</h2>
+          <button 
+            mat-icon-button 
+            class="add-member-btn-icon"
+            matTooltip="Add member"
+          >
+            <mat-icon>add</mat-icon>
+          </button>
+        </div>
+        <div class="members-list">
+          <div class="member" *ngFor="let member of members; trackBy: trackByMemberId">
+            <app-avatar size="sm" [initials]="member.initials" [color]="member.color"></app-avatar>
+            <div class="member-info">
+              <span class="member-name">{{ member.name }}</span>
+              <span class="member-role" *ngIf="member.role">{{ member.role }}</span>
+            </div>
+            <button 
+              mat-icon-button 
+              class="remove-member-btn"
+              (click)="removeMember(member.id)"
+              [disabled]="saving"
+              matTooltip="Remove member"
+            >
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+          <div class="empty-members" *ngIf="members.length === 0">
+            <p class="empty-text">
+              <mat-icon>people_outline</mat-icon>
+              No members yet. Click the + icon to add members.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Connected goals -->
+      <section class="section">
+        <h2 class="section-title">Connected goals</h2>
+        <div class="connect-card">
+          <p class="connect-text">
+            Connect or create a goal to link this project to a larger purpose.
+          </p>
+          <button class="connect-btn">
+            <mat-icon>trending_up</mat-icon> Add goal
+          </button>
+        </div>
+      </section>
+
+      <!-- Connected portfolios -->
+      <section class="section">
+        <h2 class="section-title">Connected portfolios</h2>
+        <div class="connect-card">
+          <p class="connect-text">
+            Connect a portfolio to link this project to a larger body of work.
+          </p>
+          <button class="connect-btn">
+            <mat-icon>folder_open</mat-icon> Add to portfolio
+          </button>
+        </div>
+      </section>
+
+      <!-- Key resources -->
+      <section class="section">
+        <h2 class="section-title">Key resources</h2>
+        <div class="connect-card">
+          <p class="connect-text">
+            Align your team around a shared vision with a project brief and supporting resources.
+          </p>
+          <div class="resource-actions">
+            <button class="resource-btn">
+              <mat-icon>description</mat-icon> Create project brief
+            </button>
+            <button class="resource-btn">
+              <mat-icon>link</mat-icon> Add links & files
+            </button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- ────────────────────── RIGHT COLUMN ────────────────────── -->
+    <div class="right-column">
+      <!-- Status -->
+      <section class="status-section">
+        <h2 class="section-title">What's the status?</h2>
+
+        <div class="status-pills">
+          <button
+            class="status-pill"
+            [class.active]="status === 'on-track'"
+            [style.backgroundColor]="status === 'on-track' ? '#10b981' : 'transparent'"
+            [style.color]="status === 'on-track' ? '#ffffff' : '#64748b'"
+            (click)="updateStatus('on-track')"
+            [disabled]="saving"
+          >
+            <span class="dot" [style.backgroundColor]="'#10b981'"></span> On track
+          </button>
+
+          <button
+            class="status-pill"
+            [class.active]="status === 'at-risk'"
+            [style.backgroundColor]="status === 'at-risk' ? '#f59e0b' : 'transparent'"
+            [style.color]="status === 'at-risk' ? '#ffffff' : '#64748b'"
+            (click)="updateStatus('at-risk')"
+            [disabled]="saving"
+          >
+            <span class="dot" [style.backgroundColor]="'#f59e0b'"></span> At risk
+          </button>
+
+          <button
+            class="status-pill"
+            [class.active]="status === 'off-track'"
+            [style.backgroundColor]="status === 'off-track' ? '#ef4444' : 'transparent'"
+            [style.color]="status === 'off-track' ? '#ffffff' : '#64748b'"
+            (click)="updateStatus('off-track')"
+            [disabled]="saving"
+          >
+            <span class="dot" [style.backgroundColor]="'#ef4444'"></span> Off track
+          </button>
+        </div>
+
+        <!-- Due date -->
+        <div class="due-date-section">
+          <div class="due-date-header">
+            <h3 class="due-date-label">Due date</h3>
+            <button 
+              mat-icon-button 
+              *ngIf="!dueDateEditing"
+              (click)="startEditingDueDate()"
+              class="edit-btn-small"
+              matTooltip="Edit due date"
+            >
+              <mat-icon>edit</mat-icon>
+            </button>
+          </div>
+
+          <div *ngIf="!dueDateEditing">
+            <div class="due-date" *ngIf="dueDate; else noDueDate">
+              <mat-icon>event</mat-icon> 
+              <span>{{ dueDate | date: 'MMM d, y' }}</span>
+            </div>
+            <ng-template #noDueDate>
+              <div class="due-date empty" (click)="startEditingDueDate()">
+                <mat-icon>event</mat-icon> 
+                <span>Click to set due date</span>
+              </div>
+            </ng-template>
+          </div>
+
+          <div *ngIf="dueDateEditing" class="edit-container">
+            <mat-form-field appearance="outline" class="due-date-input">
+              <mat-label>Due date</mat-label>
+              <input matInput [matDatepicker]="picker" [(ngModel)]="dueDateDraft" [max]="maxDate">
+              <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+              <mat-datepicker #picker></mat-datepicker>
+            </mat-form-field>
+            <div class="edit-actions">
+              <button mat-button (click)="cancelEditingDueDate()" [disabled]="saving">Cancel</button>
+              <button mat-raised-button color="primary" (click)="saveDueDate()" [disabled]="saving">
+                <mat-spinner diameter="16" *ngIf="saving" class="inline-spinner"></mat-spinner>
+                <span *ngIf="!saving">Save</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Activity feed / Change log -->
+      <section class="activity-section">
+        <div class="activity-header">
+          <h2 class="section-title">Activity log</h2>
+          <span class="activity-count" *ngIf="activities.length > 0">{{ activities.length }} activities</span>
+        </div>
+        
+        <div class="activity-list" *ngIf="activities.length > 0; else noActivities">
+          <div class="activity-item" *ngFor="let activity of activities; trackBy: trackByActivityId">
+            <div class="activity-icon-wrapper" [style.backgroundColor]="activity.userColor + '20'">
+              <mat-icon class="activity-icon" [style.color]="activity.userColor">{{ activity.icon }}</mat-icon>
+            </div>
+
+            <div class="activity-content">
+              <p class="activity-message" [innerHTML]="activity.message"></p>
+              <div class="activity-meta">
+                <span class="activity-time">{{ activity.time }}</span>
+                <app-avatar
+                  *ngIf="activity.userInitials"
+                  size="sm"
+                  [initials]="activity.userInitials"
+                  [color]="activity.userColor!"
+                  class="activity-avatar"
+                ></app-avatar>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <ng-template #noActivities>
+          <div class="empty-activities">
+            <mat-icon>history</mat-icon>
+            <p>No activities yet. Activities will appear here as the project progresses.</p>
+          </div>
+        </ng-template>
+      </section>
+    </div>
+  </div>
+</div>

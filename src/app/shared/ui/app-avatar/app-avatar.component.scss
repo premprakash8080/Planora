@@ -2,7 +2,7 @@
   --avatar-size-sm: 32px;
   --avatar-size-md: 40px;
   --avatar-size-lg: 56px;
-  --avatar-bg: #ff7300;
+  --avatar-bg: var(--color-primary);
 
   display: inline-flex;
   align-items: center;
@@ -18,7 +18,7 @@
 }
 
 :host(.app-avatar--placeholder-default) {
-  background: linear-gradient(135deg, rgba(255, 115, 0, 0.85), rgba(255, 115, 0, 0.65));
+  background: linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-primary) 100%);
 }
 
 :host(.app-avatar--sm) {
@@ -44,12 +44,12 @@
 
   &:hover {
     transform: translateY(-1px);
-    box-shadow: 0 10px 16px rgba(15, 23, 42, 0.15);
+    box-shadow: var(--shadow-md);
   }
 
   &:active {
     transform: translateY(0);
-    box-shadow: 0 6px 12px rgba(15, 23, 42, 0.12);
+    box-shadow: var(--shadow-sm);
   }
 }
 

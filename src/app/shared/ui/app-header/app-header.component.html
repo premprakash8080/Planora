@@ -24,44 +24,55 @@
   </div>
 
   <div class="app-header__actions">
-    <button
-      mat-stroked-button
-      color="primary"
-      type="button"
-      class="app-header__create"
-      (click)="createClicked.emit()"
+    <app-dropdown-popover
+      [items]="notificationItems"
+      [width]="400"
+      [maxHeight]="500"
+      [hasSearch]="false"
+      (select)="onNotificationSelect($event)"
     >
-      <mat-icon>add</mat-icon>
-      New Task
-    </button>
-
-    <button
-      mat-icon-button
-      matBadge="{{ notifications }}"
-      matBadgeColor="warn"
-      matTooltip="Notifications"
-      type="button"
-    >
-      <mat-icon>notifications</mat-icon>
-    </button>
+      <button
+        mat-icon-button
+        matBadge="{{ notifications }}"
+        matBadgeColor="warn"
+        matTooltip="Notifications"
+        type="button"
+        appDropdownTrigger
+      >
+        <mat-icon>notifications</mat-icon>
+      </button>
+    </app-dropdown-popover>
 
     <button mat-icon-button matTooltip="Help" type="button">
       <mat-icon>help_outline</mat-icon>
     </button>
 
-    <div class="app-header__profile" role="button" tabindex="0" matRipple>
-      <ng-container *ngIf="userAvatarUrl; else initials">
-        <img [src]="userAvatarUrl" alt="Avatar" />
-      </ng-container>
-      <ng-template #initials>
-        <span class="avatar-initials">{{ userInitials }}</span>
-      </ng-template>
-      <div class="app-header__profile-info">
-        <span class="app-header__profile-name">{{ userInitials }}</span>
-        <span class="app-header__profile-role">{{ userRole }}</span>
+    <app-dropdown-popover
+      [items]="profileItems"
+      [width]="240"
+      [maxHeight]="400"
+      [hasSearch]="false"
+      (select)="onProfileSelect($event)"
+    >
+      <div class="app-header__profile" role="button" tabindex="0" matRipple appDropdownTrigger>
+        <app-avatar
+          size="md"
+          [initials]="userInitials"
+          [src]="userAvatarUrl"
+          [color]="user?.avatar_color"
+          class="user-avatar"
+        ></app-avatar>
+        <div class="app-header__profile-info" *ngIf="user">
+          <span class="app-header__profile-name">{{ user.full_name }}</span>
+          <span class="app-header__profile-role">{{ userRole }}</span>
+        </div>
+        <div class="app-header__profile-info" *ngIf="!user">
+          <span class="app-header__profile-name">{{ userInitials }}</span>
+          <span class="app-header__profile-role">{{ userRole }}</span>
+        </div>
+        <mat-icon class="app-header__profile-arrow">keyboard_arrow_down</mat-icon>
       </div>
-      <mat-icon>keyboard_arrow_down</mat-icon>
-    </div>
+    </app-dropdown-popover>
   </div>
 </header>
 

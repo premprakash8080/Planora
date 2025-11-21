@@ -40,4 +40,10 @@ export class HttpService {
         return this._http.delete(this.API_URL + url, params);
     }
 
+    patch(
+        url: string, params?: any
+    ): Observable<any> {
+        return this._http.patch(this.API_URL + url, params);
+    }
+
 }

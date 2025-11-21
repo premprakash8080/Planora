@@ -3,13 +3,19 @@
 }
 
 .mat-datepicker-toggle {
-    color: rgba(0, 0, 0, 0.54);
+    color: var(--color-text-subtle);
     cursor: pointer;
     margin-left: 8px;
+    transition: color 0.2s ease;
 }
 
 .mat-datepicker-toggle:hover {
-    color: var(--primary);
+    color: var(--color-primary);
+}
+
+[data-theme="dark"] .mat-datepicker-toggle,
+.dark-theme .mat-datepicker-toggle {
+    color: var(--color-muted);
 }
 
 .scheduleData:nth-child(odd) {

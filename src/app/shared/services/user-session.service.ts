@@ -2,7 +2,8 @@ import { Injectable } from "@angular/core";
 import { HttpService } from "./http.service";
 import { StorageService } from "./storage.service";
 import { SessionService } from "./session.service";
-import {  User, UserCreds } from "src/app/core/models/core.models";
+import { UserCreds } from "src/app/core/models/core.models";
+import { User } from "src/app/core/models/auth.models";
 import { ACCESS_TOKEN, USER_SESSION, User_Permissions } from "src/app/core/constants/global.constant";
 
 @Injectable({
@@ -28,11 +29,15 @@ export class UserSessionService {
         return this.sessionService.getItem(User_Permissions);
     }
 
-    set userSession(userSession: User) {
-        this.sessionService.setItem(USER_SESSION, userSession);
+    set userSession(userSession: User | null) {
+        if (userSession) {
+            this.sessionService.setItem(USER_SESSION, userSession);
+        } else {
+            this.sessionService.removeItem(USER_SESSION);
+        }
     }
 
-    get userSession(): User {
+    get userSession(): User | null {
         return this.sessionService.getItem(USER_SESSION);
     }
 

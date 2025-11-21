@@ -1,0 +1,78 @@
+<div class="page-container task-board task-board--sheet">
+  <!-- <header class="task-board__header"> -->
+  <app-task-header 
+    [projectTitle]="currentProjectName"
+    [project]="currentProject"
+    [isFavorite]="currentProject?.is_favorite || false"
+    [selectedStatus]="currentProject?.status || 'not-started'"
+    (titleChange)="onProjectTitleChange($event)"
+    (favoriteChange)="onProjectFavoriteChange($event)"
+    (statusChange)="onProjectStatusChange($event)"
+    (membersChange)="onProjectMembersChange($event)"
+  ></app-task-header>
+  <!-- </header> -->
+
+
+
+  <section class="task-sections">
+    <div class="task-grid-header" *ngIf="sections.length" [style.grid-template-columns]="getGridTemplateColumns()">
+      <div class="header-cell header-cell--name">
+        <span>Name</span>
+        <div class="resize-handle" (mousedown)="onResizeStart($event, 'name')"></div>
+      </div>
+      <div class="header-cell">
+        <span>Assignee</span>
+        <div class="resize-handle" (mousedown)="onResizeStart($event, 'assignee')"></div>
+      </div>
+      <div class="header-cell">
+        <span>Due Date</span>
+        <div class="resize-handle" (mousedown)="onResizeStart($event, 'dueDate')"></div>
+      </div>
+      <div class="header-cell">
+        <span>Priority</span>
+        <div class="resize-handle" (mousedown)="onResizeStart($event, 'priority')"></div>
+      </div>
+      <div class="header-cell">
+        <span>Status</span>
+        <div class="resize-handle" (mousedown)="onResizeStart($event, 'status')"></div>
+      </div>
+      <div class="header-cell header-cell--comments">
+        <span>Comments</span>
+        <div class="resize-handle" (mousedown)="onResizeStart($event, 'comments')"></div>
+      </div>
+    </div>
+
+    <!-- scroll start from here this hole section is scrollable -->
+    <div class="task-list-scroll">
+      <app-task-section *ngFor="let section of sections" [section]="section" [selectedTask]="selectedTask"
+        [nameDrafts]="nameDrafts" [sectionTitleDrafts]="sectionTitleDrafts" [assigneeItems]="assigneeItems"
+        [priorityItems]="priorityItems" [statusItems]="statusItems" [getAssigneeAvatar]="getAssigneeAvatar.bind(this)"
+        [getAssigneeInitials]="getAssigneeInitials.bind(this)" [getAssigneeColor]="getAssigneeColor.bind(this)"
+        [formatDueDate]="formatDueDate.bind(this)" [getDueDate]="getDueDate.bind(this)"
+        [getStatusColor]="getStatusColor.bind(this)" [getStatusLabel]="getStatusLabel.bind(this)"
+        [gridTemplateColumns]="getGridTemplateColumns()"
+        (toggleSection)="toggleSection($event)" (openTaskDetail)="openTaskDetail($event.section, $event.task)"
+        (addTask)="addTask($event)" (updateSectionTitle)="updateSectionTitle($event)"
+        (updateTaskName)="inlineNameChanged($event.section, $event.task, $event.name)"
+        (toggleCompleted)="toggleCompleted($event.section, $event.task)"
+        (assigneeSelect)="handleAssigneeSelect($event.section, $event.task, $any($event.item))"
+        (dueDateChange)="handleDueDateChange($event.section, $event.task, $event.date)"
+        (prioritySelect)="handlePrioritySelect($event.section, $event.task, $event.item)"
+        (statusSelect)="handleStatusSelect($event.section, $event.task, $event.item)"></app-task-section>
+    </div>
+    <!-- scroll end here this hole section is scrollable -->
+
+    <!-- Add Section Button -->
+    <app-add-section-button (addSection)="addSection()"></app-add-section-button>
+  </section>
+</div>
+
+<div class="task-detail-backdrop" *ngIf="selectedTask" (click)="closeDetail()"></div>
+
+<app-task-detail *ngIf="selectedTask" [open]="!!selectedTask" [task]="selectedTask" [projectName]="currentProjectName"
+  [sectionTitle]="selectedSection?.title ?? ''" [statuses]="statuses" [priorities]="priorities"
+  [assigneeItems]="assigneeItems" [getAssigneeAvatar]="getAssigneeAvatar.bind(this)"
+  [getAssigneeInitials]="getAssigneeInitials.bind(this)" [getAssigneeColor]="getAssigneeColor.bind(this)"
+  [getAssigneeId]="getAssigneeId.bind(this)"
+  (close)="closeDetail()" (taskUpdated)="handleTaskUpdated($event)" (subtaskOpen)="handleSubtaskOpen($event)"
+  (taskDeleted)="handleTaskDeleted($event)"></app-task-detail>

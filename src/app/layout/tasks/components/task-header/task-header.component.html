@@ -1,0 +1,106 @@
+<header class="task-header">
+    <!-- Left: Title + Status -->
+    <div class="header-left">
+      <!-- Project Title -->
+      <div class="project-title-wrapper">
+        <app-avatar
+          size="sm"
+          [initials]="projectInitials"
+          [color]="projectColor"
+          class="project-icon"
+        ></app-avatar>
+  
+        <input
+          #titleInput
+          class="project-title-input"
+          [value]="projectTitle"
+          (blur)="onTitleBlur($event)"
+          (keydown.enter)="onTitleBlur($event)"
+          (keydown.escape)="cancelTitleEdit()"
+          placeholder="Untitled project"
+        />
+  
+        <!-- Favorite Star -->
+        <button
+          class="favorite-btn"
+          [class.favorited]="isFavorite"
+          (click)="toggleFavorite()"
+          mat-icon-button
+        >
+          <mat-icon>{{ isFavorite ? 'star' : 'star_border' }}</mat-icon>
+        </button>
+      </div>
+  
+      <!-- Status Dropdown -->
+      <app-dropdown-popover
+        [items]="statusItems"
+        [selectedId]="selectedStatus"
+        (select)="onStatusChange($event.id)"
+        [width]="200"
+      >
+        <button class="status-trigger" appDropdownTrigger>
+          <span class="status-dot" [style.backgroundColor]="statusColor"></span>
+          {{ statusLabel }}
+          <mat-icon class="dropdown-icon">arrow_drop_down</mat-icon>
+        </button>
+      </app-dropdown-popover>
+    </div>
+  
+    <!-- Right: Actions -->
+    <div class="header-right">
+      <!-- Share Button -->
+      <button class="share-btn" (click)="onShare()">
+        <mat-icon>share</mat-icon>
+        Share
+      </button>
+  
+      <!-- Customize Button -->
+      <button class="customize-btn" (click)="onCustomize()">
+        <span class="customize-dot"></span>
+        Customize
+      </button>
+  
+      <!-- Project Members Avatars -->
+      <div class="members-avatars" (click)="openMembersModal()" *ngIf="projectMembers.length > 0">
+        <div class="avatar-stack">
+          <app-avatar
+            *ngFor="let member of displayedMembers; let i = index"
+            [size]="'sm'"
+            [initials]="getInitials(member)"
+            [color]="member.user.avatar_color || '#8b5cf6'"
+            [src]="member.user.avatar_url"
+            class="member-avatar"
+            [style.z-index]="projectMembers.length - i"
+          ></app-avatar>
+          <div class="more-members" *ngIf="remainingMembersCount > 0">
+            +{{ remainingMembersCount }}
+          </div>
+        </div>
+      </div>
+
+      <!-- User Avatar (fallback if no members) -->
+      <app-avatar
+        *ngIf="projectMembers.length === 0"
+        size="md"
+        initials="TT"
+        color="#8b5cf6"
+        class="user-avatar"
+      ></app-avatar>
+    </div>
+  </header>
+  
+  <!-- Navigation Tabs -->
+  <nav class="project-nav">
+    <button
+      *ngFor="let tab of tabs"
+      class="nav-tab"
+      [class.active]="activeTab === tab.id"
+      (click)="onTabChange(tab.id)"
+    >
+      <mat-icon class="tab-icon">{{ tab.icon }}</mat-icon>
+      {{ tab.label }}
+    </button>
+    <button class="nav-more">
+      <mat-icon>more_horiz</mat-icon>
+    </button>
+  </nav>

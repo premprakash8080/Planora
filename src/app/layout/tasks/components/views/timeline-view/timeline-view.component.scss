@@ -1,0 +1,210 @@
+@use 'src/styles/tokens' as *;
+
+.tasks-view--timeline {
+  height: 100vh;
+  max-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-background, #f9fafb);
+  color: var(--color-text-body, #1f2937);
+  font-family: $font-family-base;
+  overflow: hidden;
+}
+
+.timeline-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: space(3) space(5) space(2);
+  background: var(--color-surface, #ffffff);
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+  position: sticky;
+  top: 112px; // task-header + nav combined height
+  z-index: 98;
+  flex-shrink: 0;
+
+   .toolbar-left {
+     display: flex;
+     align-items: center;
+     gap: space(1.5);
+
+     button mat-icon {
+       margin-right: 6px;
+     }
+   }
+
+   .toolbar-right {
+     display: flex;
+     align-items: center;
+     gap: space(2);
+   }
+ }
+
+ .zoom-toggle {
+   display: inline-flex;
+   background: var(--color-background, #f3f4f6);
+   border-radius: $radius-full;
+   padding: 4px;
+   gap: 2px;
+
+   button {
+     border: none;
+     background: transparent;
+     border-radius: $radius-full;
+     padding: 4px 12px;
+     font-size: font-size(xs);
+     cursor: pointer;
+     color: var(--color-muted, #6b7280);
+     transition: background 0.2s ease;
+
+     &.active {
+       background: var(--color-surface);
+       color: var(--color-primary);
+       box-shadow: var(--shadow-xs);
+     }
+   }
+ }
+
+.timeline-wrapper {
+  flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
+  height: 100%;
+  // overflow: auto;
+  padding: space(1) space(2) space(3);
+  display: flex;
+  flex-direction: column;
+  scroll-behavior: smooth;
+}
+
+.timeline-content {
+  flex: 1 1 auto;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: space(2);
+}
+
+ .timeline-header {
+   display: flex;
+  position: sticky;
+  top: 160px; // task-header + nav + toolbar combined height
+   background: var(--color-surface, #ffffff);
+   z-index: 2;
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+  padding: space(1) 0;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-xs;
+ }
+
+ .header-column {
+   font-weight: 600;
+   color: var(--color-text-heading, #111827);
+  flex-shrink: 0;
+  padding: space(2) space(3);
+  border-right: 1px solid var(--color-border, #e5e7eb);
+ }
+
+ .timeline-header-grid {
+   flex: 1;
+   padding: 0 space(2);
+   overflow: hidden;
+   position: relative;
+  display: flex;
+  flex-direction: column;
+ }
+
+ .month-row {
+  display: flex;
+   width: 100%;
+   font-weight: 600;
+   color: var(--color-text-heading, #111827);
+  margin-bottom: 4px;
+
+   .month-block {
+     text-align: center;
+     font-size: font-size(sm);
+    border-right: 1px solid var(--color-border, #e5e7eb);
+    background: linear-gradient(180deg, var(--color-surface-hover), transparent);
+    padding: 4px 0;
+   }
+ }
+
+ .day-row {
+   display: flex;
+   width: 100%;
+  min-height: 48px;
+  border-top: 1px solid var(--color-border, #e5e7eb);
+  border-bottom: 1px solid var(--color-border, #e5e7eb);
+ }
+
+.day-cell {
+   flex: 0 0 auto;
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   text-transform: uppercase;
+   font-size: font-size(xs);
+   color: var(--color-muted, #6b7280);
+  justify-content: center;
+  gap: 2px;
+
+   &.is-weekend {
+    background: var(--color-surface-secondary);
+   }
+
+   .day-weekday {
+     font-size: 10px;
+     color: var(--color-text-subtle, #94a3b8);
+   }
+ }
+
+ .timeline-header-grid .today-line {
+   position: absolute;
+   top: 0;
+   bottom: -16px;
+   width: 2px;
+   background: var(--color-primary);
+   opacity: 0.6;
+   pointer-events: none;
+ }
+
+ .timeline-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  padding-bottom: space(2);
+  display: flex;
+  flex-direction: column;
+  gap: space(2);
+ }
+
+.timeline-loading,
+.timeline-error,
+.timeline-empty-state {
+  min-height: 240px;
+  padding: space(6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: space(2);
+  text-align: center;
+  color: var(--color-muted, #6b7280);
+}
+
+.timeline-error {
+  color: var(--color-text-heading, #111827);
+
+  mat-icon {
+    font-size: 40px;
+  }
+}
+
+.timeline-empty-state {
+  mat-icon {
+    font-size: 64px;
+    color: var(--color-primary);
+    opacity: 0.3;
+  }
+}

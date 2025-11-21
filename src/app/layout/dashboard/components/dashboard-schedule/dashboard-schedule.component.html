@@ -1,38 +1,101 @@
 <div class="pt-16c px-16c bg-gray-light">
-  <div>
-    <h2 class="fs-16 text-gray-100">View Projects</h2>
-  </div>
-  <div class="flex flex-wrap md:-m-16c -m-8c cus-h-vh">
-    <!-- <div class="md:p-16c p-8c h-full sm:w-2/4 sm:mt-0 mt-8c w-full rounded-lg relative"> -->
-    <div class="md:p-16c p-8c h-full mt-8c w-full rounded-lg relative">
-      <div
-        class="flex flex-wrap overflow-auto items-start cus-schedule-card-height"
-      >
-        <div
-          (click)="openSideBar()"
-          *ngFor="let card of data"
-          class="cmn-card-wrapper flex items-center my-8c w-full md:min-h-100 min-h-[100px] rounded-lg bg-white shadow-sm hover:shadow-md transition cursor-pointer"
-        >
-          <!-- Left: Image (20%) -->
-          <!-- <div class="flex items-center justify-center w-1/5 p-4 rounded-lg" [ngClass]="card.color"> -->
-          <div class="w-1/5 flex justify-center items-center p-8c">
-            <img
-              class="w-[60px] h-[60px] object-contain rounded-md"
-              src="../../../../../assets/img/select_course_icn.svg"
-              alt="project_image"
-            />
-          </div>  
+  <!-- <div class="schedule-header">
+    <div class="header-content">
+      <h2 class="header-title">View Projects</h2>
+      <p class="header-subtitle">Manage and track all your projects</p>
+    </div>
+    <div class="header-actions">
+      <button mat-raised-button color="primary" (click)="loadProjects()" [disabled]="loading">
+        <mat-icon>refresh</mat-icon>
+        Refresh
+      </button>
+    </div>
+  </div> -->
 
-          <!-- Right: Project Info (80%) -->
-          <div class="w-4/5 flex flex-col justify-center p-8c">
-            <div class="flex justify-between items-center mb-4">
-              <h4 class="fs-16 text-gray-800 font-semibold">
-                {{ card.name }}
-              </h4>
-              <!-- <div class="w-[12px] h-[12px] rounded-full" [class]="card.color"></div> -->
+  <div class="flex flex-wrap md:-m-16c -m-8c cus-h-vh">
+    <div class="md:p-16c p-8c h-full mt-8c w-full rounded-lg relative">
+      <!-- Loading State -->
+      <div *ngIf="loading" class="flex items-center justify-center cus-schedule-card-height">
+        <mat-spinner diameter="40"></mat-spinner>
+        <span class="ml-4" style="color: var(--color-text-body);">Loading projects...</span>
+      </div>
+
+      <!-- Error State -->
+      <div *ngIf="error && !loading" class="flex items-center justify-center cus-schedule-card-height">
+        <div class="text-center">
+          <mat-icon class="text-6xl mb-4" style="color: var(--color-danger);">error_outline</mat-icon>
+          <p class="mb-4" style="color: var(--color-text-body);">{{ error }}</p>
+          <button mat-raised-button color="primary" (click)="loadProjects()">
+            Try Again
+          </button>
+        </div>
+      </div>
+
+      <!-- Projects List -->
+      <div *ngIf="!loading && !error" class="flex flex-wrap overflow-auto items-start cus-schedule-card-height">
+        <!-- Empty State -->
+        <div *ngIf="projects.length === 0" class="flex items-center justify-center w-full cus-schedule-card-height">
+          <div class="text-center">
+            <mat-icon class="text-6xl mb-4" style="color: var(--color-muted);">folder_open</mat-icon>
+            <p class="text-lg mb-2" style="color: var(--color-text-body);">No projects found</p>
+            <p style="color: var(--color-text-subtle);">Create your first project to get started</p>
+          </div>
+        </div>
+
+        <!-- Project Cards -->
+        <div
+          *ngFor="let project of projects; trackBy: trackByProjectId"
+          (click)="openSideBar(project)"
+          class="project-item w-full mb-4"
+        >
+          <div class="project-item__body">
+            <!-- Project Info -->
+            <div class="project-item__info">
+              <!-- Project Avatar/Icon -->
+              <div class="project-item__avatar" [style.backgroundColor]="getProjectColor(project) + '20'">
+                <div class="w-full h-full flex items-center justify-center rounded-lg" [style.color]="getProjectColor(project)">
+                  <mat-icon class="text-4xl">{{ project.is_favorite ? 'star' : 'folder' }}</mat-icon>
+                </div>
+              </div>
+
+              <!-- Project Details -->
+              <div class="project-item__details">
+                <div class="project-item__title-row">
+                  <h3 class="project-item__title">{{ project.name }}</h3>
+                  <span class="status-chip" [style.backgroundColor]="getProjectStatusColor(project) + '20'" [style.color]="getProjectStatusColor(project)">
+                    {{ getProjectStatus(project) }}
+                  </span>
+                  <mat-icon *ngIf="project.is_favorite" class="text-yellow-500">star</mat-icon>
+                </div>
+
+                <p class="text-sm mb-2" *ngIf="project.description" style="color: var(--color-text-body);">
+                  {{ project.description }}
+                </p>
+
+                <div class="project-item__tags">
+                  <span class="project-tag">
+                    <mat-icon>people</mat-icon>
+                    {{ getMemberCount(project) }} {{ getMemberCount(project) === 1 ? 'member' : 'members' }}
+                  </span>
+                  <span class="project-tag" *ngIf="project.due_date">
+                    <mat-icon>event</mat-icon>
+                    {{ project.due_date | date: 'MMM d, y' }}
+                  </span>
+                  <span class="project-tag" *ngIf="project.creator">
+                    <mat-icon>person</mat-icon>
+                    {{ project.creator.full_name }}
+                  </span>
+                </div>
+              </div>
             </div>
 
-            <h2 class="fs-14 text-gray-500">{{ card.name }}</h2>
+            <!-- Project Actions -->
+            <div class="project-item__actions">
+              <button mat-stroked-button color="primary" (click)="openSideBar(); $event.stopPropagation()">
+                <mat-icon>visibility</mat-icon>
+                View
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -64,6 +127,7 @@
     mode="over"
   >
     <app-schedule-detail
+      [project]="selectedProject"
       (closeScheduleSidebarEvent)="closeSidebar()"
     ></app-schedule-detail>
   </mat-sidenav>

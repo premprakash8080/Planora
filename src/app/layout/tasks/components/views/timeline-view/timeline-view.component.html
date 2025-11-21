@@ -1,0 +1,94 @@
+<div class="tasks-view tasks-view--timeline">
+  <app-task-header [projectTitle]="projectTitle"></app-task-header>
+
+  <div class="timeline-toolbar">
+    <div class="toolbar-left">
+      <button mat-flat-button color="primary">
+        <mat-icon>add</mat-icon>
+        Add task
+      </button>
+      <button mat-stroked-button (click)="scrollToToday()">
+        <mat-icon>today</mat-icon>
+        Today
+      </button>
+      <button mat-icon-button (click)="reload()" [disabled]="loading" matTooltip="Refresh timeline">
+        <mat-icon>refresh</mat-icon>
+      </button>
+    </div>
+    <div class="toolbar-right">
+      <div class="zoom-toggle">
+        <button type="button" [class.active]="zoomLevel === 'day'" (click)="setZoom('day')">Day</button>
+        <button type="button" [class.active]="zoomLevel === 'week'" (click)="setZoom('week')">Week</button>
+        <button type="button" [class.active]="zoomLevel === 'month'" (click)="setZoom('month')">Month</button>
+      </div>
+    </div>
+  </div>
+
+  <ng-container *ngIf="!loading && !error; else timelineState">
+    <div class="timeline-wrapper" #timelineScroll *ngIf="timelineDays.length; else emptyState">
+      <div class="timeline-content" [style.minWidth.px]="timelineWidthPx + 260">
+        <div class="timeline-header">
+          <div class="group-column header-column" [style.width.px]="groupColumnWidth">Section</div>
+          <div class="timeline-header-grid" [style.width.px]="timelineWidthPx">
+            <div class="month-row">
+              <div
+                class="month-block"
+                *ngFor="let block of monthBlocks; trackBy: trackByMonth"
+                [style.width.px]="block.span * dayWidthPx"
+              >
+                {{ block.label }}
+              </div>
+            </div>
+            <div class="day-row">
+              <div
+                class="day-cell"
+                *ngFor="let day of timelineDays"
+                [style.width.px]="dayWidthPx"
+                [class.is-weekend]="isWeekend(day)"
+              >
+                <span class="day-label">{{ day.label }}</span>
+                <span class="day-weekday">{{ day.weekday }}</span>
+              </div>
+            </div>
+            <div class="today-line" *ngIf="todayOffsetPx !== null" [style.left.px]="todayOffsetPx"></div>
+          </div>
+        </div>
+
+        <div class="timeline-body">
+          <app-timeline-group-row
+            *ngFor="let group of groups; trackBy: trackByGroupId"
+            [group]="group"
+          [timelineDays]="timelineDays"
+            [timelineStartDate]="timelineStartDate"
+            [dayWidthPx]="dayWidthPx"
+            [todayOffsetPx]="todayOffsetPx"
+          [groupColumnWidth]="groupColumnWidth"
+            (taskDragEnded)="onTaskDragEnded($event.event, $event.task, $event.group)"
+            (toggleCollapse)="toggleGroupCollapse($event)"
+          ></app-timeline-group-row>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #emptyState>
+      <div class="timeline-empty-state">
+        <mat-icon>timeline</mat-icon>
+        <h3>No timeline data yet</h3>
+        <p>Create tasks with start and due dates to visualize them here.</p>
+      </div>
+    </ng-template>
+  </ng-container>
+
+  <ng-template #timelineState>
+    <div class="timeline-loading" *ngIf="loading">
+      <mat-progress-spinner diameter="40" mode="indeterminate"></mat-progress-spinner>
+      <span>Loading timeline...</span>
+    </div>
+
+    <div class="timeline-error" *ngIf="!loading && error">
+      <mat-icon color="warn">error</mat-icon>
+      <p>{{ error }}</p>
+      <button mat-stroked-button color="primary" (click)="reload()">Retry</button>
+    </div>
+  </ng-template>
+</div>

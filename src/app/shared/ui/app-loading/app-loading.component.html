@@ -1,0 +1,24 @@
+<div class="app-loading" [class]="'app-loading--' + size" [class.full-screen]="fullScreen" [class.with-overlay]="overlay">
+  <div class="loading-content">
+    <!-- Spinner Variant -->
+    <div *ngIf="variant === 'spinner'" class="loading-spinner">
+      <mat-icon class="spinner-icon">hourglass_empty</mat-icon>
+    </div>
+    
+    <!-- Dots Variant -->
+    <div *ngIf="variant === 'dots'" class="loading-dots">
+      <span class="dot"></span>
+      <span class="dot"></span>
+      <span class="dot"></span>
+    </div>
+    
+    <!-- Pulse Variant -->
+    <div *ngIf="variant === 'pulse'" class="loading-pulse">
+      <div class="pulse-circle"></div>
+    </div>
+    
+    <!-- Message -->
+    <p class="loading-message" *ngIf="message">{{ message }}</p>
+  </div>
+</div>
+

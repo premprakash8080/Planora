@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { MailListComponent } from './mail-list/mail-list.component';
-import { MailViewComponent } from './mail-view/mail-view.component';
+import { MailListComponent } from './components/mail-list/mail-list.component';
+import { MailViewComponent } from './components/mail-view/mail-view.component';
 
 const routes: Routes = [
   {

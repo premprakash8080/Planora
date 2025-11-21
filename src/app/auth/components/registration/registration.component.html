@@ -1,92 +1,123 @@
-<div cols="2" rowHeight="100%" class="cus-container wrapper-login  p-0">
-    <div class="mat-elevation-z font-muli">
-        <!-- New Code Start -->
-        <div class="grid grid-cols-1 md:grid-cols-2 h-screen">
-            <div class="welcome-msg hidden md:block">
-                <!-- <img
-            src="assets/img/loginLHS.png"
-            alt="Welcome logo"
-            
-          /> -->
-                <div class="w-full h-full bg-image"></div>
+<div cols="2" rowHeight="100%" class="cus-container wrapper-login p-0">
+  <div class="mat-elevation-z font-muli">
+    <!-- New Code Start -->
+    <div class="grid grid-cols-1 md:grid-cols-2 h-screen">
+      <div class="welcome-msg hidden md:block">
+        <div class="w-full h-full bg-image"></div>
+      </div>
+      <div class="flex flex-col justify-center items-center">
+        <div class="authorize-details-inner max-w-[552px] xl:w-3/5 sm:w-4/5 w-11/12">
+          <div class="mb-[10%]">
+            <img src="../../../../assets/img/logo_home.png" class="max-w-full h-auto" />
+          </div>
+
+          <h1 class="heading-1 text-black-primary">Welcome To</h1>
+          <h1 class="heading-1 text-primary">Planora</h1>
+          <h2 class="font-bold text-[24px] text-[#555555] pt-[9.6%] 3xl:text-32 xl:text-24 text-18 text-gray-200">
+            Register
+          </h2>
+
+          <form 
+            action="" 
+            class="flex flex-col gap-1 login-form pt-[5.4%]"
+            [formGroup]="registrationForm"
+            (ngSubmit)="onSubmit()"
+          >
+            <!-- Full Name -->
+            <mat-form-field class="mb-[2%] cmn-mat-form-field" appearance="outline">
+              <mat-label>Full Name</mat-label>
+              <input matInput formControlName="full_name" required />
+              <mat-error *ngIf="registrationForm.controls['full_name'].invalid">
+                {{ getErrorMessage('full_name') }}
+              </mat-error>
+            </mat-form-field>
+
+            <!-- Email -->
+            <mat-form-field class="mb-[2%] cmn-mat-form-field" appearance="outline">
+              <mat-label>Email</mat-label>
+              <input matInput type="email" formControlName="email" required />
+              <mat-error *ngIf="registrationForm.controls['email'].invalid">
+                {{ getErrorMessage('email') }}
+              </mat-error>
+            </mat-form-field>
+
+            <!-- Password -->
+            <mat-form-field appearance="outline" class="mb-[2%] cmn-mat-form-field">
+              <mat-label>Password</mat-label>
+              <input 
+                matInput 
+                [type]="hide ? 'password' : 'text'" 
+                formControlName="password" 
+                required 
+              />
+              <button 
+                type="button" 
+                mat-icon-button 
+                matSuffix 
+                (click)="hide = !hide"
+                [attr.aria-label]="'Hide password'"
+                [attr.aria-pressed]="hide"
+              >
+                <mat-icon>{{ hide ? "visibility_off" : "visibility" }}</mat-icon>
+              </button>
+              <mat-error *ngIf="registrationForm.controls['password'].invalid">
+                {{ getErrorMessage('password') }}
+              </mat-error>
+            </mat-form-field>
+
+            <!-- Confirm Password -->
+            <mat-form-field appearance="outline" class="mb-[2%] cmn-mat-form-field">
+              <mat-label>Confirm Password</mat-label>
+              <input 
+                matInput 
+                [type]="hideConfirmPassword ? 'password' : 'text'" 
+                formControlName="confirmPassword" 
+                required 
+              />
+              <button 
+                type="button" 
+                mat-icon-button 
+                matSuffix
+                (click)="hideConfirmPassword = !hideConfirmPassword" 
+                [attr.aria-label]="'Hide password'"
+                [attr.aria-pressed]="hideConfirmPassword"
+              >
+                <mat-icon>{{ hideConfirmPassword ? "visibility_off" : "visibility" }}</mat-icon>
+              </button>
+              <mat-error *ngIf="registrationForm.controls['confirmPassword'].invalid">
+                {{ getErrorMessage('confirmPassword') }}
+              </mat-error>
+              <mat-error *ngIf="passwordMismatch">
+                Passwords do not match
+              </mat-error>
+            </mat-form-field>
+
+            <!-- Error Message -->
+            <div *ngIf="error" class="text-red-500 text-sm mb-4">
+              {{ error }}
             </div>
-            <div class="flex flex-col justify-center items-center ">
-                <div class="authorize-details-inner max-w-[552px] xl:w-3/5 sm:w-4/5 w-11/12	">
-                    <div class="mb-[10%]">
-                        <img src="../../../../assets/img/logo_home.png" class="max-w-full h-auto" />
-                    </div>
 
-                    <!-- <img src="../../../assets/img/WelcomeLogin.svg" class="mb-3" /> -->
-                    <h1 class="heading-1 text-black-primary">
-                        Welcome To
-                    </h1>
-                    <h1 class="heading-1  text-primary">
-                        Planora
-                    </h1>
-                    <h2 class="font-bold text-[24px] text-[#555555]"
-                        class="pt-[9.6%] 3xl:text-32 xl:text-24 text-18 text-gray-200">Register
-                    </h2>
+            <!-- Submit Button -->
+            <button 
+              type="submit" 
+              mat-flat-button 
+              color="primary" 
+              class="button-large"
+              [disabled]="loading || registrationForm.invalid"
+            >
+              <span *ngIf="!loading">Register</span>
+              <span *ngIf="loading">Registering...</span>
+            </button>
+          </form>
 
-                    <form action="" class="flex flex-col gap-1 login-form  pt-[5.4%]">
-                        <mat-form-field class="mb-[2%]  cmn-mat-form-field" appearance="outline">
-                            <mat-label>Email</mat-label>
-                            <input matInput name="username" required />
-                            <!-- <mat-error *ngIf="loginForm.controls['username'].invalid">{{
-                                getErrorMessage()
-                                }}</mat-error> -->
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" class="mb-[2%] cmn-mat-form-field">
-                            <mat-label>Username</mat-label>
-                            <input matInput type="text" name="password" required />
-                            <button type="button" mat-icon-button matSuffix (click)="hide = !hide"
-                                [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide">
-                            </button>
-                            <!-- <mat-error *ngIf="loginForm.controls['password'].invalid">{{
-                                getErrorMessage()
-                                }}</mat-error> -->
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" class="mb-[2%] cmn-mat-form-field">
-                            <mat-label>Password</mat-label>
-                            <input matInput [type]="hide ? 'password' : 'text'" name="password" required />
-                            <button type="button" mat-icon-button matSuffix (click)="hide = !hide"
-                                [attr.aria-label]="'Hide password'" [attr.aria-pressed]="hide">
-                                <mat-icon>{{
-                                    hide ? "visibility_off" : "visibility"
-                                    }}</mat-icon>
-                            </button>
-                            <!-- <mat-error *ngIf="loginForm.controls['password'].invalid">{{
-                                getErrorMessage()
-                                }}</mat-error> -->
-                        </mat-form-field>
-                        <mat-form-field appearance="outline" class="mb-[2%] cmn-mat-form-field">
-                            <mat-label>Confirm Password</mat-label>
-                            <input matInput [type]="hideConfirmPassword ? 'password' : 'text'" name="password"
-                                required />
-                            <button type="button" mat-icon-button matSuffix
-                                (click)="hideConfirmPassword = !hideConfirmPassword" [attr.aria-label]="'Hide password'"
-                                [attr.aria-pressed]="hide">
-                                <mat-icon>{{
-                                    hideConfirmPassword? "visibility_off" : "visibility"
-                                    }}</mat-icon>
-                            </button>
-                            <!-- <mat-error *ngIf="loginForm.controls['password'].invalid">{{
-                                getErrorMessage()
-                                }}</mat-error> -->
-                        </mat-form-field>
-
-                        <button [routerLink]="['/auth/login']" routerLinkActive="router-link-active" type="submit"
-                            [routerLink]="['/auth/complete-profile']" mat-flat-button color="primary"
-                            class="button-large">
-                            Register
-                        </button>
-                    </form>
-
-                    <div class="text-[#FF7D00] text-center text-[16px] font-regular pt-3 pb-3">
-                         <h5 class="fs-16 text-primary font-muli  mt-[2.6%]">Already have an account?</h5>
-                        <a [routerLink]="['/auth/login']">Sign in here</a>
-                    </div>
-                </div>
-            </div>
+          <div class="text-[#FF7D00] text-center text-[16px] font-regular pt-3 pb-3">
+            <h5 class="fs-16 text-primary font-muli mt-[2.6%]">Already have an account?</h5>
+            <a [routerLink]="['/auth/login']" class="fs-16 text-primary font-muli mt-[2.6%]">
+              Sign in here
+            </a>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 </div>

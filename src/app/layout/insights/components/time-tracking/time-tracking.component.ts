@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ChangeDetectorRef, NgZone } from '@angular/core';
+import { InsightsService, TimeEntry, ProjectTimeSummary, DailyTimeBreakdown } from '../../service/insights.service';
 
 /**
  * Time Tracking Component
@@ -10,144 +11,34 @@ import { Component, OnInit } from '@angular/core';
  * - Billable vs non-billable hours
  */
 
-export interface TimeEntry {
-  id: string;
-  projectName: string;
-  taskName: string;
-  date: string;
-  hours: number;
-  minutes: number;
-  billable: boolean;
-  description?: string;
-}
-
-export interface ProjectTimeSummary {
-  projectName: string;
-  totalHours: number;
-  billableHours: number;
-  nonBillableHours: number;
-  tasksCount: number;
-  color: string;
-}
-
-export interface DailyTimeBreakdown {
-  day: string;
-  hours: number;
-  billableHours: number;
-  nonBillableHours: number;
-}
-
 @Component({
   selector: 'app-time-tracking',
   templateUrl: './time-tracking.component.html',
   styleUrls: ['./time-tracking.component.scss']
 })
-export class TimeTrackingComponent implements OnInit {
+export class TimeTrackingComponent implements OnInit, AfterViewInit {
 
   Math = Math;
 
   /**
-   * Dummy data for time entries
+   * Time entries from API
    */
-  timeEntries: TimeEntry[] = [
-    {
-      id: '1',
-      projectName: 'Website Redesign',
-      taskName: 'Design Landing Page',
-      date: '2024-01-15',
-      hours: 4,
-      minutes: 30,
-      billable: true,
-      description: 'Worked on landing page design'
-    },
-    {
-      id: '2',
-      projectName: 'Mobile App',
-      taskName: 'Implement User Authentication',
-      date: '2024-01-15',
-      hours: 3,
-      minutes: 15,
-      billable: true
-    },
-    {
-      id: '3',
-      projectName: 'Backend Services',
-      taskName: 'Write API Documentation',
-      date: '2024-01-15',
-      hours: 2,
-      minutes: 0,
-      billable: false
-    },
-    {
-      id: '4',
-      projectName: 'Website Redesign',
-      taskName: 'Review Code Changes',
-      date: '2024-01-14',
-      hours: 1,
-      minutes: 45,
-      billable: true
-    },
-    {
-      id: '5',
-      projectName: 'Marketing Campaign',
-      taskName: 'Create Marketing Campaign',
-      date: '2024-01-14',
-      hours: 5,
-      minutes: 0,
-      billable: true
-    }
-  ];
+  timeEntries: TimeEntry[] = [];
 
   /**
-   * Dummy data for project time summary
+   * Project time summary from API
    */
-  projectTimeSummary: ProjectTimeSummary[] = [
-    {
-      projectName: 'Website Redesign',
-      totalHours: 24.5,
-      billableHours: 22.0,
-      nonBillableHours: 2.5,
-      tasksCount: 8,
-      color: '#2196f3'
-    },
-    {
-      projectName: 'Mobile App',
-      totalHours: 18.75,
-      billableHours: 18.75,
-      nonBillableHours: 0,
-      tasksCount: 6,
-      color: '#4caf50'
-    },
-    {
-      projectName: 'Backend Services',
-      totalHours: 15.25,
-      billableHours: 12.0,
-      nonBillableHours: 3.25,
-      tasksCount: 5,
-      color: '#ff9800'
-    },
-    {
-      projectName: 'Marketing Campaign',
-      totalHours: 12.5,
-      billableHours: 12.5,
-      nonBillableHours: 0,
-      tasksCount: 4,
-      color: '#9c27b0'
-    }
-  ];
+  projectTimeSummary: ProjectTimeSummary[] = [];
 
   /**
-   * Dummy data for daily time breakdown
+   * Daily time breakdown from API
    */
-  dailyTimeBreakdown: DailyTimeBreakdown[] = [
-    { day: 'Mon', hours: 7.5, billableHours: 7.0, nonBillableHours: 0.5 },
-    { day: 'Tue', hours: 8.0, billableHours: 7.5, nonBillableHours: 0.5 },
-    { day: 'Wed', hours: 7.75, billableHours: 7.25, nonBillableHours: 0.5 },
-    { day: 'Thu', hours: 6.5, billableHours: 6.0, nonBillableHours: 0.5 },
-    { day: 'Fri', hours: 8.25, billableHours: 7.75, nonBillableHours: 0.5 },
-    { day: 'Sat', hours: 4.0, billableHours: 4.0, nonBillableHours: 0 },
-    { day: 'Sun', hours: 2.0, billableHours: 2.0, nonBillableHours: 0 }
-  ];
+  dailyTimeBreakdown: DailyTimeBreakdown[] = [];
+
+  /**
+   * Loading state
+   */
+  loading = false;
 
   /**
    * Displayed columns for time entries table
@@ -175,10 +66,77 @@ export class TimeTrackingComponent implements OnInit {
     return this.dailyTimeBreakdown.reduce((sum, day) => sum + day.nonBillableHours, 0);
   }
 
-  constructor() { }
+  constructor(
+    private insightsService: InsightsService,
+    private cdr: ChangeDetectorRef,
+    private ngZone: NgZone
+  ) { }
 
   ngOnInit(): void {
-    // Component initialization
+    this.loadData();
+  }
+
+  ngAfterViewInit(): void {
+    this.cdr.detectChanges();
+  }
+
+  /**
+   * Load time tracking data from API
+   */
+  loadData(): void {
+    this.loading = true;
+    this.cdr.markForCheck();
+
+    // Load all data in parallel
+    this.insightsService.getTimeTrackingSummary('week').subscribe({
+      next: (data) => {
+        this.ngZone.run(() => {
+          this.projectTimeSummary = data.summary;
+          this.cdr.detectChanges();
+        });
+      },
+      error: (error) => {
+        console.error('Error loading time tracking summary:', error);
+        this.ngZone.run(() => {
+          this.projectTimeSummary = [];
+          this.cdr.detectChanges();
+        });
+      }
+    });
+
+    this.insightsService.getDailyTimeBreakdown().subscribe({
+      next: (breakdown) => {
+        this.ngZone.run(() => {
+          this.dailyTimeBreakdown = breakdown;
+          this.cdr.detectChanges();
+        });
+      },
+      error: (error) => {
+        console.error('Error loading daily time breakdown:', error);
+        this.ngZone.run(() => {
+          this.dailyTimeBreakdown = [];
+          this.cdr.detectChanges();
+        });
+      }
+    });
+
+    this.insightsService.getTimeEntries(50).subscribe({
+      next: (entries) => {
+        this.ngZone.run(() => {
+          this.timeEntries = entries;
+          this.loading = false;
+          this.cdr.detectChanges();
+        });
+      },
+      error: (error) => {
+        console.error('Error loading time entries:', error);
+        this.ngZone.run(() => {
+          this.timeEntries = [];
+          this.loading = false;
+          this.cdr.detectChanges();
+        });
+      }
+    });
   }
 
   /**

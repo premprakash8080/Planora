@@ -11,7 +11,7 @@
     <div class="header-actions">
       <mat-form-field appearance="outline" class="period-selector">
         <mat-label>Time Period</mat-label>
-        <mat-select [(ngModel)]="selectedPeriod">
+        <mat-select [(ngModel)]="selectedPeriod" (selectionChange)="onPeriodChange()">
           <mat-option value="week">This Week</mat-option>
           <mat-option value="month">This Month</mat-option>
           <mat-option value="quarter">This Quarter</mat-option>

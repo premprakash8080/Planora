@@ -9,6 +9,34 @@
 
 .cmn-padding-wrapper {
     padding: 2.5% 8% 16px 12%;
+    background: var(--color-background);
+    min-height: 100%;
+    overflow-y: auto;
+    overflow-x: hidden;
+    
+    // Custom scrollbar styling
+    &::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background-color: var(--color-border);
+      opacity: 0.6;
+      border-radius: 999px;
+      transition: opacity 0.2s ease;
+
+      &:hover {
+        opacity: 0.8;
+      }
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    // Firefox scrollbar
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border) transparent;
 }
 
 .cus-h-vh {
@@ -29,6 +57,85 @@
     right: 0;
 }
 
+// Dashboard card wrapper - ensure theme support
+.cmn-card-wrapper {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-xs);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+
+    &:hover {
+        box-shadow: var(--shadow-sm);
+    }
+}
+
+// Avatar styling
+.avatar {
+    background: var(--color-surface-secondary);
+    border: 1px solid var(--color-border);
+}
+
+// Notice board specific styles
+#noticeBoard {
+    color: var(--color-text-body);
+    
+    &::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background-color: var(--color-border);
+        border-radius: 999px;
+        opacity: 0.6;
+
+        &:hover {
+            opacity: 0.8;
+        }
+    }
+
+    &::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border) transparent;
+}
+
+// Form field styling for theme support
+::ng-deep {
+    .cus-text-area {
+        .mat-mdc-form-field {
+            .mat-mdc-text-field-wrapper {
+                background-color: var(--color-surface);
+            }
+
+            .mat-mdc-form-field-input-control {
+                color: var(--color-text-body);
+            }
+
+            .mat-mdc-form-field-label {
+                color: var(--color-text-subtle);
+            }
+        }
+    }
+
+    .cus-select {
+        .mat-mdc-form-field {
+            .mat-mdc-text-field-wrapper {
+                background-color: var(--color-surface);
+            }
+
+            .mat-mdc-select-value {
+                color: var(--color-text-body);
+            }
+
+            .mat-mdc-form-field-label {
+                color: var(--color-text-subtle);
+            }
+        }
+    }
+}
+
 @media screen and (max-width: 960px) {
     .cmn-padding-wrapper {
         padding: 16px 16px 0 16px;
@@ -37,12 +144,14 @@
 
 .people-card {
     border-radius: 16px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-xs);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 
     &:hover {
         transform: translateY(-4px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+        box-shadow: var(--shadow-md);
     }
 
     mat-card-header {
@@ -70,7 +179,7 @@
     align-items: center;
     gap: 8px;
     font-size: 14px;
-    color: #6c757d;
+    color: var(--color-text-subtle);
     margin-top: 12px;
 
     mat-icon {

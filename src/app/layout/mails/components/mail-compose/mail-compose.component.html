@@ -1,0 +1,58 @@
+<h2 mat-dialog-title>Compose Mail</h2>
+<mat-dialog-content>
+  <form class="compose-form">
+    <div class="form-field-wrapper">
+      <label class="form-label">To</label>
+      <app-dropdown-popover
+        [items]="userItems"
+        [selectedId]="form.to"
+        [width]="520"
+        [maxHeight]="320"
+        [hasSearch]="true"
+        searchPlaceholder="Search users..."
+        (select)="onUserSelect($event)"
+      >
+        <button type="button" class="recipient-trigger" appDropdownTrigger>
+          <app-avatar
+            *ngIf="selectedUser"
+            size="sm"
+            [src]="selectedUser.avatar_url"
+            [initials]="selectedUser.initials || getInitials(selectedUser.full_name)"
+            [color]="selectedUser.avatar_color"
+            [alt]="selectedUser.full_name"
+          ></app-avatar>
+          <div class="recipient-info" *ngIf="selectedUser">
+            <span class="recipient-name">{{ selectedUser.full_name }}</span>
+            <span class="recipient-email">{{ selectedUser.email }}</span>
+          </div>
+          <span class="recipient-placeholder" *ngIf="!selectedUser">
+            {{ form.to || 'Select recipient' }}
+          </span>
+          <mat-icon class="recipient-expand">expand_more</mat-icon>
+        </button>
+      </app-dropdown-popover>
+    </div>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Subject</mat-label>
+      <input matInput placeholder="Subject" [(ngModel)]="form.subject" name="subject" required>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width">
+      <mat-label>Message</mat-label>
+      <textarea matInput rows="8" placeholder="Write your message..." [(ngModel)]="form.body" name="body" required></textarea>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="cancel()" [disabled]="sending">Cancel</button>
+  <button 
+    mat-raised-button 
+    color="primary" 
+    (click)="send()" 
+    [disabled]="!form.to || !form.subject || !form.body || sending">
+    <mat-icon *ngIf="!sending">send</mat-icon>
+    <mat-icon *ngIf="sending" class="spinning">hourglass_empty</mat-icon>
+    {{ sending ? 'Sending...' : 'Send' }}
+  </button>
+</mat-dialog-actions>

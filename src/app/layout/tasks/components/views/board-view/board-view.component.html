@@ -1,0 +1,58 @@
+<div class="tasks-view tasks-view--board">
+  <app-task-header [projectTitle]="projectTitle"></app-task-header>
+
+  <div class="board-toolbar">
+    <button mat-stroked-button [disabled]="loading">
+      <mat-icon>add</mat-icon>
+      Add task
+      <mat-icon class="dropdown">arrow_drop_down</mat-icon>
+    </button>
+  </div>
+
+  <ng-container *ngIf="!loading && !error; else boardState">
+    <div class="board-container" cdkDropListGroup *ngIf="columns.length; else emptyState">
+      <div
+        *ngFor="let col of columns; trackBy: trackByColumnId"
+        class="column"
+        cdkDropList
+        [cdkDropListData]="col.tasks"
+        (cdkDropListDropped)="drop($event)"
+      >
+        <div class="column-header">
+          <h3 class="column-title">
+            {{ col.title }}
+            <span class="task-count">{{ col.taskCount }}</span>
+          </h3>
+        </div>
+
+        <div class="task-list">
+          <app-task-card
+            *ngFor="let task of col.tasks; trackBy: trackByTaskId"
+            [task]="task"
+            cdkDrag
+          ></app-task-card>
+        </div>
+      </div>
+    </div>
+
+    <ng-template #emptyState>
+      <div class="board-empty-state">
+        <mat-icon>dashboard_customize</mat-icon>
+        <p>No board columns yet. Create a section to get started.</p>
+      </div>
+    </ng-template>
+  </ng-container>
+
+  <ng-template #boardState>
+    <div class="board-loading" *ngIf="loading">
+      <mat-progress-spinner diameter="40" mode="indeterminate"></mat-progress-spinner>
+      <span>Loading board view...</span>
+    </div>
+
+    <div class="board-error" *ngIf="!loading && error">
+      <mat-icon color="warn">error</mat-icon>
+      <p>{{ error }}</p>
+      <button mat-stroked-button color="primary" (click)="reload()">Retry</button>
+    </div>
+  </ng-template>
+</div>

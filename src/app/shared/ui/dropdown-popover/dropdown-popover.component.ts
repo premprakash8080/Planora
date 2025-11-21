@@ -1,5 +1,6 @@
 import {
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   Component,
   ContentChild,
   EventEmitter,
@@ -39,6 +40,8 @@ export class DropdownPopoverComponent<T = unknown> {
   @Output() select = new EventEmitter<DropdownPopoverItem<T>>();
 
   @ContentChild(DropdownContentDirective) dropdownContent?: DropdownContentDirective;
+
+  constructor(private cdr: ChangeDetectorRef) {}
 
   readonly overlayPositions: ConnectedPosition[] = [
     {
@@ -101,6 +104,7 @@ export class DropdownPopoverComponent<T = unknown> {
     }
     this.open = false;
     this.searchTerm = '';
+    this.cdr.markForCheck();
   }
 
   onSelect(item: DropdownPopoverItem<T>): void {
@@ -115,6 +119,11 @@ export class DropdownPopoverComponent<T = unknown> {
 
   private openPopover(): void {
     this.open = true;
+    this.cdr.markForCheck();
+  }
+
+  onSearchChange(value: string): void {
+    this.searchTerm = value;
+    this.cdr.markForCheck();
   }
 }
-

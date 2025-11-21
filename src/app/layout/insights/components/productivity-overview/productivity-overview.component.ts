@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ChangeDetectorRef, NgZone } from '@angular/core';
+import { InsightsService, ProductivityMetric, ProductivityTrend } from '../../service/insights.service';
 
 /**
  * Productivity Overview Component
@@ -10,96 +11,34 @@ import { Component, OnInit } from '@angular/core';
  * - Daily/weekly productivity stats
  */
 
-export interface ProductivityMetric {
-  id: string;
-  label: string;
-  value: number;
-  unit: string;
-  change: number;
-  changeType: 'increase' | 'decrease';
-  icon: string;
-  color: string;
-}
-
-export interface ProductivityTrend {
-  day: string;
-  tasksCompleted: number;
-  hoursWorked: number;
-  efficiency: number;
-}
-
 @Component({
   selector: 'app-productivity-overview',
   templateUrl: './productivity-overview.component.html',
   styleUrls: ['./productivity-overview.component.scss']
 })
-export class ProductivityOverviewComponent implements OnInit {
+export class ProductivityOverviewComponent implements OnInit, AfterViewInit {
 
   Math = Math;
 
   /**
-   * Dummy data for productivity metrics
+   * Productivity metrics from API
    */
-  productivityMetrics: ProductivityMetric[] = [
-    {
-      id: '1',
-      label: 'Tasks Completed Today',
-      value: 12,
-      unit: 'tasks',
-      change: 15,
-      changeType: 'increase',
-      icon: 'check_circle',
-      color: '#4caf50'
-    },
-    {
-      id: '2',
-      label: 'Average Completion Time',
-      value: 3.5,
-      unit: 'hours',
-      change: -8,
-      changeType: 'decrease',
-      icon: 'schedule',
-      color: '#2196f3'
-    },
-    {
-      id: '3',
-      label: 'Productivity Score',
-      value: 87,
-      unit: '%',
-      change: 5,
-      changeType: 'increase',
-      icon: 'trending_up',
-      color: '#9c27b0'
-    },
-    {
-      id: '4',
-      label: 'Focus Time',
-      value: 6.5,
-      unit: 'hours',
-      change: 12,
-      changeType: 'increase',
-      icon: 'timer',
-      color: '#ff9800'
-    }
-  ];
+  productivityMetrics: ProductivityMetric[] = [];
 
   /**
-   * Dummy data for productivity trends (last 7 days)
+   * Productivity trends from API
    */
-  productivityTrends: ProductivityTrend[] = [
-    { day: 'Mon', tasksCompleted: 8, hoursWorked: 6.5, efficiency: 85 },
-    { day: 'Tue', tasksCompleted: 10, hoursWorked: 7.0, efficiency: 88 },
-    { day: 'Wed', tasksCompleted: 12, hoursWorked: 7.5, efficiency: 90 },
-    { day: 'Thu', tasksCompleted: 9, hoursWorked: 6.0, efficiency: 82 },
-    { day: 'Fri', tasksCompleted: 14, hoursWorked: 8.0, efficiency: 92 },
-    { day: 'Sat', tasksCompleted: 6, hoursWorked: 4.0, efficiency: 75 },
-    { day: 'Sun', tasksCompleted: 4, hoursWorked: 3.0, efficiency: 70 }
-  ];
+  productivityTrends: ProductivityTrend[] = [];
 
   /**
    * Selected time period for filtering
    */
   selectedPeriod: 'week' | 'month' | 'quarter' = 'week';
+
+  /**
+   * Loading state
+   */
+  loading = false;
 
   /**
    * Pre-calculated max values for chart scaling
@@ -116,9 +55,79 @@ export class ProductivityOverviewComponent implements OnInit {
   averageEfficiency: number = 0;
   bestDay: string = '';
 
-  constructor() { }
+  constructor(
+    private insightsService: InsightsService,
+    private cdr: ChangeDetectorRef,
+    private ngZone: NgZone
+  ) { }
 
   ngOnInit(): void {
+    this.loadData();
+  }
+
+  ngAfterViewInit(): void {
+    this.cdr.detectChanges();
+  }
+
+  /**
+   * Load productivity data from API
+   */
+  loadData(): void {
+    this.loading = true;
+    this.cdr.markForCheck();
+
+    // Load metrics and trends in parallel
+    this.insightsService.getProductivityMetrics(this.selectedPeriod).subscribe({
+      next: (metrics) => {
+        this.ngZone.run(() => {
+          this.productivityMetrics = metrics;
+          this.cdr.detectChanges();
+        });
+      },
+      error: (error) => {
+        console.error('Error loading productivity metrics:', error);
+        this.ngZone.run(() => {
+          this.productivityMetrics = [];
+          this.cdr.detectChanges();
+        });
+      }
+    });
+
+    this.insightsService.getProductivityTrends(this.selectedPeriod).subscribe({
+      next: (trends) => {
+        this.ngZone.run(() => {
+          this.productivityTrends = trends;
+          this.calculateDerivedValues();
+          this.loading = false;
+          this.cdr.detectChanges();
+        });
+      },
+      error: (error) => {
+        console.error('Error loading productivity trends:', error);
+        this.ngZone.run(() => {
+          this.productivityTrends = [];
+          this.loading = false;
+          this.cdr.detectChanges();
+        });
+      }
+    });
+  }
+
+  /**
+   * Calculate derived values from trends
+   */
+  private calculateDerivedValues(): void {
+    if (this.productivityTrends.length === 0) {
+      this.maxTasksCompleted = 0;
+      this.maxHoursWorked = 0;
+      this.maxEfficiency = 0;
+      this.totalTasksThisWeek = 0;
+      this.totalHoursWorked = 0;
+      this.averageEfficiency = 0;
+      this.bestDay = '';
+      return;
+    }
+
     // Calculate max values for chart scaling
     this.maxTasksCompleted = Math.max(...this.productivityTrends.map(t => t.tasksCompleted)) * 1.2;
     this.maxHoursWorked = Math.max(...this.productivityTrends.map(t => t.hoursWorked)) * 1.2;
@@ -129,6 +138,13 @@ export class ProductivityOverviewComponent implements OnInit {
     this.totalHoursWorked = this.productivityTrends.reduce((sum, t) => sum + t.hoursWorked, 0);
     this.averageEfficiency = this.productivityTrends.reduce((sum, t) => sum + t.efficiency, 0) / this.productivityTrends.length;
     this.bestDay = this.productivityTrends.reduce((max, t) => t.tasksCompleted > max.tasksCompleted ? t : max, this.productivityTrends[0]).day;
+  }
+
+  /**
+   * Handle period change
+   */
+  onPeriodChange(): void {
+    this.loadData();
   }
 
   /**
