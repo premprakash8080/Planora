@@ -90,6 +90,10 @@
 .section {
   @include card(space(4));
   position: relative;
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-xs);
+  transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .section-header {
@@ -175,6 +179,8 @@
 
   mat-icon {
     font-size: 20px;
+    color: inherit;
+    transition: color 0.3s ease;
   }
 }
 
@@ -188,6 +194,14 @@
     line-height: 1.6;
     resize: vertical;
     min-height: 100px;
+    color: var(--color-text-body);
+    background: var(--color-surface);
+    border-color: var(--color-border);
+    transition: color 0.3s ease, background 0.3s ease, border-color 0.3s ease;
+
+    &::placeholder {
+      color: var(--color-text-subtle);
+    }
   }
 
   .due-date-input {
@@ -216,6 +230,7 @@
 
 .add-member-btn-icon {
   color: var(--color-primary);
+  background: transparent;
   transition: all 0.2s ease;
 
   &:hover {
@@ -224,6 +239,7 @@
 
   mat-icon {
     color: inherit;
+    transition: color 0.3s ease;
   }
 }
 
@@ -301,25 +317,28 @@
     align-items: center;
     gap: space(2);
     color: var(--color-text-subtle);
+    transition: color 0.3s ease;
 
     mat-icon {
       font-size: 32px;
+      color: inherit;
+      transition: color 0.3s ease;
     }
   }
 }
 
 /* ── Connect cards ─────────────────────────────────────────────── */
 .connect-card {
-  background: var(--color-background);
+  background: var(--color-surface-secondary);
   border: 1px dashed var(--color-border);
   border-radius: $radius-md;
   padding: space(4);
   text-align: center;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
 
   &:hover {
     border-color: var(--color-primary);
-    background: var(--color-surface-secondary);
+    background: var(--color-surface-hover);
   }
 }
 
@@ -337,7 +356,7 @@
   margin-top: space(2);
   padding: space(1) space(2);
   border-radius: $radius-sm;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
 
   &:hover {
     background: rgba(var(--color-primary-rgb), 0.12);
@@ -346,10 +365,8 @@
 
   mat-icon {
     color: inherit;
-  }
-
-  mat-icon {
     font-size: 18px;
+    transition: color 0.3s ease;
   }
 }
 
@@ -364,6 +381,10 @@
 /* ── Status Section ────────────────────────────────────────────── */
 .status-section {
   @include card(space(4));
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-xs);
+  transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .status-pills {
@@ -441,7 +462,12 @@
   color: var(--color-text-body);
   padding: space(2);
   border-radius: $radius-md;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+
+  span {
+    color: inherit;
+    transition: color 0.3s ease;
+  }
 
   &.empty {
     color: var(--color-text-subtle);
@@ -466,6 +492,10 @@
   display: flex;
   flex-direction: column;
   max-height: 600px;
+  background: var(--color-surface);
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-xs);
+  transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .activity-header {
@@ -516,14 +546,14 @@
   gap: space(3);
   padding: space(3);
   border-bottom: 1px solid var(--color-border);
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
 
   &:last-child {
     border-bottom: none;
   }
 
   &:hover {
-    background: var(--color-surface-secondary);
+    background: var(--color-surface-hover);
     border-radius: $radius-md;
   }
 }
@@ -537,10 +567,12 @@
   justify-content: center;
   flex-shrink: 0;
   margin-top: 2px;
+  transition: background-color 0.3s ease;
 }
 
 .activity-icon {
   font-size: 18px;
+  transition: color 0.3s ease;
 }
 
 .activity-content {
@@ -558,6 +590,7 @@
   ::ng-deep strong {
     font-weight: 600;
     color: var(--color-text-heading);
+    transition: color 0.3s ease;
   }
 }
 
@@ -587,16 +620,21 @@
   padding: space(6);
   text-align: center;
   color: var(--color-text-subtle);
+  transition: color 0.3s ease;
 
   mat-icon {
     font-size: 48px;
     margin-bottom: space(2);
     opacity: 0.5;
+    color: inherit;
+    transition: color 0.3s ease, opacity 0.3s ease;
   }
 
   p {
     font-size: font-size(sm);
     margin: 0;
+    color: inherit;
+    transition: color 0.3s ease;
   }
 }
 
@@ -607,14 +645,23 @@
     background: var(--color-background);
   }
 
-  .section,
-  .connect-card {
+  .section {
     background: var(--color-surface);
+    border-color: var(--color-border);
+    box-shadow: var(--shadow-xs);
+  }
+
+  .connect-card {
+    background: var(--color-surface-secondary);
     border-color: var(--color-border);
   }
 
   .section-title {
     color: var(--color-text-heading);
+  }
+
+  .section-subtitle {
+    color: var(--color-text-subtle);
   }
 
   .description-text,
@@ -623,20 +670,128 @@
     color: var(--color-text-body);
   }
 
-  .member:hover {
-    background: rgba(var(--color-primary-rgb), 0.12);
+  .empty-text {
+    color: var(--color-text-subtle);
+
+    &:hover {
+      color: var(--color-primary);
+    }
+  }
+
+  .edit-container {
+    .description-input {
+      color: var(--color-text-body);
+      background: var(--color-surface);
+      border-color: var(--color-border);
+
+      &::placeholder {
+        color: var(--color-text-subtle);
+      }
+    }
+  }
+
+  .member {
+    &:hover {
+      background: var(--color-surface-hover);
+    }
+  }
+
+  .member-name {
+    color: var(--color-text-body);
+  }
+
+  .member-role {
+    color: var(--color-text-subtle);
+  }
+
+  .add-member-btn-icon {
+    color: var(--color-primary);
+
+    &:hover {
+      background: rgba(var(--color-primary-rgb), 0.12);
+    }
+  }
+
+  .connect-btn,
+  .resource-btn {
+    color: var(--color-primary);
+
+    &:hover {
+      background: rgba(var(--color-primary-rgb), 0.12);
+    }
+  }
+
+  .status-section {
+    background: var(--color-surface);
+    border-color: var(--color-border);
+    box-shadow: var(--shadow-xs);
   }
 
   .status-pill {
     color: var(--color-text-body);
   }
 
-  .due-date {
-    color: var(--color-text-body);
+  .due-date-section {
+    border-color: var(--color-border);
   }
 
-  .activity-item:hover {
-    background: var(--color-surface-hover);
+  .due-date {
+    color: var(--color-text-body);
+
+    &.empty {
+      color: var(--color-text-subtle);
+
+      &:hover {
+        background: var(--color-surface-hover);
+        color: var(--color-primary);
+      }
+    }
+
+    mat-icon {
+      color: var(--color-text-subtle);
+    }
+  }
+
+  .activity-section {
+    background: var(--color-surface);
+    border-color: var(--color-border);
+    box-shadow: var(--shadow-xs);
+  }
+
+  .activity-header {
+    border-color: var(--color-border);
+  }
+
+  .activity-item {
+    border-color: var(--color-border);
+
+    &:hover {
+      background: var(--color-surface-hover);
+    }
+  }
+
+  .activity-message {
+    color: var(--color-text-body);
+
+    ::ng-deep strong {
+      color: var(--color-text-heading);
+    }
+  }
+
+  .activity-time {
+    color: var(--color-text-subtle);
+  }
+
+  .empty-activities {
+    color: var(--color-text-subtle);
+
+    mat-icon {
+      color: inherit;
+    }
+
+    p {
+      color: inherit;
+    }
   }
 
   .activity-list::-webkit-scrollbar-thumb {

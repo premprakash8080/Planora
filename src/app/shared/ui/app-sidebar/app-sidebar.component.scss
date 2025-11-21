@@ -111,6 +111,7 @@
 
     mat-icon {
       color: inherit;
+      transition: color 0.3s ease;
     }
   }
 
@@ -184,12 +185,13 @@
     }
 
     mat-icon {
-      color: inherit;
+      color: var(--color-text-subtle);
       transition: color 0.3s ease, transform 0.2s ease;
     }
 
     &:hover mat-icon {
       color: var(--color-primary);
+      transform: translateY(1px);
     }
   }
 
@@ -208,7 +210,12 @@
     }
 
     mat-icon {
-      color: inherit;
+      color: var(--color-text-body);
+      transition: color 0.3s ease;
+    }
+
+    &:hover mat-icon {
+      color: var(--color-primary);
     }
   }
 
@@ -279,12 +286,22 @@
 
     &:hover {
       background: var(--color-surface-hover);
+      color: var(--color-text-heading);
     }
   }
 
   &__icon {
     font-size: 20px;
-    color: inherit;
+    color: var(--color-text-body);
+    transition: color 0.3s ease;
+  }
+
+  &__link:hover &__icon {
+    color: var(--color-primary);
+  }
+
+  &__item--active &__icon {
+    color: var(--color-primary);
   }
 
   &__badge {
@@ -351,8 +368,12 @@
 
     mat-icon {
       font-size: 20px;
-      color: inherit;
-      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      color: var(--color-text-body);
+      transition: color 0.3s ease, transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    &:hover mat-icon {
+      color: var(--color-primary);
     }
   }
 

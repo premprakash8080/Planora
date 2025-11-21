@@ -32,11 +32,19 @@
     font-size: font-size(sm);
     color: var(--color-text-subtle);
     cursor: pointer;
+    transition: color 0.3s ease, background 0.2s ease;
+
+    &:hover {
+      color: var(--color-primary);
+      background: var(--color-surface-hover);
+    }
 
     mat-icon {
       font-size: 16px;
       width: 16px;
       height: 16px;
+      color: inherit;
+      transition: color 0.3s ease;
     }
   }
 }
@@ -97,6 +105,7 @@
     letter-spacing: 0.08em;
     color: var(--color-text-subtle);
     margin-bottom: space(1);
+    transition: color 0.3s ease;
   }
 
   .stat-value {
@@ -105,11 +114,13 @@
     line-height: 1;
     color: var(--color-text-heading);
     margin-bottom: 6px;
+    transition: color 0.3s ease;
   }
 
   .stat-helper {
     font-size: font-size(sm);
-    color: var(--color-muted);
+    color: var(--color-text-subtle);
+    transition: color 0.3s ease;
   }
 
   &:hover {
@@ -146,6 +157,7 @@
     font-size: font-size(lg);
     font-weight: 600;
     color: var(--color-text-heading);
+    transition: color 0.3s ease;
   }
 }
 
@@ -153,11 +165,12 @@
   display: inline-flex;
   align-items: center;
   font-size: font-size(xs);
-  color: #6b7280;
-    background: var(--color-surface-secondary);
+  color: var(--color-text-subtle);
+  background: var(--color-surface-secondary);
   border-radius: $radius-full;
   padding: 2px 10px;
   margin-top: 4px;
+  transition: color 0.3s ease, background 0.3s ease;
 }
 
 .bar-chart {
@@ -174,20 +187,22 @@
   .bar-label {
     flex: 0 0 120px;
     font-size: font-size(sm);
-    color: #4b5563;
+    color: var(--color-text-body);
+    transition: color 0.3s ease;
   }
 
   .bar-track {
     flex: 1;
-    background: rgba(139, 92, 246, 0.12);
-
-    [data-theme="dark"] &,
-    .dark-theme & {
-      background: rgba(139, 92, 246, 0.2);
-    }
+    background: rgba(var(--color-primary-rgb), 0.12);
     border-radius: $radius-full;
     position: relative;
     height: 12px;
+    transition: background 0.3s ease;
+
+    [data-theme="dark"] &,
+    .dark-theme & {
+      background: rgba(var(--color-primary-rgb), 0.2);
+    }
   }
 
   .bar-fill {
@@ -201,6 +216,7 @@
     font-size: font-size(sm);
     color: var(--color-text-heading);
     margin-left: space(1);
+    transition: color 0.3s ease;
   }
 }
 
@@ -214,39 +230,43 @@
     width: 180px;
     height: 180px;
     border-radius: 50%;
-    background: rgba(139, 92, 246, 0.12);
-
-    [data-theme="dark"] &,
-    .dark-theme & {
-      background: rgba(139, 92, 246, 0.2);
-    }
+    background: rgba(var(--color-primary-rgb), 0.12);
     display: flex;
     align-items: center;
     justify-content: center;
+    transition: background 0.3s ease;
+
+    [data-theme="dark"] &,
+    .dark-theme & {
+      background: rgba(var(--color-primary-rgb), 0.2);
+    }
   }
 
   .donut-center {
     width: 60%;
     height: 60%;
     border-radius: 50%;
-    background: #ffffff;
+    background: var(--color-surface);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 4px;
     box-shadow: var(--shadow-xs);
+    transition: background 0.3s ease;
   }
 
   .donut-value {
     font-size: 32px;
     font-weight: 600;
     color: var(--color-text-heading);
+    transition: color 0.3s ease;
   }
 
   .donut-label {
     font-size: font-size(xs);
     color: var(--color-text-subtle);
+    transition: color 0.3s ease;
   }
 
   .donut-legend {
@@ -262,7 +282,8 @@
       align-items: center;
       gap: 8px;
       font-size: font-size(sm);
-      color: #4b5563;
+      color: var(--color-text-body);
+      transition: color 0.3s ease;
     }
 
     .legend-dot {
@@ -274,7 +295,8 @@
     .legend-value {
       margin-left: auto;
       font-weight: 600;
-      color: #111827;
+      color: var(--color-text-heading);
+      transition: color 0.3s ease;
     }
   }
 }
@@ -295,16 +317,17 @@
   .assignee-stack {
     min-height: 120px;
     border-radius: $radius-full;
-    background: rgba(139, 92, 246, 0.08);
-
-    [data-theme="dark"] &,
-    .dark-theme & {
-      background: rgba(139, 92, 246, 0.15);
-    }
+    background: rgba(var(--color-primary-rgb), 0.08);
     padding: space(1);
     display: flex;
     flex-wrap: wrap;
     gap: 6px;
+    transition: background 0.3s ease;
+
+    [data-theme="dark"] &,
+    .dark-theme & {
+      background: rgba(var(--color-primary-rgb), 0.15);
+    }
   }
 
   .assignee-dot {
@@ -318,6 +341,7 @@
     font-size: font-size(xs);
     color: var(--color-text-subtle);
     align-self: flex-end;
+    transition: color 0.3s ease;
   }
 
   .assignee-meta {
@@ -325,7 +349,8 @@
     flex-direction: column;
     gap: 2px;
     font-size: font-size(sm);
-    color: #4b5563;
+    color: var(--color-text-body);
+    transition: color 0.3s ease;
   }
 
   .assignee-initials {
@@ -336,13 +361,20 @@
     align-items: center;
     justify-content: center;
     font-weight: 600;
-    color: #fff;
+    color: var(--color-surface);
     margin-bottom: 4px;
+    transition: color 0.3s ease;
   }
 
   .assignee-name {
     font-weight: 600;
-    color: #111827;
+    color: var(--color-text-heading);
+    transition: color 0.3s ease;
+  }
+
+  .assignee-count {
+    color: var(--color-text-subtle);
+    transition: color 0.3s ease;
   }
 }
 
@@ -358,14 +390,16 @@
   }
 
   .area {
-    fill: rgba(139, 92, 246, 0.2);
+    fill: rgba(var(--color-primary-rgb), 0.2);
     stroke: none;
+    transition: fill 0.3s ease;
   }
 
   .line {
     fill: none;
-    stroke: #8b5cf6;
+    stroke: var(--color-primary);
     stroke-width: 3;
+    transition: stroke 0.3s ease;
   }
 
   .timeline-meta {
@@ -373,13 +407,15 @@
     justify-content: space-between;
     font-size: font-size(xs);
     color: var(--color-text-subtle);
+    transition: color 0.3s ease;
   }
 
   .area-legend {
     display: flex;
     gap: space(2);
     font-size: font-size(sm);
-    color: #4b5563;
+    color: var(--color-text-body);
+    transition: color 0.3s ease;
   }
 
   .legend-swatch {
@@ -388,13 +424,14 @@
     border-radius: 2px;
     display: inline-block;
     margin-right: 6px;
+    transition: background 0.3s ease, border-color 0.3s ease;
 
     &.total {
       background: var(--color-primary);
     }
 
     &.completed {
-      background: rgba(139, 92, 246, 0.2);
+      background: rgba(var(--color-primary-rgb), 0.2);
       border: 1px solid var(--color-primary);
     }
   }
@@ -408,16 +445,24 @@
   align-items: center;
   justify-content: center;
   gap: space(1.5);
-  color: #6b7280;
+  color: var(--color-text-subtle);
+  transition: color 0.3s ease;
 
   &.error {
     color: var(--color-danger);
+  }
+
+  p {
+    color: inherit;
+    transition: color 0.3s ease;
   }
 
   mat-icon {
     font-size: 48px;
     width: 48px;
     height: 48px;
+    color: inherit;
+    transition: color 0.3s ease;
   }
 }
 
@@ -427,8 +472,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #9ca3af;
+  color: var(--color-text-subtle);
   font-size: font-size(sm);
+  transition: color 0.3s ease;
 }
 
 @media (max-width: 768px) {

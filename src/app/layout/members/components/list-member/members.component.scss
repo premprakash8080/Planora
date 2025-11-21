@@ -7,6 +7,7 @@
   height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
+  padding: tokens.space(10);
   
   // Custom scrollbar styling
   &::-webkit-scrollbar {
