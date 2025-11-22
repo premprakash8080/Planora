@@ -78,6 +78,20 @@ export class BoardViewService {
     );
   }
 
+  getMyTasksBoardViewData(): Observable<BoardViewResponse> {
+    const endpoint = ENDPOINTS.getMyTasksBoardView;
+    return this.httpService.get(endpoint).pipe(
+      map((response: any) => {
+        // Handle unified response format
+        if (response.success && response.data) {
+          return response.data;
+        }
+        return response;
+      }),
+      catchError((error) => throwError(() => this.handleError(error)))
+    );
+  }
+
   updateTaskPosition(taskId: string | number, payload: UpdateBoardViewTaskPayload): Observable<BoardViewTask> {
     const endpoint = ENDPOINTS.updateBoardViewTask.replace(':taskId', taskId.toString());
     return this.httpService.patch(endpoint, payload).pipe(

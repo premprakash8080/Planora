@@ -16,6 +16,7 @@ import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import { CalendarViewService, CalendarTask } from '../../../services/calendar-view.service';
 import { TaskApiService } from '../../../services/task-api.service';
+import { TasksRouteHelperService } from '../../../services/tasks-route-helper.service';
 import { SnackBarService } from 'src/app/shared/services/snackbar.service';
 
 interface CalendarDay {
@@ -61,6 +62,7 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
 
   projectTitle = 'Calendar View';
   projectId: string | null = null;
+  isMyTasksMode = false;
 
   loading = false;
   error: string | null = null;
@@ -88,22 +90,33 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
     private readonly router: Router,
     private readonly calendarService: CalendarViewService,
     private readonly taskApiService: TaskApiService,
+    private readonly routeHelper: TasksRouteHelperService,
     private readonly snackBar: SnackBarService,
     private readonly cdr: ChangeDetectorRef,
     private readonly ngZone: NgZone
   ) {}
 
   ngOnInit(): void {
-    const projectRoute = this.findProjectRoute();
-    projectRoute.paramMap
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(params => {
-        const projectId = params.get('projectId');
-        if (projectId && projectId !== this.projectId) {
-          this.projectId = projectId;
-          this.loadCalendarData();
-        }
-      });
+    // Check if we're in my-tasks mode
+    this.isMyTasksMode = this.routeHelper.isMyTasksMode(this.route);
+    
+    if (this.isMyTasksMode) {
+      // My Tasks mode - load my tasks calendar data
+      this.projectTitle = 'My Tasks';
+      this.loadMyTasksCalendarData();
+    } else {
+      // Project mode - existing logic
+      const projectRoute = this.routeHelper.findProjectRoute(this.route) ?? this.route;
+      projectRoute.paramMap
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(params => {
+          const projectId = params.get('projectId');
+          if (projectId && projectId !== this.projectId) {
+            this.projectId = projectId;
+            this.loadCalendarData();
+          }
+        });
+    }
 
     this.searchControl.valueChanges
       .pipe(debounceTime(200), distinctUntilChanged(), takeUntil(this.destroy$))
@@ -152,7 +165,11 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
   }
 
   refresh(): void {
-    this.loadCalendarData();
+    if (this.isMyTasksMode) {
+      this.loadMyTasksCalendarData();
+    } else {
+      this.loadCalendarData();
+    }
   }
 
   toggleSync(value: boolean): void {
@@ -185,9 +202,21 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
   }
 
   saveQuickAdd(): void {
-    if (!this.addingDay || !this.newTaskTitle.trim() || !this.projectId) {
+    if (!this.addingDay || !this.newTaskTitle.trim()) {
       return;
     }
+    
+    // In my-tasks mode, we can't create tasks without a projectId
+    if (this.isMyTasksMode) {
+      this.snackBar.showError('Please create tasks from a project view');
+      this.cancelQuickAdd();
+      return;
+    }
+    
+    if (!this.projectId) {
+      return;
+    }
+    
     const payload = {
       name: this.newTaskTitle.trim(),
       dueDate: this.addingDay.iso,
@@ -269,6 +298,29 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
   trackByWeek = (_: number, week: CalendarWeek) => week.index;
   trackByDay = (_: number, day: CalendarDay) => day.iso;
   trackBySegment = (_: number, segment: CalendarTaskSegment) => `${segment.task.id}-${segment.weekIndex}-${segment.row}-${segment.startColumn}`;
+
+  private loadMyTasksCalendarData(): void {
+    this.loading = true;
+    this.error = null;
+    this.calendarService.getMyTasksCalendarData().subscribe({
+      next: (response) => {
+        this.ngZone.run(() => {
+          this.projectTitle = response.project?.name || 'My Tasks';
+          this.tasks = response.tasks || [];
+          this.applySearchFilter();
+          this.loading = false;
+          this.cdr.detectChanges();
+        });
+      },
+      error: (error) => {
+        this.ngZone.run(() => {
+          this.loading = false;
+          this.error = typeof error === 'string' ? error : 'Failed to load my tasks calendar';
+          this.cdr.detectChanges();
+        });
+      },
+    });
+  }
 
   private loadCalendarData(): void {
     if (!this.projectId) {
@@ -438,7 +490,11 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
       },
       error: (error) => {
         this.snackBar.showError(error || 'Unable to update task dates');
-        this.loadCalendarData();
+        if (this.isMyTasksMode) {
+          this.loadMyTasksCalendarData();
+        } else {
+          this.loadCalendarData();
+        }
       },
     });
   }
@@ -510,15 +566,5 @@ export class CalendarViewComponent implements OnInit, OnDestroy {
     return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
   }
 
-  private findProjectRoute(): ActivatedRoute {
-    let projectRoute: ActivatedRoute | null = this.route;
-    while (projectRoute) {
-      if (projectRoute.snapshot.paramMap.has('projectId')) {
-        return projectRoute;
-      }
-      projectRoute = projectRoute.parent;
-    }
-    return this.route;
-  }
 }
 

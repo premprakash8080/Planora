@@ -524,6 +524,61 @@ export class TaskApiService {
     );
   }
 
+  /**
+   * Get my tasks (all tasks assigned to the current user)
+   * Returns tasks with backend structure preserved for grouping
+   */
+  getMyTasks(): Observable<Array<Task & { _backend?: BackendTask }>> {
+    const url = ENDPOINTS.getMyTasks;
+    return this.httpService.get(url).pipe(
+      map((response: any) => {
+        // Handle unified response format: { success: true, data: { tasks: [...] } }
+        let backendTasks: BackendTask[] = [];
+        
+        if (response.success && response.data && response.data.tasks) {
+          backendTasks = response.data.tasks;
+        } else if (Array.isArray(response)) {
+          // Fallback for direct array response
+          backendTasks = response;
+        } else if (response.data && Array.isArray(response.data)) {
+          backendTasks = response.data;
+        }
+
+        // Map tasks and preserve backend data for grouping
+        return backendTasks
+          .map((backendTask: BackendTask) => {
+            const task = this.mapBackendTaskToTask(backendTask);
+            // Preserve backend data for grouping by project/section
+            return {
+              ...task,
+              _backend: backendTask
+            } as Task & { _backend?: BackendTask };
+          })
+          .sort((a, b) => {
+            // Sort by due date (ascending, nulls last), then by position, then by created date
+            if (a.dueDate && b.dueDate) {
+              return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+            }
+            if (a.dueDate && !b.dueDate) return -1;
+            if (!a.dueDate && b.dueDate) return 1;
+            
+            // If due dates are equal or both null, sort by position
+            const posA = a.position ?? 0;
+            const posB = b.position ?? 0;
+            if (posA !== posB) {
+              return posA - posB;
+            }
+            
+            // Finally, sort by created date (newest first)
+            return 0; // Position-based sorting is sufficient
+          });
+      }),
+      catchError((error) => {
+        return throwError(() => this.handleError(error));
+      })
+    );
+  }
+
   private handleError(error: any): string {
     if (error?.error?.message) {
       return error.error.message;

@@ -81,5 +81,10 @@ export const ENDPOINTS = {
   updateProjectMessage: `${environment.apiBaseUrl}/api/project-messages/:messageId`,
   pinProjectMessage: `${environment.apiBaseUrl}/api/project-messages/:messageId/pin`,
   deleteProjectMessage: `${environment.apiBaseUrl}/api/project-messages/:messageId`,
+  
+  // My Tasks endpoints
+  getMyTasks: `${environment.apiBaseUrl}/api/tasks/get-my-tasks`,
+  getMyTasksCalendarView: `${environment.apiBaseUrl}/api/tasks/get-my-tasks-calendar-view`,
+  getMyTasksBoardView: `${environment.apiBaseUrl}/api/tasks/get-my-tasks-board-view`,
 };
 

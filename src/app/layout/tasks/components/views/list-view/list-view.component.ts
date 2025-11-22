@@ -11,6 +11,7 @@ import { MemberService, Member } from '../../../../members/service/member.servic
 import { ProjectService, Project, ProjectMember } from '../../../services/project.service';
 import { TaskStatusService } from '../../../services/task-status.service';
 import { PriorityLabelService } from '../../../services/priority-label.service';
+import { TasksRouteHelperService } from '../../../services/tasks-route-helper.service';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 
 interface TeamMember {
@@ -80,6 +81,8 @@ export class ListViewComponent implements OnInit, AfterViewInit, OnDestroy {
   private startX = 0;
   private startWidth = 0;
 
+  isMyTasksMode = false;
+
   constructor(
     private readonly taskService: TaskService,
     private readonly route: ActivatedRoute,
@@ -87,6 +90,7 @@ export class ListViewComponent implements OnInit, AfterViewInit, OnDestroy {
     private readonly projectService: ProjectService,
     private readonly taskStatusService: TaskStatusService,
     private readonly priorityLabelService: PriorityLabelService,
+    private readonly routeHelper: TasksRouteHelperService,
     private cdr: ChangeDetectorRef,
     private ngZone: NgZone
   ) {}
@@ -97,18 +101,15 @@ export class ListViewComponent implements OnInit, AfterViewInit, OnDestroy {
     // Load members for assignee dropdown
     this.loadMembers();
 
-    const projectRoute = this.findProjectRoute() ?? this.route;
-
-    const initialProjectId = projectRoute.snapshot.paramMap.get('projectId');
-    if (initialProjectId) {
-      this.currentProjectId = initialProjectId;
-      // Load project data
-      this.loadProject(initialProjectId);
-      // Load sections from API
-      this.taskService.loadSections(initialProjectId).subscribe();
-      // Subscribe to sections
+    // Check if we're in my-tasks mode
+    this.isMyTasksMode = this.routeHelper.isMyTasksMode(this.route);
+    
+    if (this.isMyTasksMode) {
+      // My Tasks mode - load my tasks
+      this.taskService.loadMyTasks().subscribe();
+      // Subscribe to my tasks
       this.taskService
-        .filterTasks(initialProjectId, this.searchControl.value ?? '')
+        .filterMyTasks(this.searchControl.value ?? '')
         .pipe(take(1))
         .subscribe(sections => {
           this.ngZone.run(() => {
@@ -116,35 +117,13 @@ export class ListViewComponent implements OnInit, AfterViewInit, OnDestroy {
             this.cdr.detectChanges();
           });
         });
-    }
 
-    const projectId$ = projectRoute.paramMap.pipe(
-      map(params => params.get('projectId')),
-      filter((projectId): projectId is string => Boolean(projectId)),
-      distinctUntilChanged(),
-      tap(projectId => {
-        if (this.currentProjectId !== projectId) {
-          this.searchControl.setValue('', { emitEvent: false });
-          if (this.currentProjectId) {
-            this.closeDetail();
-          }
-        }
-        this.currentProjectId = projectId;
-        // Load project data
-        this.loadProject(projectId);
-      })
-    );
-
-    combineLatest([
-      projectId$,
+      // Subscribe to search changes for my tasks
       this.searchControl.valueChanges.pipe(
         startWith(this.searchControl.value),
         debounceTime(200),
-        distinctUntilChanged()
-      )
-    ])
-      .pipe(
-        switchMap(([projectId, query]) => this.taskService.filterTasks(projectId, query)),
+        distinctUntilChanged(),
+        switchMap(query => this.taskService.filterMyTasks(query)),
         takeUntil(this.destroy$)
       )
       .subscribe(sections => {
@@ -184,6 +163,96 @@ export class ListViewComponent implements OnInit, AfterViewInit, OnDestroy {
           this.cdr.detectChanges();
         });
       });
+    } else {
+      // Project mode - existing logic
+      const projectRoute = this.routeHelper.findProjectRoute(this.route) ?? this.route;
+
+      const initialProjectId = projectRoute.snapshot.paramMap.get('projectId');
+      if (initialProjectId) {
+        this.currentProjectId = initialProjectId;
+        // Load project data
+        this.loadProject(initialProjectId);
+        // Load sections from API
+        this.taskService.loadSections(initialProjectId).subscribe();
+        // Subscribe to sections
+        this.taskService
+          .filterTasks(initialProjectId, this.searchControl.value ?? '')
+          .pipe(take(1))
+          .subscribe(sections => {
+            this.ngZone.run(() => {
+              this.sections = sections;
+              this.cdr.detectChanges();
+            });
+          });
+      }
+
+      const projectId$ = projectRoute.paramMap.pipe(
+        map(params => params.get('projectId')),
+        filter((projectId): projectId is string => Boolean(projectId)),
+        distinctUntilChanged(),
+        tap(projectId => {
+          if (this.currentProjectId !== projectId) {
+            this.searchControl.setValue('', { emitEvent: false });
+            if (this.currentProjectId) {
+              this.closeDetail();
+            }
+          }
+          this.currentProjectId = projectId;
+          // Load project data
+          this.loadProject(projectId);
+        })
+      );
+
+      combineLatest([
+        projectId$,
+        this.searchControl.valueChanges.pipe(
+          startWith(this.searchControl.value),
+          debounceTime(200),
+          distinctUntilChanged()
+        )
+      ])
+        .pipe(
+          switchMap(([projectId, query]) => this.taskService.filterTasks(projectId, query)),
+          takeUntil(this.destroy$)
+        )
+        .subscribe(sections => {
+          this.ngZone.run(() => {
+            this.sections = sections;
+
+            if (this.selectedSectionId && this.selectedTaskId) {
+              const nextSection = sections.find(section => section.id === this.selectedSectionId);
+
+              if (!nextSection) {
+                this.closeDetail();
+                this.cdr.detectChanges();
+                return;
+              }
+
+              if (this.selectedParentTaskId) {
+                const parentTask = nextSection.tasks.find(task => task.id === this.selectedParentTaskId);
+                const childTask = parentTask?.subtasks?.find(subtask => subtask.id === this.selectedTaskId);
+
+                if (parentTask && childTask) {
+                  this.selectedSection = nextSection;
+                  this.selectedTask = childTask;
+                } else {
+                  this.closeDetail();
+                }
+              } else {
+                const nextTask = nextSection.tasks.find(task => task.id === this.selectedTaskId);
+
+                if (nextTask) {
+                  this.selectedSection = nextSection;
+                  this.selectedTask = nextTask;
+                } else {
+                  this.closeDetail();
+                }
+              }
+            }
+            this.cdr.detectChanges();
+          });
+        });
+    }
   }
 
   ngAfterViewInit(): void {
@@ -1381,6 +1450,10 @@ export class ListViewComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /** Provide friendly name for breadcrumbs and title components */
   get currentProjectName(): string {
+    // Return "My Tasks" when in my-tasks mode
+    if (this.isMyTasksMode) {
+      return 'My Tasks';
+    }
     if (this.currentProject?.name) {
       return this.currentProject.name;
     }
@@ -1519,16 +1592,5 @@ export class ListViewComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  /** Walk up the route tree to locate the ancestor holding :projectId */
-  private findProjectRoute(): ActivatedRoute | null {
-    let current: ActivatedRoute | null = this.route;
-    while (current) {
-      if (current.snapshot.paramMap.has('projectId')) {
-        return current;
-      }
-      current = current.parent;
-    }
-    return null;
-  }
 }
 

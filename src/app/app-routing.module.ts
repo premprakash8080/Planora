@@ -43,6 +43,10 @@ const routes: Routes = [
         loadChildren: () => import("./layout/insights/insights.module").then((m) => m.InsightsModule),
       },
       {
+        path: "my-tasks",
+        loadChildren: () => import("./layout/tasks/tasks.module").then((m) => m.DashboardProjectTasksModule),
+      },
+      {
         path: "profile",
         loadChildren: () => import("./layout/profile/profile.module").then((m) => m.ProfileModule),
       },

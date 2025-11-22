@@ -6,6 +6,7 @@ import { filter } from 'rxjs/operators';
 import { DropdownPopoverItem } from '../../../../shared/ui/dropdown-popover/dropdown-popover.component';
 import { Project, ProjectMember } from '../../services/project.service';
 import { ProjectMembersModalComponent } from '../project-members-modal/project-members-modal.component';
+import { TasksRouteHelperService } from '../../services/tasks-route-helper.service';
 
 interface NavTab {
   id: string;
@@ -47,8 +48,8 @@ export class TaskHeaderComponent implements OnInit, OnDestroy {
     { id: 'completed', label: 'Completed', color: '#22c55e' }
   ];
 
-  // Navigation Tabs
-  tabs: NavTab[] = [
+  // All available tabs
+  private allTabs: NavTab[] = [
     { id: 'overview', label: 'Overview', icon: 'dashboard' },
     { id: 'list', label: 'List', icon: 'list' },
     { id: 'board', label: 'Board', icon: 'view_kanban' },
@@ -60,20 +61,39 @@ export class TaskHeaderComponent implements OnInit, OnDestroy {
     { id: 'files', label: 'Files', icon: 'folder_open' }
   ];
 
+  // My Tasks tabs (only list, board, dashboard, calendar)
+  private myTasksTabs: NavTab[] = [
+    { id: 'list', label: 'List', icon: 'list' },
+    { id: 'board', label: 'Board', icon: 'view_kanban' },
+    { id: 'dashboard', label: 'Dashboard', icon: 'bar_chart' },
+    { id: 'calendar', label: 'Calendar', icon: 'calendar_today' }
+  ];
+
+  // Current tabs to display (filtered based on mode)
+  tabs: NavTab[] = this.allTabs;
+
   constructor(
     private router: Router,
     private route: ActivatedRoute,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private routeHelper: TasksRouteHelperService
   ) {}
 
   ngOnInit(): void {
+    // Check if we're in my-tasks mode and filter tabs accordingly
+    const isMyTasksMode = this.routeHelper.isMyTasksMode(this.route);
+    this.tabs = isMyTasksMode ? this.myTasksTabs : this.allTabs;
+    
     // Set initial active tab from current route
     this.updateActiveTabFromRoute();
     
-    // Subscribe to route changes to update active tab
+    // Subscribe to route changes to update active tab and tabs list
     this.routeSubscription = this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe(() => {
+        // Re-check mode in case route changed
+        const currentIsMyTasksMode = this.routeHelper.isMyTasksMode(this.route);
+        this.tabs = currentIsMyTasksMode ? this.myTasksTabs : this.allTabs;
         this.updateActiveTabFromRoute();
       });
   }

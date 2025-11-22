@@ -49,6 +49,127 @@ export class TaskService {
   }
 
   /**
+   * Load my tasks from API (all tasks assigned to current user)
+   * Groups tasks by project and section for display
+   */
+  loadMyTasks(): Observable<TaskSection[]> {
+    const myTasksKey = '__my_tasks__';
+    const loadingSubject = this.getLoadingSubject(myTasksKey);
+    loadingSubject.next(true);
+
+    return this.taskApiService.getMyTasks().pipe(
+      map(tasks => {
+        // Group tasks by project, then by section
+        const projectMap = new Map<string, Map<string, Task[]>>();
+        
+        tasks.forEach(task => {
+          // Extract project and section info from preserved backend data
+          const backendTask = (task as any)._backend;
+          if (!backendTask) {
+            // Fallback if backend data not preserved
+            return;
+          }
+          
+          const projectId = backendTask.project?.id?.toString() || backendTask.project_id?.toString() || 'uncategorized';
+          const sectionId = backendTask.section?.id?.toString() || backendTask.section_id?.toString() || 'uncategorized';
+          
+          if (!projectMap.has(projectId)) {
+            projectMap.set(projectId, new Map());
+          }
+          
+          const sectionMap = projectMap.get(projectId)!;
+          if (!sectionMap.has(sectionId)) {
+            sectionMap.set(sectionId, []);
+          }
+          
+          // Remove _backend before adding to section
+          const { _backend, ...cleanTask } = task as any;
+          sectionMap.get(sectionId)!.push(cleanTask as Task);
+        });
+
+        // Convert to TaskSection array, grouping by project first
+        const sections: TaskSection[] = [];
+        projectMap.forEach((sectionMap, projectId) => {
+          // Find project name from first task in project
+          const firstTask = Array.from(sectionMap.values())[0]?.[0];
+          const backendTask = firstTask ? (tasks.find(t => (t as any)._backend?.project?.id?.toString() === projectId) as any)?._backend : null;
+          const projectName = backendTask?.project?.name || 'Uncategorized Project';
+          
+          sectionMap.forEach((taskList, sectionId) => {
+            // Find section name from first task in section
+            const backendTask = (tasks.find(t => {
+              const bt = (t as any)._backend;
+              return bt && (bt.section?.id?.toString() || bt.section_id?.toString()) === sectionId;
+            }) as any)?._backend;
+            const sectionName = backendTask?.section?.name || backendTask?.section?.title || 'Uncategorized';
+            
+            sections.push({
+              id: `${projectId}_${sectionId}`,
+              title: `${projectName} - ${sectionName}`,
+              expanded: true,
+              tasks: taskList
+            });
+          });
+        });
+
+        // Sort sections by project name, then section name
+        sections.sort((a, b) => a.title.localeCompare(b.title));
+
+        // If no sections, create a default one
+        if (sections.length === 0) {
+          sections.push({
+            id: 'my-tasks-default',
+            title: 'My Tasks',
+            expanded: true,
+            tasks: []
+          });
+        }
+
+        const subject = this.getProjectSubject(myTasksKey);
+        subject.next(sections);
+        loadingSubject.next(false);
+        return sections;
+      }),
+      catchError(error => {
+        console.error('Error loading my tasks:', error);
+        this.snackBarService.showError('Failed to load my tasks');
+        loadingSubject.next(false);
+        return of([]);
+      })
+    );
+  }
+
+  /**
+   * Filter my tasks by search query
+   */
+  filterMyTasks(query: string): Observable<TaskSection[]> {
+    const myTasksKey = '__my_tasks__';
+    const normalized = query.trim().toLowerCase();
+    const sections$ = this.getProjectSubject(myTasksKey).asObservable();
+
+    if (!normalized) {
+      // If no query, ensure data is loaded
+      if (!this.projectSections.has(myTasksKey) || this.getProjectSubject(myTasksKey).value.length === 0) {
+        this.loadMyTasks().subscribe();
+      }
+      return sections$;
+    }
+
+    return sections$.pipe(
+      map(sections =>
+        sections.map(section => ({
+          ...section,
+          tasks: section.tasks.filter(task =>
+            task.name.toLowerCase().includes(normalized) ||
+            (task.assignee ?? '').toLowerCase().includes(normalized) ||
+            (task.description ?? '').toLowerCase().includes(normalized)
+          )
+        }))
+      )
+    );
+  }
+
+  /**
    * Filter tasks by search query
    */
   filterTasks(projectId: string, query: string): Observable<TaskSection[]> {

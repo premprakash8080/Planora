@@ -135,7 +135,8 @@ export class CustomLayoutComponent implements OnInit, OnDestroy {
           { label: 'Dashboard', icon: 'dashboard', route: '/dashboard' },
           { label: 'Inbox', icon: 'inbox', route: '/inbox' },
           { label: 'Members', icon: 'group', route: '/members' },
-          { label: 'Mails', icon: 'mail', route: '/mails' }
+          { label: 'Mails', icon: 'mail', route: '/mails' },
+          { label: 'My Tasks', icon: 'task', route: '/my-tasks' },
         ]
       },
       {

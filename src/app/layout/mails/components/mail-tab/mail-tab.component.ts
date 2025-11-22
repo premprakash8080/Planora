@@ -9,7 +9,7 @@ import { Mail, MailService } from '../../services/mail.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MailTabComponent implements OnInit, AfterViewInit, OnChanges {
-  @Input() filterType: 'all' | 'unread' | 'starred' | 'archived' = 'all';
+  @Input() filterType: 'all' | 'unread' | 'starred' | 'archived' | 'sent' = 'all';
   @Input() emptyMessage: string = 'No mails found';
   @Output() mailDeleted = new EventEmitter<void>();
   @Output() mailStarred = new EventEmitter<void>();
@@ -59,6 +59,9 @@ export class MailTabComponent implements OnInit, AfterViewInit, OnChanges {
         break;
       case 'archived':
         mailObservable = this.mailService.getArchivedMails();
+        break;
+      case 'sent':
+        mailObservable = this.mailService.getSentMails();
         break;
       default:
         mailObservable = this.mailService.getAllMails();
