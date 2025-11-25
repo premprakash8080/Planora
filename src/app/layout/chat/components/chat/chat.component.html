@@ -1,0 +1,114 @@
+<div class="chat-container">
+  <!-- Sidebar -->
+  <vex-chat-sidebar
+    [channels]="channels"
+    [directMessages]="directMessages"
+    [selectedChannelId]="selectedChannelId"
+    [isCollapsed]="sidebarCollapsed"
+    (channelSelected)="onChannelSelected($event)"
+    (toggleCollapse)="onToggleSidebar()"
+    (createChannel)="onCreateChannel()"
+    (createDirectMessage)="onCreateDirectMessage()"
+    (channelDelete)="onChannelDelete($event)"
+    class="chat-sidebar"
+  ></vex-chat-sidebar>
+
+  <!-- Main Content Area -->
+  <div class="chat-main" *ngIf="selectedChannelId; else emptyState">
+    <div class="chat-main-content">
+      <!-- Header -->
+      <vex-chat-header
+        [channelType]="(currentChannel?.type === 'direct' ? 'direct' : 'channel')"
+        [channelName]="currentChannel?.name || ''"
+        [isPrivate]="currentChannel?.type === 'private'"
+        [isStarred]="currentChannel?.isStarred || false"
+        [memberCount]="currentChannel?.memberCount"
+        [members]="currentChannelMembers"
+        [user]="currentDirectMessageUser"
+        [hasUnread]="currentChannel?.unreadCount ? currentChannel.unreadCount > 0 : false"
+        (headerClick)="onHeaderClick()"
+        (starClick)="onStarClick()"
+        (callClick)="onCallClick()"
+        (videoClick)="onVideoClick()"
+        (pinClick)="onPinClick()"
+        (addUserClick)="onAddUserClick()"
+        (membersClick)="onMembersClick()"
+        (searchClick)="onSearchClick()"
+        (notificationsClick)="onNotificationsClick()"
+        (moreClick)="onMoreClick()"
+        class="chat-header"
+      ></vex-chat-header>
+
+      <!-- Messages -->
+      <vex-chat-messages
+        [channelId]="selectedChannelId"
+        [messages]="messages"
+        [loading]="messagesLoading"
+        class="chat-messages"
+      ></vex-chat-messages>
+
+      <!-- Message Input -->
+      <vex-chat-message-input
+        [channelId]="selectedChannelId"
+        [disabled]="messagesLoading"
+        [placeholder]="getMessagePlaceholder()"
+        (messageSent)="onMessageSent()"
+        class="chat-message-input"
+      ></vex-chat-message-input>
+    </div>
+
+    <!-- Channel Details Panel -->
+    <vex-channel-details
+      [channel]="channelDetails"
+      [open]="showChannelDetails"
+      [allUsers]="allUsers"
+      (close)="onCloseChannelDetails()"
+      (channelNameChange)="onChannelNameChange($event)"
+      (channelDescriptionChange)="onChannelDescriptionChange($event)"
+      (addMembers)="onAddMembersFromDetails()"
+      (leaveChannel)="onLeaveChannel()"
+      (toggleMute)="onToggleMute($event)"
+      (memberClick)="onMemberClick($event)"
+      (removeMember)="onRemoveMember($event)"
+      (updateMemberRole)="onUpdateMemberRole($event)"
+    ></vex-channel-details>
+  </div>
+
+  <!-- Empty State -->
+  <ng-template #emptyState>
+    <div class="chat-empty-state">
+      <div class="empty-content">
+        <mat-icon class="empty-icon">chat_bubble_outline</mat-icon>
+        <h2 class="empty-title">Select a channel or direct message</h2>
+        <p class="empty-description">Choose a conversation from the sidebar to start chatting</p>
+      </div>
+    </div>
+  </ng-template>
+
+  <!-- Add Members Dialog (for adding to existing channels) -->
+  <app-add-members-dialog
+    *ngIf="showAddMembersDialog"
+    [allUsers]="allUsers"
+    [currentMembers]="currentMembers"
+    (close)="onAddMembersDialogClose()"
+    (add)="onAddMembersDialogAdd($event)"
+  ></app-add-members-dialog>
+
+  <!-- Create Channel Dialog -->
+  <app-create-channel-dialog
+    *ngIf="showCreateChannelDialog"
+    [open]="showCreateChannelDialog"
+    [allUsers]="allUsers"
+    (close)="showCreateChannelDialog = false"
+    (create)="onCreateChannelSubmit($event)"
+  ></app-create-channel-dialog>
+
+  <!-- Direct Message Dialog -->
+  <app-direct-message-dialog
+    *ngIf="showDirectMessageDialog"
+    [open]="showDirectMessageDialog"
+    [allUsers]="allUsers"
+    (close)="showDirectMessageDialog = false"
+    (selectUser)="onDirectMessageUserSelect($event)"
+  ></app-direct-message-dialog>
+</div>

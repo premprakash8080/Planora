@@ -35,6 +35,9 @@ export const ENDPOINTS = {
   // Batch operations
   batchUpdateTasks: `${environment.apiBaseUrl}/api/tasks/batchupdatetask`,
   batchUpdateSections: `${environment.apiBaseUrl}/api/sections/batch`,
+  reorderTasksInSection: `${environment.apiBaseUrl}/api/tasks/reorder-tasks`,
+  moveTaskToSection: `${environment.apiBaseUrl}/api/tasks/move-task`,
+  moveTask: `${environment.apiBaseUrl}/api/tasks/move`,
   
   // Task Status endpoints
   getTaskStatuses: `${environment.apiBaseUrl}/api/task-statuses/get-task-statuses`,
@@ -78,5 +81,10 @@ export const ENDPOINTS = {
   updateProjectMessage: `${environment.apiBaseUrl}/api/project-messages/:messageId`,
   pinProjectMessage: `${environment.apiBaseUrl}/api/project-messages/:messageId/pin`,
   deleteProjectMessage: `${environment.apiBaseUrl}/api/project-messages/:messageId`,
+  
+  // My Tasks endpoints
+  getMyTasks: `${environment.apiBaseUrl}/api/tasks/get-my-tasks`,
+  getMyTasksCalendarView: `${environment.apiBaseUrl}/api/tasks/get-my-tasks-calendar-view`,
+  getMyTasksBoardView: `${environment.apiBaseUrl}/api/tasks/get-my-tasks-board-view`,
 };
 

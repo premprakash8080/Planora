@@ -1,0 +1,163 @@
+<header class="chat-header" (click)="onHeaderClick()">
+  <div class="chat-header__left">
+    <!-- Direct Message Header -->
+    <ng-container *ngIf="channelType === 'direct' && user">
+      <div class="chat-header__avatar-wrapper">
+        <app-avatar
+          size="sm"
+          [src]="user.avatarUrl"
+          [initials]="user.initials || user.name.charAt(0)"
+          [color]="user.avatarColor"
+          [alt]="user.name"
+        ></app-avatar>
+        <span 
+          class="presence-dot" 
+          [class.online]="user.isOnline || user.status === 'online'"
+          [class.away]="user.status === 'away'"
+          [class.offline]="user.status === 'offline'"
+          *ngIf="user.isOnline || user.status"
+          [attr.aria-label]="user.name + ' is ' + (user.status || 'online')"
+        ></span>
+      </div>
+      <h2 class="chat-header__title">{{ user.name }}</h2>
+    </ng-container>
+
+    <!-- Channel Header -->
+    <ng-container *ngIf="channelType === 'channel'">
+      <button 
+        class="chat-header__star-btn"
+        (click)="onStarClick($event)"
+        [class.active]="isStarred"
+        [attr.aria-label]="isStarred ? 'Unstar channel' : 'Star channel'"
+        [attr.aria-pressed]="isStarred"
+      >
+        <mat-icon>{{ isStarred ? 'star' : 'star_border' }}</mat-icon>
+      </button>
+      <mat-icon class="chat-header__channel-icon" [class.lock]="isPrivate">
+        {{ isPrivate ? 'lock' : 'tag' }}
+      </mat-icon>
+      <h2 class="chat-header__title">{{ channelName }}</h2>
+    </ng-container>
+  </div>
+
+  <div class="chat-header__right">
+    <!-- Direct Message Actions -->
+    <ng-container *ngIf="channelType === 'direct'">
+      <!-- <button 
+        class="chat-header__action-btn"
+        (click)="onCallClick($event)"
+        aria-label="Start audio call"
+        title="Start audio call"
+      >
+        <mat-icon>phone</mat-icon>
+      </button> -->
+      <!-- <button 
+        class="chat-header__action-btn"
+        (click)="onVideoClick($event)"
+        aria-label="Start video call"
+        title="Start video call"
+      >
+        <mat-icon>videocam</mat-icon>
+      </button> -->
+      <button 
+        class="chat-header__action-btn"
+        (click)="onPinClick($event)"
+        aria-label="Pinned messages"
+        title="Pinned messages"
+      >
+        <mat-icon>push_pin</mat-icon>
+      </button>
+      <!-- <button 
+        class="chat-header__action-btn"
+        (click)="onAddUserClick($event)"
+        aria-label="Add people"
+        title="Add people"
+      >
+        <mat-icon>person_add</mat-icon>
+      </button> -->
+      <button 
+        class="chat-header__action-btn"
+        (click)="onMembersClick($event)"
+        aria-label="View members"
+        title="View members"
+      >
+        <mat-icon>people</mat-icon>
+      </button>
+      <button 
+        class="chat-header__action-btn"
+        (click)="onSearchClick($event)"
+        aria-label="Search"
+        title="Search"
+      >
+        <mat-icon>search</mat-icon>
+      </button>
+      <button 
+        class="chat-header__action-btn"
+        (click)="onMoreClick($event)"
+        aria-label="More options"
+        title="More options"
+      >
+        <mat-icon>more_vert</mat-icon>
+      </button>
+    </ng-container>
+
+    <!-- Channel Actions -->
+    <ng-container *ngIf="channelType === 'channel'">
+      <button 
+        class="chat-header__action-btn chat-header__members-btn"
+        (click)="onMembersClick($event)"
+        aria-label="View members"
+        title="View members"
+      >
+        <div class="chat-header__members-avatars">
+          <app-avatar
+            *ngFor="let member of members.slice(0, 3); trackBy: trackByMemberId"
+            size="sm"
+            [src]="member.avatarUrl"
+            [initials]="member.initials || member.name.charAt(0)"
+            [color]="member.avatarColor"
+            [alt]="member.name"
+            class="member-avatar"
+          ></app-avatar>
+        </div>
+        <span class="chat-header__members-count" *ngIf="memberCount !== undefined">
+          {{ memberCount }}
+        </span>
+        <mat-icon class="dropdown-icon">keyboard_arrow_down</mat-icon>
+      </button>
+      <button 
+        class="chat-header__action-btn"
+        (click)="onSearchClick($event)"
+        aria-label="Search"
+        title="Search"
+      >
+        <mat-icon>search</mat-icon>
+      </button>
+      <button 
+        class="chat-header__action-btn"
+        (click)="onPinClick($event)"
+        aria-label="Pinned messages"
+        title="Pinned messages"
+      >
+        <mat-icon>push_pin</mat-icon>
+      </button>
+      <button 
+        class="chat-header__action-btn"
+        (click)="onNotificationsClick($event)"
+        [class.active]="hasUnread"
+        aria-label="Notifications"
+        title="Notifications"
+      >
+        <mat-icon>notifications</mat-icon>
+      </button>
+      <button 
+        class="chat-header__action-btn"
+        (click)="onMoreClick($event)"
+        aria-label="More options"
+        title="More options"
+      >
+        <mat-icon>more_vert</mat-icon>
+      </button>
+    </ng-container>
+  </div>
+</header>

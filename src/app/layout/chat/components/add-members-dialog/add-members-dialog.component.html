@@ -1,0 +1,114 @@
+<!-- add-members-dialog.component.html -->
+<div class="dialog-overlay">
+  <!-- Backdrop -->
+  <div class="dialog-backdrop" (click)="closeDialog()"></div>
+
+  <!-- Modal Card -->
+  <div class="dialog-card">
+    <!-- Header -->
+    <div class="dialog-header">
+      <h2 class="dialog-title">Add people</h2>
+      <button 
+        class="dialog-close-btn" 
+        (click)="closeDialog()" 
+        aria-label="Close dialog"
+        type="button"
+      >
+        <svg class="close-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="dialog-body">
+      <!-- Search Input -->
+      <div class="search-wrapper">
+        <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+        <input
+          type="text"
+          [(ngModel)]="searchQuery"
+          (input)="filterUsers()"
+          placeholder="Search by name or email"
+          class="search-input"
+        />
+      </div>
+
+      <!-- Selected Users Pills -->
+      <div class="selected-pills" *ngIf="selectedUsers.length > 0">
+        <span
+          *ngFor="let user of selectedUsers"
+          class="user-pill"
+        >
+          <div
+            class="pill-avatar"
+            [style.background-color]="user.avatarColor || '#6b7280'"
+          >
+            {{ user.initials }}
+          </div>
+          <span class="pill-name">{{ user.fullName }}</span>
+          <button 
+            class="pill-remove" 
+            (click)="removeUser(user)" 
+            [attr.aria-label]="'Remove ' + user.fullName"
+            type="button"
+          >
+            <svg class="remove-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </span>
+      </div>
+
+      <!-- Users List -->
+      <div class="users-list">
+        <div
+          *ngFor="let user of filteredUsers"
+          class="user-row"
+          (click)="toggleUser(user)"
+          [class.user-row--selected]="isUserSelected(user)"
+        >
+          <div class="user-info">
+            <div
+              class="user-avatar"
+              [style.background-color]="user.avatarColor || '#6b7280'"
+            >
+              {{ user.initials }}
+            </div>
+            <div class="user-details">
+              <div class="user-name">{{ user.fullName }}</div>
+              <div class="user-email">{{ user.email }}</div>
+            </div>
+          </div>
+
+          <div class="user-checkbox" [class.user-checkbox--checked]="isUserSelected(user)">
+            <svg *ngIf="isUserSelected(user)" class="check-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="dialog-footer">
+      <button 
+        class="dialog-btn dialog-btn--cancel" 
+        (click)="closeDialog()"
+        type="button"
+      >
+        Cancel
+      </button>
+      <button
+        class="dialog-btn dialog-btn--add"
+        (click)="addMembers()"
+        [disabled]="selectedUsers.length === 0"
+        type="button"
+      >
+        Add{{ selectedUsers.length > 0 ? ' (' + selectedUsers.length + ')' : '' }}
+      </button>
+    </div>
+  </div>
+</div>

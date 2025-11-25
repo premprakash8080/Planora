@@ -1,0 +1,68 @@
+<div class="dialog-overlay" *ngIf="open" (click)="closeDialog()">
+  <!-- Backdrop -->
+  <div class="dialog-backdrop" (click)="closeDialog()"></div>
+
+  <!-- Modal Card -->
+  <div class="dialog-card" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" [attr.aria-labelledby]="'dm-dialog-title'">
+    <!-- Header -->
+    <div class="dialog-header">
+      <h2 class="dialog-title" id="dm-dialog-title">New Direct Message</h2>
+      <button 
+        class="dialog-close-btn" 
+        (click)="closeDialog()" 
+        aria-label="Close dialog"
+        type="button"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="dialog-body">
+      <!-- Search Input -->
+      <div class="search-wrapper">
+        <mat-icon class="search-icon">search</mat-icon>
+        <input
+          type="text"
+          [(ngModel)]="searchQuery"
+          (input)="filterUsers()"
+          placeholder="Search by name or email"
+          class="search-input"
+          autofocus
+        />
+      </div>
+
+      <!-- Users List -->
+      <div class="users-list" *ngIf="filteredUsers.length > 0">
+        <div
+          *ngFor="let user of filteredUsers"
+          class="user-row"
+          (click)="onUserSelect(user)"
+        >
+          <div class="user-info">
+            <div
+              class="user-avatar"
+              [style.background-color]="user.avatarColor || '#6b7280'"
+            >
+              {{ user.initials }}
+            </div>
+            <div class="user-details">
+              <div class="user-name">{{ user.fullName }}</div>
+              <div class="user-email">{{ user.email }}</div>
+            </div>
+          </div>
+
+          <mat-icon class="user-arrow">arrow_forward</mat-icon>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div class="users-empty" *ngIf="filteredUsers.length === 0">
+        <mat-icon>person_search</mat-icon>
+        <p *ngIf="searchQuery">No users found matching "{{ searchQuery }}"</p>
+        <p *ngIf="!searchQuery">Start typing to search for users</p>
+      </div>
+    </div>
+  </div>
+</div>
+

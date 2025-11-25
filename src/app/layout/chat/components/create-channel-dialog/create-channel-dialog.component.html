@@ -1,0 +1,144 @@
+<div class="dialog-overlay" *ngIf="open" (click)="closeDialog()">
+  <!-- Backdrop -->
+  <div class="dialog-backdrop" (click)="closeDialog()"></div>
+
+  <!-- Modal Card -->
+  <div class="dialog-card" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" [attr.aria-labelledby]="'channel-dialog-title'">
+    <!-- Header -->
+    <div class="dialog-header">
+      <h2 class="dialog-title" id="channel-dialog-title">New Channel</h2>
+      <button 
+        class="dialog-close-btn" 
+        (click)="closeDialog()" 
+        aria-label="Close dialog"
+        type="button"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <!-- Body -->
+    <div class="dialog-body">
+      <!-- Channel Name Input -->
+      <div class="form-field">
+        <label class="form-label">
+          Channel Name <span class="form-label--required">*</span>
+        </label>
+        <input
+          type="text"
+          [(ngModel)]="channelName"
+          placeholder="Enter channel name…"
+          class="form-input"
+          maxlength="100"
+          autofocus
+        />
+      </div>
+
+      <!-- Description Textarea -->
+      <div class="form-field">
+        <label class="form-label">Description (Optional)</label>
+        <textarea
+          [(ngModel)]="description"
+          placeholder="What is this channel about?"
+          class="form-textarea"
+          rows="4"
+          maxlength="500"
+        ></textarea>
+      </div>
+
+      <!-- Add Members Section -->
+      <div class="form-field">
+        <label class="form-label">Add Members (Optional)</label>
+        
+        <!-- Search Input -->
+        <div class="search-wrapper">
+          <mat-icon class="search-icon">search</mat-icon>
+          <input
+            type="text"
+            [(ngModel)]="searchQuery"
+            (input)="filterUsers()"
+            placeholder="Search by name or email"
+            class="search-input"
+          />
+        </div>
+
+        <!-- Selected Users Pills -->
+        <div class="selected-pills" *ngIf="selectedUsers.length > 0">
+          <div
+            *ngFor="let user of selectedUsers"
+            class="user-pill"
+          >
+            <div
+              class="pill-avatar"
+              [style.background-color]="user.avatarColor || '#6b7280'"
+            >
+              {{ user.initials }}
+            </div>
+            <span class="pill-name">{{ user.fullName }}</span>
+            <button 
+              class="pill-remove" 
+              (click)="removeUser(user)" 
+              [attr.aria-label]="'Remove ' + user.fullName"
+              type="button"
+            >
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+        </div>
+
+        <!-- Users List -->
+        <div class="users-list" *ngIf="filteredUsers.length > 0">
+          <div
+            *ngFor="let user of filteredUsers"
+            class="user-row"
+            (click)="toggleUser(user)"
+            [class.user-row--selected]="isUserSelected(user)"
+          >
+            <div class="user-info">
+              <div
+                class="user-avatar"
+                [style.background-color]="user.avatarColor || '#6b7280'"
+              >
+                {{ user.initials }}
+              </div>
+              <div class="user-details">
+                <div class="user-name">{{ user.fullName }}</div>
+                <div class="user-email">{{ user.email }}</div>
+              </div>
+            </div>
+
+            <div class="user-checkbox" [class.user-checkbox--checked]="isUserSelected(user)">
+              <mat-icon *ngIf="isUserSelected(user)" class="check-icon">check</mat-icon>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empty State -->
+        <div class="users-empty" *ngIf="filteredUsers.length === 0 && searchQuery">
+          <mat-icon>person_search</mat-icon>
+          <p>No users found matching "{{ searchQuery }}"</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="dialog-footer">
+      <button 
+        class="dialog-btn dialog-btn--cancel" 
+        (click)="closeDialog()"
+        type="button"
+      >
+        Cancel
+      </button>
+      <button
+        class="dialog-btn dialog-btn--create"
+        (click)="createChannel()"
+        [disabled]="!canCreate()"
+        type="button"
+      >
+        Create Channel
+      </button>
+    </div>
+  </div>
+</div>
+

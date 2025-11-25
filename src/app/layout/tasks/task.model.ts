@@ -40,7 +40,9 @@ export interface Task {
   name: string;
   assignee?: string;
   assigneeAvatar?: string;
+  startDate?: string;
   dueDate?: string;
+  position?: number; // Decimal position for ordering
   // New: Use IDs and objects instead of string values
   priority_label_id?: number | null;
   task_status_id?: number | null;

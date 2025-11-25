@@ -4,6 +4,7 @@ import { Subject } from 'rxjs';
 import { map, filter, distinctUntilChanged, take, takeUntil } from 'rxjs/operators';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { BoardViewService, BoardViewColumn, BoardViewTask } from '../../../services/board-view.service';
+import { TasksRouteHelperService } from '../../../services/tasks-route-helper.service';
 import { SnackBarService } from 'src/app/shared/services/snackbar.service';
 
 @Component({
@@ -17,6 +18,7 @@ export class BoardViewComponent implements OnInit, OnDestroy {
   projectTitle = 'Board view';
   loading = false;
   error: string | null = null;
+  isMyTasksMode = false;
 
   private currentProjectId: string | null = null;
   private readonly destroy$ = new Subject<void>();
@@ -24,24 +26,35 @@ export class BoardViewComponent implements OnInit, OnDestroy {
   constructor(
     private readonly boardViewService: BoardViewService,
     private readonly route: ActivatedRoute,
+    private readonly routeHelper: TasksRouteHelperService,
     private readonly snackBarService: SnackBarService,
     private readonly cdr: ChangeDetectorRef,
     private readonly ngZone: NgZone
   ) {}
 
   ngOnInit(): void {
-    const projectRoute = this.findProjectRoute();
-    projectRoute.paramMap
-      .pipe(
-        map(params => params.get('projectId')),
-        filter((projectId): projectId is string => Boolean(projectId)),
-        distinctUntilChanged(),
-        takeUntil(this.destroy$)
-      )
-      .subscribe(projectId => {
-        this.currentProjectId = projectId;
-        this.loadBoardData();
-      });
+    // Check if we're in my-tasks mode
+    this.isMyTasksMode = this.routeHelper.isMyTasksMode(this.route);
+    
+    if (this.isMyTasksMode) {
+      // My Tasks mode - load my tasks board data
+      this.projectTitle = 'My Tasks';
+      this.loadMyTasksBoardData();
+    } else {
+      // Project mode - existing logic
+      const projectRoute = this.routeHelper.findProjectRoute(this.route) ?? this.route;
+      projectRoute.paramMap
+        .pipe(
+          map(params => params.get('projectId')),
+          filter((projectId): projectId is string => Boolean(projectId)),
+          distinctUntilChanged(),
+          takeUntil(this.destroy$)
+        )
+        .subscribe(projectId => {
+          this.currentProjectId = projectId;
+          this.loadBoardData();
+        });
+    }
   }
 
   ngOnDestroy(): void {
@@ -89,21 +102,49 @@ export class BoardViewComponent implements OnInit, OnDestroy {
   }
 
   reload(): void {
-    this.loadBoardData();
+    if (this.isMyTasksMode) {
+      this.loadMyTasksBoardData();
+    } else {
+      this.loadBoardData();
+    }
   }
 
   trackByTaskId = (_: number, task: BoardViewTask) => task.id;
   trackByColumnId = (_: number, column: BoardViewColumn) => column.id;
 
-  private findProjectRoute(): ActivatedRoute {
-    let projectRoute: ActivatedRoute | null = this.route;
-    while (projectRoute) {
-      if (projectRoute.snapshot.paramMap.has('projectId')) {
-        return projectRoute;
-      }
-      projectRoute = projectRoute.parent;
-    }
-    return this.route;
+  private loadMyTasksBoardData(): void {
+    this.loading = true;
+    this.error = null;
+    this.cdr.markForCheck();
+
+    this.boardViewService
+      .getMyTasksBoardViewData()
+      .pipe(take(1))
+      .subscribe({
+        next: (response) => {
+          this.ngZone.run(() => {
+            this.projectTitle = response.project?.name || 'My Tasks';
+            this.columns = (response.columns || []).map(column => ({
+              ...column,
+              taskCount: column.tasks?.length ?? 0,
+              tasks: column.tasks ?? [],
+            }));
+            this.error = null;
+            this.loading = false;
+            this.cdr.detectChanges();
+          });
+        },
+        error: (error) => {
+          this.ngZone.run(() => {
+            this.loading = false;
+            this.columns = [];
+            this.error = typeof error === 'string'
+              ? error
+              : 'Failed to load my tasks board view data.';
+            this.cdr.detectChanges();
+          });
+        },
+      });
   }
 
   private loadBoardData(): void {

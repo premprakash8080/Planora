@@ -1,0 +1,27 @@
+<div class="chat-sidebar" [class.chat-sidebar--collapsed]="isCollapsed">
+  <!-- Channels Section -->
+  <vex-chat-channel-list
+    title="Channels"
+    [channels]="channels"
+    [selectedChannelId]="selectedChannelId"
+    [collapsed]="!channelsExpanded()"
+    [showAddButton]="true"
+    (channelSelected)="channelSelected.emit($event)"
+    (toggleCollapse)="channelsExpanded.set(!channelsExpanded())"
+    (addClick)="createChannel.emit()"
+    (channelDelete)="channelDelete.emit($event)"
+  ></vex-chat-channel-list>
+
+  <!-- Direct Messages Section -->
+  <vex-chat-channel-list
+    title="Direct Messages"
+    [channels]="directMessages"
+    [selectedChannelId]="selectedChannelId"
+    [collapsed]="!directMessagesExpanded()"
+    [showAddButton]="true"
+    (channelSelected)="channelSelected.emit($event)"
+    (toggleCollapse)="directMessagesExpanded.set(!directMessagesExpanded())"
+    (addClick)="createDirectMessage.emit()"
+    (channelDelete)="channelDelete.emit($event)"
+  ></vex-chat-channel-list>
+</div>

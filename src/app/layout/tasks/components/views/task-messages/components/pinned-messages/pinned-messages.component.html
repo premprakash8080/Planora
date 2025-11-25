@@ -1,0 +1,23 @@
+<div class="pinned-section" *ngIf="messages.length > 0" [class.dark-theme]="isDarkTheme">
+  <div class="section-divider">
+    <mat-icon class="pin-icon">push_pin</mat-icon>
+    <span class="divider-text">Pinned</span>
+  </div>
+  <app-message-item
+    *ngFor="let message of messages; trackBy: trackByMessageId"
+    [message]="message"
+    [isPinned]="true"
+    [isEditing]="editingMessageId === message.id"
+    [editingContent]="editingContent"
+    [canEdit]="canEditMessage(message)"
+    [canDelete]="canDeleteMessage(message)"
+    [canPin]="canPin"
+    [isDarkTheme]="isDarkTheme"
+    (edit)="onEdit($event)"
+    (saveEdit)="onSaveEdit(message.id)"
+    (cancelEdit)="onCancelEdit()"
+    (delete)="onDelete($event)"
+    (togglePin)="onTogglePin($event)"
+  ></app-message-item>
+</div>
+

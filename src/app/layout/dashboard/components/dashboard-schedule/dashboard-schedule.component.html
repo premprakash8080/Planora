@@ -1,4 +1,4 @@
-<div class="pt-16c px-16c bg-gray-light">
+<div class="dashboard-schedule-wrapper">
   <!-- <div class="schedule-header">
     <div class="header-content">
       <h2 class="header-title">View Projects</h2>
@@ -15,16 +15,26 @@
   <div class="flex flex-wrap md:-m-16c -m-8c cus-h-vh">
     <div class="md:p-16c p-8c h-full mt-8c w-full rounded-lg relative">
       <!-- Loading State -->
-      <div *ngIf="loading" class="flex items-center justify-center cus-schedule-card-height">
+      <div
+        *ngIf="loading"
+        class="flex items-center justify-center cus-schedule-card-height"
+      >
         <mat-spinner diameter="40"></mat-spinner>
-        <span class="ml-4" style="color: var(--color-text-body);">Loading projects...</span>
+        <span class="ml-4" style="color: var(--color-text-body)"
+          >Loading projects...</span
+        >
       </div>
 
       <!-- Error State -->
-      <div *ngIf="error && !loading" class="flex items-center justify-center cus-schedule-card-height">
+      <div
+        *ngIf="error && !loading"
+        class="flex items-center justify-center cus-schedule-card-height"
+      >
         <div class="text-center">
-          <mat-icon class="text-6xl mb-4" style="color: var(--color-danger);">error_outline</mat-icon>
-          <p class="mb-4" style="color: var(--color-text-body);">{{ error }}</p>
+          <mat-icon class="text-6xl mb-4" style="color: var(--color-danger)"
+            >error_outline</mat-icon
+          >
+          <p class="mb-4" style="color: var(--color-text-body)">{{ error }}</p>
           <button mat-raised-button color="primary" (click)="loadProjects()">
             Try Again
           </button>
@@ -32,13 +42,25 @@
       </div>
 
       <!-- Projects List -->
-      <div *ngIf="!loading && !error" class="flex flex-wrap overflow-auto items-start cus-schedule-card-height">
+      <div
+        *ngIf="!loading && !error"
+        class="flex flex-wrap overflow-auto items-start cus-schedule-card-height"
+      >
         <!-- Empty State -->
-        <div *ngIf="projects.length === 0" class="flex items-center justify-center w-full cus-schedule-card-height">
+        <div
+          *ngIf="projects.length === 0"
+          class="flex items-center justify-center w-full cus-schedule-card-height"
+        >
           <div class="text-center">
-            <mat-icon class="text-6xl mb-4" style="color: var(--color-muted);">folder_open</mat-icon>
-            <p class="text-lg mb-2" style="color: var(--color-text-body);">No projects found</p>
-            <p style="color: var(--color-text-subtle);">Create your first project to get started</p>
+            <mat-icon class="text-6xl mb-4" style="color: var(--color-muted)"
+              >folder_open</mat-icon
+            >
+            <p class="text-lg mb-2" style="color: var(--color-text-body)">
+              No projects found
+            </p>
+            <p style="color: var(--color-text-subtle)">
+              Create your first project to get started
+            </p>
           </div>
         </div>
 
@@ -52,9 +74,17 @@
             <!-- Project Info -->
             <div class="project-item__info">
               <!-- Project Avatar/Icon -->
-              <div class="project-item__avatar" [style.backgroundColor]="getProjectColor(project) + '20'">
-                <div class="w-full h-full flex items-center justify-center rounded-lg" [style.color]="getProjectColor(project)">
-                  <mat-icon class="text-4xl">{{ project.is_favorite ? 'star' : 'folder' }}</mat-icon>
+              <div
+                class="project-item__avatar"
+                [style.backgroundColor]="getProjectColor(project) + '20'"
+              >
+                <div
+                  class="w-full h-full flex items-center justify-center rounded-lg"
+                  [style.color]="getProjectColor(project)"
+                >
+                  <mat-icon class="text-4xl">{{
+                    project.is_favorite ? "star" : "folder"
+                  }}</mat-icon>
                 </div>
               </div>
 
@@ -62,24 +92,37 @@
               <div class="project-item__details">
                 <div class="project-item__title-row">
                   <h3 class="project-item__title">{{ project.name }}</h3>
-                  <span class="status-chip" [style.backgroundColor]="getProjectStatusColor(project) + '20'" [style.color]="getProjectStatusColor(project)">
+                  <span
+                    class="status-chip"
+                    [style.backgroundColor]="
+                      getProjectStatusColor(project) + '20'
+                    "
+                    [style.color]="getProjectStatusColor(project)"
+                  >
                     {{ getProjectStatus(project) }}
                   </span>
-                  <mat-icon *ngIf="project.is_favorite" class="text-yellow-500">star</mat-icon>
+                  <mat-icon *ngIf="project.is_favorite" class="text-yellow-500"
+                    >star</mat-icon
+                  >
                 </div>
 
-                <p class="text-sm mb-2" *ngIf="project.description" style="color: var(--color-text-body);">
+                <p
+                  class="text-sm mb-2"
+                  *ngIf="project.description"
+                  style="color: var(--color-text-body)"
+                >
                   {{ project.description }}
                 </p>
 
                 <div class="project-item__tags">
                   <span class="project-tag">
                     <mat-icon>people</mat-icon>
-                    {{ getMemberCount(project) }} {{ getMemberCount(project) === 1 ? 'member' : 'members' }}
+                    {{ getMemberCount(project) }}
+                    {{ getMemberCount(project) === 1 ? "member" : "members" }}
                   </span>
                   <span class="project-tag" *ngIf="project.due_date">
                     <mat-icon>event</mat-icon>
-                    {{ project.due_date | date: 'MMM d, y' }}
+                    {{ project.due_date | date : "MMM d, y" }}
                   </span>
                   <span class="project-tag" *ngIf="project.creator">
                     <mat-icon>person</mat-icon>
@@ -91,7 +134,11 @@
 
             <!-- Project Actions -->
             <div class="project-item__actions">
-              <button mat-stroked-button color="primary" (click)="openSideBar(); $event.stopPropagation()">
+              <button
+                mat-stroked-button
+                color="primary"
+                (click)="openSideBar(); $event.stopPropagation()"
+              >
                 <mat-icon>visibility</mat-icon>
                 View
               </button>

@@ -9,6 +9,17 @@
   color: var(--color-text-body, #1f2937);
   font-family: $font-family-base;
   overflow: hidden;
+  width: 100%;
+
+  // Make task-header fixed at top
+  app-task-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    flex-shrink: 0;
+    background: var(--color-background);
+    width: 100%;
+  }
 }
 
 .calendar-toolbar {
@@ -19,8 +30,8 @@
   background: var(--color-surface, #ffffff);
   border-bottom: 1px solid var(--color-border, #e5e7eb);
   position: sticky;
-  top: 112px; // task-header + nav combined height
-  z-index: 98;
+  top: 64px; // task-header height (adjusted for fixed header)
+  z-index: 99;
   flex-shrink: 0;
   gap: space(2);
 }
@@ -115,6 +126,8 @@
   border-radius: $radius-lg;
   box-shadow: $shadow-xs;
   padding: space(1);
+  overflow: hidden; // Prevent week overflow
+  position: relative;
 }
 
 .week-grid {
@@ -122,17 +135,22 @@
   grid-template-columns: repeat(7, minmax(120px, 1fr));
   gap: 1px;
   background: var(--color-border, #e5e7eb);
+  position: relative;
+  overflow: hidden; // Prevent grid overflow
 }
 
 .day-cell {
   position: relative;
   min-height: 100px;
+  max-height: 100px; // Fixed height to prevent overflow
   background: var(--color-surface, #ffffff);
   padding: space(2);
   border-radius: $radius-md;
   display: flex;
   flex-direction: column;
   border: 1px solid transparent;
+  overflow: hidden; // Clip content that exceeds cell boundaries
+  box-sizing: border-box;
 
   &.is-outside {
     background: var(--color-surface-secondary);
@@ -150,15 +168,28 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: space(1);
+  flex-shrink: 0; // Prevent header from shrinking
+  min-height: 24px; // Fixed header height
 
   .day-number {
     font-weight: 600;
     font-size: font-size(sm);
+    line-height: 1.2;
   }
 
   .day-add-btn {
     opacity: 0;
     transition: opacity 0.2s ease;
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    line-height: 24px;
+
+    mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
   }
 }
 
@@ -170,6 +201,11 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+  flex: 1;
+  min-height: 0; // Allow flex shrinking
+  overflow: hidden; // Clip tasks that exceed available space
+  align-items: flex-start; // Left-align tasks
+  width: 100%;
 }
 
 .day-task {
@@ -185,12 +221,27 @@
   text-align: left;
   color: var(--color-text-body);
   border: 1px solid var(--color-border);
+  width: 100%;
+  min-width: 0; // Allow flex shrinking
+  flex-shrink: 0; // Prevent task from shrinking
+  max-width: 100%; // Prevent overflow
+  box-sizing: border-box;
 
   .dot {
     width: 8px;
     height: 8px;
     border-radius: 50%;
     display: inline-block;
+    flex-shrink: 0; // Prevent dot from shrinking
+  }
+
+  .task-title {
+    flex: 1;
+    min-width: 0; // Allow text truncation
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: left;
   }
 
   &.completed .task-title {
@@ -208,11 +259,18 @@
   font-size: font-size(xs);
   cursor: pointer;
   align-self: flex-start;
+  flex-shrink: 0; // Prevent from shrinking
+  white-space: nowrap;
+  margin-top: 2px; // Small spacing from last task
 
   [data-theme="dark"] &,
   .dark-theme & {
     background: rgba(139, 92, 246, 0.2);
     color: #c4b5fd;
+  }
+
+  &:hover {
+    background: rgba(139, 92, 246, 0.2);
   }
 }
 
@@ -221,6 +279,13 @@
   display: flex;
   flex-direction: column;
   gap: space(1);
+  flex-shrink: 0; // Prevent form from being cut off
+  z-index: 10; // Ensure form appears above tasks
+  position: relative;
+  background: var(--color-surface, #ffffff);
+  border-radius: $radius-md;
+  padding: space(1);
+  box-shadow: $shadow-sm;
 
   input {
     width: 100%;
@@ -228,6 +293,7 @@
     border-radius: $radius-md;
     padding: 6px 8px;
     font-size: font-size(sm);
+    box-sizing: border-box;
   }
 
   .quick-add-actions {
@@ -241,6 +307,13 @@
   display: grid;
   gap: 2px;
   padding: space(1) 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none; // Allow clicks to pass through to day-cell
+  overflow: hidden; // Clip task bars that exceed boundaries
 }
 
 .task-bar {
@@ -253,6 +326,9 @@
   align-items: center;
   cursor: grab;
   box-shadow: $shadow-sm;
+  min-width: 0; // Allow flex shrinking
+  overflow: hidden; // Clip content
+  pointer-events: auto; // Enable drag interactions
 
   &.completed {
     opacity: 0.6;
@@ -264,7 +340,17 @@
     justify-content: space-between;
     align-items: center;
     width: 100%;
+    min-width: 0;
     pointer-events: none;
+  }
+
+  .task-title {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-align: left;
   }
 
   .assignee-pill {
@@ -272,6 +358,9 @@
     border-radius: $radius-full;
     padding: 0 6px;
     font-size: 10px;
+    flex-shrink: 0;
+    white-space: nowrap;
+    margin-left: space(1);
   }
 }
 
@@ -395,6 +484,15 @@
   .calendar-toolbar {
     flex-direction: column;
     align-items: flex-start;
+    gap: space(1.5);
+    padding: space(2) space(3) space(2);
+  }
+
+  .toolbar-left,
+  .toolbar-right {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: space(1);
   }
 
   .weekday-row,
@@ -403,6 +501,58 @@
   }
 
   .calendar-week {
-    overflow: auto;
+    overflow: hidden; // Prevent horizontal scroll
+  }
+
+  .day-cell {
+    min-height: 80px;
+    max-height: 80px;
+    padding: space(1.5);
+  }
+
+  .day-header {
+    min-height: 20px;
+    margin-bottom: space(0.5);
+
+    .day-number {
+      font-size: font-size(xs);
+    }
+  }
+
+  .day-task {
+    padding: 3px 4px;
+    font-size: 10px;
+    gap: 4px;
+
+    .dot {
+      width: 6px;
+      height: 6px;
+    }
+  }
+
+  .more-pill {
+    padding: 1px 8px;
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 640px) {
+  .calendar-toolbar {
+    padding: space(2);
+  }
+
+  .calendar-wrapper {
+    padding: space(1) space(2) space(3);
+  }
+
+  .weekday-row,
+  .week-grid {
+    grid-template-columns: repeat(7, minmax(60px, 1fr));
+  }
+
+  .day-cell {
+    min-height: 70px;
+    max-height: 70px;
+    padding: space(1);
   }
 }

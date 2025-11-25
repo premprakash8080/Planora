@@ -12,6 +12,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatDividerModule } from '@angular/material/divider';
 import { OverlayModule } from '@angular/cdk/overlay';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 
 import { AppHeaderComponent } from './app-header/app-header.component';
 import { AppSidebarComponent } from './app-sidebar/app-sidebar.component';
@@ -20,12 +21,16 @@ import { AppCardComponent } from './app-card/app-card.component';
 import { AppButtonComponent } from './app-button/app-button.component';
 import { AppTableComponent } from './app-table/app-table.component';
 import { AppCalendarComponent } from './app-calendar/app-calendar.component';
+import { AppDateRangePickerComponent } from './app-date-range-picker/app-date-range-picker.component';
 import { AppAvatarComponent } from './app-avatar/app-avatar.component';
 import { AppLoadingComponent } from './app-loading/app-loading.component';
 import { AppPaginationComponent } from './app-pagination/app-pagination.component';
 import { DropdownPopoverComponent } from './dropdown-popover/dropdown-popover.component';
 import { DropdownTriggerDirective } from './dropdown-popover/dropdown-trigger.directive';
 import { DropdownContentDirective } from './dropdown-popover/dropdown-content.directive';
+
+import { QuillModule } from 'ngx-quill';
+import { AppAsideComponent } from './app-aside/app-aside.component';
 
 @NgModule({
   declarations: [
@@ -36,6 +41,7 @@ import { DropdownContentDirective } from './dropdown-popover/dropdown-content.di
     AppButtonComponent,
     AppTableComponent,
     AppCalendarComponent,
+    AppDateRangePickerComponent,
     AppAvatarComponent,
     AppLoadingComponent,
     AppPaginationComponent,
@@ -58,7 +64,10 @@ import { DropdownContentDirective } from './dropdown-popover/dropdown-content.di
     MatDatepickerModule,
     MatNativeDateModule,
     MatDividerModule,
-    OverlayModule
+    OverlayModule,
+    QuillModule.forRoot(),
+    DragDropModule,
+    AppAsideComponent
   ],
   exports: [
     AppHeaderComponent,
@@ -68,12 +77,15 @@ import { DropdownContentDirective } from './dropdown-popover/dropdown-content.di
     AppButtonComponent,
     AppTableComponent,
     AppCalendarComponent,
+    AppDateRangePickerComponent,
     AppAvatarComponent,
     AppLoadingComponent,
     AppPaginationComponent,
     DropdownPopoverComponent,
     DropdownTriggerDirective,
-    DropdownContentDirective
+    DropdownContentDirective,
+    AppAsideComponent,
+    DragDropModule
   ]
 })
 export class SharedUiModule {}

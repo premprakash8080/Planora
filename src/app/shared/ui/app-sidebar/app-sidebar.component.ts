@@ -32,7 +32,7 @@ export class AppSidebarComponent implements OnDestroy {
 
   @Output() collapsedChange = new EventEmitter<boolean>();
   @Output() navigate = new EventEmitter<SidebarNavItem>();
-  @Output() createProject = new EventEmitter<void>();
+  @Output() createProject = new EventEmitter<string>();
 
   currentTheme: Theme = 'light';
   private readonly destroy$ = new Subject<void>();
@@ -60,6 +60,19 @@ export class AppSidebarComponent implements OnDestroy {
     }
 
     section.collapsed = !section.collapsed;
+  }
+
+  getCreateButtonLabel(sectionId: string): string {
+    switch (sectionId) {
+      case 'projects':
+        return 'Create new project';
+      case 'channels':
+        return 'Create channel';
+      case 'direct-messages':
+        return 'Start direct message';
+      default:
+        return 'Create';
+    }
   }
 
   trackBySection(index: number, section: SidebarSection): string {

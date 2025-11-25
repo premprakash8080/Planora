@@ -1,0 +1,64 @@
+<div 
+  class="channel-item"
+  [class.channel-item--selected]="isSelected"
+  [class.channel-item--unread]="hasUnread()"
+  (click)="onChannelClick($event)"
+  role="button"
+  tabindex="0"
+  [attr.aria-label]="'Select ' + getDisplayName()"
+  [attr.aria-selected]="isSelected"
+  (keydown.enter)="onChannelClick($event)"
+  (keydown.space)="onChannelClick($event)"
+>
+  <!-- Channel Icon / Avatar -->
+  <div class="channel-item__icon">
+    <ng-container *ngIf="isDirectMessage() && channel.otherUser; else channelIcon">
+      <!-- Direct Message Avatar -->
+      <app-avatar
+        size="sm"
+        [initials]="channel.otherUser.initials || channel.otherUser.name.charAt(0)"
+        [color]="channel.otherUser.avatarColor || '#6b7280'"
+        [alt]="channel.otherUser.name"
+      ></app-avatar>
+      <!-- Online Status Dot -->
+      <span 
+        *ngIf="channel.otherUser.isOnline"
+        class="presence-dot presence-dot--online"
+        [attr.aria-label]="channel.otherUser.name + ' is online'"
+      ></span>
+    </ng-container>
+    <ng-template #channelIcon>
+      <!-- Channel Icon (#) -->
+      <span class="channel-icon">#</span>
+    </ng-template>
+  </div>
+
+  <!-- Channel Name -->
+  <span class="channel-item__name">{{ getDisplayName() }}</span>
+
+  <!-- Unread Indicator / Badge -->
+  <div class="channel-item__badge" *ngIf="hasUnread()">
+    <span *ngIf="showUnreadDot && !getUnreadCount()" class="unread-dot"></span>
+    <span *ngIf="getUnreadCount()" class="unread-count">{{ getUnreadCount() }}</span>
+  </div>
+
+  <!-- Context Menu (3 dots) -->
+  <button
+    *ngIf="canDelete && !isDirectMessage()"
+    class="channel-item__menu-btn"
+    mat-icon-button
+    [matMenuTriggerFor]="channelMenu"
+    (click)="$event.stopPropagation()"
+    [attr.aria-label]="'More options for ' + getDisplayName()"
+    type="button"
+  >
+    <mat-icon>more_vert</mat-icon>
+  </button>
+
+  <mat-menu #channelMenu="matMenu" xPosition="before">
+    <button mat-menu-item (click)="onDeleteClick($event)">
+      <mat-icon>delete</mat-icon>
+      <span>Delete channel</span>
+    </button>
+  </mat-menu>
+</div>

@@ -39,13 +39,13 @@
             </mat-icon>
           </button>
           <button
-            *ngIf="section.id === 'projects' && !collapsed"
+            *ngIf="(section.id === 'projects' || section.id === 'channels' || section.id === 'direct-messages') && !collapsed"
             mat-icon-button
             type="button"
             class="app-sidebar__section-action"
-            (click)="createProject.emit()"
-            aria-label="Create new project"
-            title="Create new project"
+            (click)="createProject.emit(section.id)"
+            [attr.aria-label]="getCreateButtonLabel(section.id)"
+            [attr.title]="getCreateButtonLabel(section.id)"
           >
             <mat-icon>add</mat-icon>
           </button>

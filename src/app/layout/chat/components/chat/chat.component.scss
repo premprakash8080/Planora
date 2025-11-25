@@ -1,0 +1,156 @@
+@use 'src/styles/tokens' as tokens;
+
+:host {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100vh;
+  max-height: 100vh;
+  overflow: hidden;
+}
+
+.chat-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  max-height: 100%;
+  background: var(--color-background);
+  font-family: var(--font-family-base);
+  overflow: hidden;
+}
+
+/* ── Sidebar ────────────────────────────────────────────────────── */
+.chat-sidebar {
+  flex-shrink: 0;
+  flex-grow: 0;
+  height: 100%;
+  max-height: 100%;
+  overflow: hidden;
+  border-right: 1px solid var(--color-border);
+}
+
+/* ── Main Content Area ──────────────────────────────────────────── */
+.chat-main {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  max-height: 100%;
+  overflow: hidden;
+}
+
+.chat-main-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  max-height: 100%;
+  overflow: hidden;
+}
+
+.chat-header {
+  flex-shrink: 0;
+  flex-grow: 0;
+  height: 48px;
+  min-height: 48px;
+  max-height: 48px;
+}
+
+.chat-message-input {
+  flex-shrink: 0;
+  flex-grow: 0;
+  width: 100%;
+  min-height: fit-content;
+}
+
+/* ── Empty State ─────────────────────────────────────────────────── */
+.chat-empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  max-height: 100%;
+  overflow: hidden;
+  background: var(--color-surface);
+}
+
+.empty-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: tokens.space(3);
+  padding: tokens.space(6);
+  text-align: center;
+  max-width: 400px;
+}
+
+.empty-icon {
+  font-size: 64px;
+  width: 64px;
+  height: 64px;
+  color: var(--color-text-subtle);
+  opacity: 0.5;
+  margin-bottom: tokens.space(2);
+}
+
+.empty-title {
+  font-size: tokens.font-size(xl);
+  font-weight: 600;
+  color: var(--color-text-heading);
+  margin: 0;
+}
+
+.empty-description {
+  font-size: tokens.font-size(md);
+  color: var(--color-text-body);
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* ── Channel Details Panel ──────────────────────────────────────── */
+/* Channel details now uses app-aside component which handles its own positioning */
+
+/* ── Responsive ─────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .chat-container {
+    position: relative;
+  }
+
+  .chat-sidebar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 100;
+    height: 100%;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+
+    &.expanded {
+      transform: translateX(0);
+    }
+  }
+
+  .chat-channel-details {
+    position: absolute;
+    right: 0;
+    top: 0;
+    z-index: 99;
+    width: 100%;
+    max-width: 320px;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+
+    &.expanded {
+      transform: translateX(0);
+    }
+  }
+}
+

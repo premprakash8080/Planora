@@ -46,6 +46,20 @@ export class CalendarViewService {
     );
   }
 
+  getMyTasksCalendarData(): Observable<CalendarViewResponse> {
+    const endpoint = ENDPOINTS.getMyTasksCalendarView;
+    return this.httpService.get(endpoint).pipe(
+      map((response: any) => {
+        // Handle unified response format
+        if (response.success && response.data) {
+          return response.data;
+        }
+        return response;
+      }),
+      catchError((error) => throwError(() => this.handleError(error)))
+    );
+  }
+
   updateTaskDates(taskId: string, payload: { startDate?: string | null; dueDate?: string | null }): Observable<CalendarTask> {
     const endpoint = ENDPOINTS.updateCalendarTask.replace(':taskId', taskId);
     return this.httpService.patch(endpoint, payload).pipe(

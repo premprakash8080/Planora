@@ -1,0 +1,56 @@
+<div class="message-card" [class.pinned]="isPinned" [class.dark-theme]="isDarkTheme">
+  <app-avatar
+    size="sm"
+    [initials]="message.author?.initials || message.author?.fullName?.charAt(0)"
+    [color]="message.author?.avatarColor || '#8b5cf6'"
+    [src]="message.author?.avatarUrl"
+  ></app-avatar>
+
+  <div class="message-content">
+    <div class="message-meta">
+      <span class="author-name">{{ message.author?.fullName || 'Unknown' }}</span>
+      <span class="message-time">{{ formatTime(message.createdAt) }}</span>
+    </div>
+
+    <!-- View Mode -->
+    <div class="message-body" *ngIf="!isEditing">
+      <p class="message-text" [innerHTML]="formatMessageContent(message.content)"></p>
+    </div>
+
+    <!-- Edit Mode -->
+    <div class="message-edit" *ngIf="isEditing">
+      <textarea
+        [(ngModel)]="editingContent"
+        class="edit-textarea"
+        rows="3"
+        placeholder="Edit message..."
+        (keydown.escape)="onCancelEdit()"
+        (keydown.ctrl.enter)="onSaveEdit()"
+        (keydown.meta.enter)="onSaveEdit()"
+      ></textarea>
+      <div class="edit-actions">
+        <button mat-stroked-button (click)="onCancelEdit()">Cancel</button>
+        <button mat-flat-button color="primary" (click)="onSaveEdit()">Save</button>
+      </div>
+    </div>
+
+    <!-- Actions (only in view mode) -->
+    <div class="message-actions" *ngIf="!isEditing">
+      <button mat-icon-button [matMenuTriggerFor]="messageMenu">
+        <mat-icon>more_vert</mat-icon>
+      </button>
+      <mat-menu #messageMenu="matMenu">
+        <button mat-menu-item *ngIf="canEdit" (click)="onEdit()">
+          <mat-icon>edit</mat-icon> Edit
+        </button>
+        <button mat-menu-item *ngIf="canPin" (click)="onTogglePin()">
+          <mat-icon>push_pin</mat-icon> {{ message.pinned ? 'Unpin' : 'Pin' }}
+        </button>
+        <button mat-menu-item *ngIf="canDelete" (click)="onDelete()" class="delete-action">
+          <mat-icon>delete</mat-icon> Delete
+        </button>
+      </mat-menu>
+    </div>
+  </div>
+</div>
+

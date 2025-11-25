@@ -1,0 +1,40 @@
+<div class="channel-list">
+  <!-- Section Header -->
+  <div class="channel-list__header">
+    <button 
+      class="channel-list__toggle"
+      type="button"
+      (click)="onToggleCollapse()"
+      [attr.aria-expanded]="!collapsed"
+      [attr.aria-label]="(collapsed ? 'Expand' : 'Collapse') + ' ' + title"
+    >
+      <mat-icon class="channel-list__chevron" [class.channel-list__chevron--collapsed]="collapsed">
+        {{ collapsed ? 'expand_more' : 'expand_less' }}
+      </mat-icon>
+      <span class="channel-list__title">{{ title }}</span>
+    </button>
+    
+    <button
+      *ngIf="showAddButton && !collapsed"
+      class="channel-list__add-btn"
+      type="button"
+      (click)="onAddClick($event)"
+      [attr.aria-label]="title === 'Channels' ? 'Create new channel' : 'Start new direct message'"
+      [attr.title]="title === 'Channels' ? 'Create new channel' : 'Start new direct message'"
+    >
+      <mat-icon>add</mat-icon>
+    </button>
+  </div>
+
+  <!-- Channel Items -->
+  <div class="channel-list__items" *ngIf="!collapsed">
+    <vex-chat-channel-item
+      *ngFor="let channel of channels; trackBy: trackByChannelId"
+      [channel]="channel"
+      [isSelected]="selectedChannelId === channel.id"
+      [canDelete]="canDeleteChannel(channel)"
+      (channelClick)="onChannelClick($event)"
+      (channelDelete)="onChannelDelete($event)"
+    ></vex-chat-channel-item>
+  </div>
+</div>

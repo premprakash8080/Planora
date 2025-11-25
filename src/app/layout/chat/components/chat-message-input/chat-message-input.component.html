@@ -1,0 +1,50 @@
+<div class="chat-message-input">
+  <!-- Input Container -->
+  <div class="message-input__container">
+    <!-- Emoji Button (left side) -->
+    <button
+      type="button"
+      class="message-input__emoji-btn"
+      (click)="onEmojiClick()"
+      [attr.aria-label]="'Add emoji'"
+      [attr.title]="'Add emoji'"
+      [disabled]="disabled"
+    >
+      <mat-icon>sentiment_satisfied</mat-icon>
+    </button>
+
+    <!-- Textarea Wrapper -->
+    <div class="message-input__textarea-wrapper">
+      <textarea
+        #messageTextarea
+        class="message-input__textarea"
+        [value]="messageContent"
+        (input)="onContentChange($any($event.target).value)"
+        (keydown)="onKeyDown($event)"
+        [placeholder]="placeholder"
+        [disabled]="disabled || sending"
+        rows="1"
+      ></textarea>
+    </div>
+
+    <!-- Send Button (right side) -->
+    <button
+      type="button"
+      class="message-input__send-btn"
+      [class.message-input__send-btn--active]="canSend"
+      [disabled]="!canSend"
+      (click)="onSendClick()"
+      [attr.aria-label]="'Send message'"
+      [attr.title]="'Send message (Enter)'"
+    >
+      <mat-icon *ngIf="!sending">send</mat-icon>
+      <mat-spinner *ngIf="sending" diameter="20"></mat-spinner>
+    </button>
+  </div>
+
+  <!-- Footer (optional: character count, @mention hint) -->
+  <div class="message-input__footer" *ngIf="hasMentions()">
+    <span class="mention-hint">Press Enter to send, Shift+Enter for new line</span>
+  </div>
+</div>
+

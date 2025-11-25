@@ -1,0 +1,273 @@
+<app-aside
+  [open]="open"
+  [title]="channel ? getChannelTypeLabel() : ''"
+  [subtitle]="channel ? channel.name : ''"
+  [width]="'min(45vw, 50vw)'"
+  (close)="close.emit()"
+>
+  <div class="channel-details" *ngIf="channel">
+    <!-- Header Section -->
+    <div class="channel-details__header">
+      <div class="channel-details__header-content">
+        <div class="channel-details__name-section">
+          <div class="channel-details__name-editable" *ngIf="!editingName">
+            <h2 
+              class="channel-details__name"
+              [class.channel-details__name--editable]="canEdit()"
+              (click)="canEdit() && startEditingName()"
+              [matTooltip]="canEdit() ? 'Click to edit' : ''"
+            >
+              {{ channel.name }}
+            </h2>
+            <button 
+              *ngIf="canEdit()"
+              mat-icon-button 
+              class="channel-details__name-edit-icon"
+              (click)="startEditingName(); $event.stopPropagation()"
+              [matTooltip]="'Edit channel name'"
+            >
+              <mat-icon>edit</mat-icon>
+            </button>
+          </div>
+          <div class="channel-details__name-editable" *ngIf="editingName">
+            <input
+              #nameInput
+              type="text"
+              class="channel-details__name-input"
+              [(ngModel)]="editedName"
+              (keydown)="onNameKeydown($event)"
+              (blur)="saveName()"
+              [value]="editedName"
+            />
+            <div class="channel-details__name-actions">
+              <button 
+                mat-icon-button 
+                class="channel-details__name-action"
+                (click)="saveName()"
+                [matTooltip]="'Save (Enter)'"
+              >
+                <mat-icon>check</mat-icon>
+              </button>
+              <button 
+                mat-icon-button 
+                class="channel-details__name-action"
+                (click)="cancelEditingName()"
+                [matTooltip]="'Cancel (Esc)'"
+              >
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          </div>
+          <div class="channel-details__type-badge">
+            <mat-icon class="channel-details__type-icon">{{ channel.type === 'direct' ? 'person' : 'group' }}</mat-icon>
+            <span class="channel-details__type-label">{{ getChannelTypeLabel() }}</span>
+          </div>
+        </div>
+        <div class="channel-details__meta" *ngIf="!isDirectChat()">
+          <span class="channel-details__member-count">{{ channel.memberCount }} member{{ channel.memberCount !== 1 ? 's' : '' }}</span>
+        </div>
+      </div>
+    </div>
+
+  <!-- Channel Description Section -->
+  <div class="channel-details__section channel-details__section--description" *ngIf="channel.description || canEdit()">
+    <div class="channel-details__section-header">
+      <mat-icon class="channel-details__section-icon">description</mat-icon>
+      <h3 class="channel-details__section-title">Description</h3>
+    </div>
+    
+    <div class="channel-details__description-editable" *ngIf="!editingDescription">
+      <p 
+        class="channel-details__description" 
+        *ngIf="channel.description"
+        [class.channel-details__description--editable]="canEdit()"
+        (click)="canEdit() && startEditingDescription()"
+      >
+        {{ channel.description }}
+      </p>
+      <p 
+        class="channel-details__description-placeholder" 
+        *ngIf="!channel.description && canEdit()"
+        (click)="startEditingDescription()"
+      >
+        Add a description…
+      </p>
+    </div>
+    
+    <div class="channel-details__description-editable" *ngIf="editingDescription">
+      <textarea
+        #descriptionTextarea
+        class="channel-details__description-input"
+        [(ngModel)]="editedDescription"
+        (keydown)="onDescriptionKeydown($event)"
+        rows="4"
+        placeholder="Add a description…"
+      ></textarea>
+      <div class="channel-details__description-actions">
+        <button 
+          mat-button 
+          size="small"
+          class="channel-details__description-action"
+          (click)="saveDescription()"
+        >
+          Save
+        </button>
+        <button 
+          mat-button 
+          size="small"
+          class="channel-details__description-action channel-details__description-action--cancel"
+          (click)="cancelEditingDescription()"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Created By Section (only for non-direct chats) -->
+  <div class="channel-details__section" *ngIf="!isDirectChat()">
+    <div class="channel-details__section-header">
+      <mat-icon class="channel-details__section-icon">person_add</mat-icon>
+      <h3 class="channel-details__section-title">Created By</h3>
+    </div>
+    <div class="channel-details__created-by">
+      <div class="channel-details__avatar" [style.background-color]="getAvatarColor(channel.createdBy)">
+        <span class="channel-details__avatar-text" *ngIf="!channel.createdBy.avatarUrl">
+          {{ getAvatarInitials(channel.createdBy) }}
+        </span>
+        <img *ngIf="channel.createdBy.avatarUrl" [src]="channel.createdBy.avatarUrl" [alt]="channel.createdBy.fullName" class="channel-details__avatar-img">
+      </div>
+      <div class="channel-details__user-info">
+        <div class="channel-details__user-name">{{ channel.createdBy.fullName }}</div>
+        <div class="channel-details__user-email">{{ channel.createdBy.email }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Members List Section -->
+  <div class="channel-details__section">
+    <div class="channel-details__section-header">
+      <mat-icon class="channel-details__section-icon">people</mat-icon>
+      <h3 class="channel-details__section-title">
+        {{ isDirectChat() ? 'Participants' : 'Members' }} ({{ channel.members.length }})
+      </h3>
+      <button 
+        *ngIf="canAddMembers()"
+        mat-icon-button 
+        class="channel-details__add-button"
+        (click)="onAddMembers()"
+        [matTooltip]="'Add members'"
+      >
+        <mat-icon>person_add</mat-icon>
+      </button>
+    </div>
+    <div class="channel-details__members-list">
+      <div 
+        class="channel-details__member-item"
+        *ngFor="let member of channel.members; trackBy: trackByMemberId"
+        (click)="onMemberClick(member)"
+      >
+        <div class="channel-details__member-avatar" [style.background-color]="getAvatarColor(member)">
+          <span class="channel-details__avatar-text" *ngIf="!member.avatarUrl">
+            {{ getAvatarInitials(member) }}
+          </span>
+          <img *ngIf="member.avatarUrl" [src]="member.avatarUrl" [alt]="member.fullName" class="channel-details__avatar-img">
+        </div>
+        <div class="channel-details__member-info">
+          <div class="channel-details__member-header">
+            <div class="channel-details__member-name-wrapper">
+              <span class="channel-details__member-name">{{ member.fullName }}</span>
+              <span 
+                class="channel-details__role-badge" 
+                [style.background-color]="getRoleBadgeColor(member.role)"
+                [class.channel-details__role-badge--owner]="member.role === 'owner'"
+                [class.channel-details__role-badge--admin]="member.role === 'admin'"
+                [class.channel-details__role-badge--member]="member.role === 'member'"
+              >
+                {{ getRoleLabel(member.role) }}
+              </span>
+            </div>
+            <div class="channel-details__member-badges">
+              <mat-icon 
+                class="channel-details__mute-icon" 
+                [class.channel-details__mute-icon--active]="member.isMuted"
+                *ngIf="member.isMuted"
+              >
+                volume_off
+              </mat-icon>
+            </div>
+          </div>
+          <div class="channel-details__member-email">{{ member.email }}</div>
+          <div class="channel-details__member-meta">
+            <span class="channel-details__member-unread" *ngIf="member.unreadCount > 0">
+              {{ member.unreadCount }} unread
+            </span>
+            <span class="channel-details__member-last-read" *ngIf="member.lastReadAt">
+              Last read: {{ member.lastReadAt | date:'short' }}
+            </span>
+          </div>
+        </div>
+        <div class="channel-details__member-actions">
+          <button 
+            *ngIf="canEdit() && !isCurrentUser(member)"
+            mat-icon-button 
+            [matMenuTriggerFor]="roleMenu"
+            class="channel-details__member-action"
+            (click)="$event.stopPropagation()"
+            [matTooltip]="'Change role'"
+          >
+            <mat-icon>more_vert</mat-icon>
+          </button>
+          <mat-menu #roleMenu="matMenu">
+            <button mat-menu-item (click)="onRoleChange(member, 'owner')" [disabled]="member.role === 'owner'">
+              <mat-icon>star</mat-icon>
+              <span>Owner</span>
+            </button>
+            <button mat-menu-item (click)="onRoleChange(member, 'admin')" [disabled]="member.role === 'admin'">
+              <mat-icon>admin_panel_settings</mat-icon>
+              <span>Admin</span>
+            </button>
+            <button mat-menu-item (click)="onRoleChange(member, 'member')" [disabled]="member.role === 'member'">
+              <mat-icon>person</mat-icon>
+              <span>Member</span>
+            </button>
+            <mat-divider></mat-divider>
+            <button mat-menu-item (click)="onRemoveMember(member, $event)" class="channel-details__menu-item--danger">
+              <mat-icon>person_remove</mat-icon>
+              <span>Remove member</span>
+            </button>
+          </mat-menu>
+          <button 
+            mat-icon-button 
+            class="channel-details__member-action channel-details__member-action--remove"
+            (click)="onRemoveMember(member, $event)"
+            [matTooltip]="'Remove member'"
+            *ngIf="canRemoveMember(member)"
+          >
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leave Channel Action (bottom left) -->
+  <div class="channel-details__footer" *ngIf="!isDirectChat() && canLeave()">
+    <button 
+      mat-button
+      class="channel-details__leave-button"
+      (click)="onLeaveChannel()"
+    >
+      <mat-icon>exit_to_app</mat-icon>
+      Leave Channel
+    </button>
+  </div>
+
+    <!-- Empty State (if no channel) -->
+    <div class="channel-details__empty" *ngIf="!channel">
+      <mat-icon class="channel-details__empty-icon">info</mat-icon>
+      <p class="channel-details__empty-text">No channel selected</p>
+    </div>
+  </div>
+</app-aside>
+

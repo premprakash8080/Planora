@@ -16,19 +16,38 @@
     <span class="task-count">{{ section.tasks.length }} tasks</span>
   </div>
 
-  <div class="section-body" *ngIf="section.expanded">
-    <app-task-row *ngFor="let task of section.tasks; trackBy: trackTask" [task]="task" [section]="section"
-      [selected]="selectedTask?.id === task.id" [nameDraft]="nameDrafts.get(task.id) ?? task.name"
-      [assigneeItems]="assigneeItems" [priorityItems]="priorityItems" [statusItems]="statusItems"
-      [getAssigneeAvatar]="getAssigneeAvatar" [getAssigneeInitials]="getAssigneeInitials"
-      [getAssigneeColor]="getAssigneeColor" [formatDueDate]="formatDueDate" [getDueDate]="getDueDate"
-      [getStatusColor]="getStatusColor" [getStatusLabel]="getStatusLabel"
-      [gridTemplateColumns]="gridTemplateColumns"
-      (rowClick)="openTaskDetail.emit({section, task})" (toggleCompleted)="toggleCompleted.emit({section, task})"
-      (nameChange)="onNameChange(task, $event)" (assigneeSelect)="onAssigneeSelect(task, $event)"
-      (dueDateChange)="onDueDateChange(task, $event)" (prioritySelect)="onPrioritySelect(task, $event)"
-      (statusSelect)="onStatusSelect(task, $event)"></app-task-row>
+  <!-- Drop zone - always available for drag and drop, even when collapsed -->
+  <div 
+    class="section-body" 
+    [class.section-body--expanded]="section.expanded"
+    cdkDropList
+    [cdkDropListData]="section.tasks"
+    [id]="'section-drop-' + section.id"
+    [attr.data-section-id]="section.id"
+    (cdkDropListDropped)="onTaskDropped($event)"
+    (cdkDropListEntered)="onDropZoneEntered()"
+    (cdkDropListExited)="onDropZoneExited()"
+    [class.drop-zone--active]="isDropZoneActive"
+  >
+    <!-- Tasks only visible when expanded -->
+    <ng-container *ngIf="section.expanded">
+      <app-task-row *ngFor="let task of getSortedTasks(); trackBy: trackTask" [task]="task" [section]="section"
+        [selected]="selectedTask?.id === task.id" [nameDraft]="nameDrafts.get(task.id) ?? task.name"
+        [assigneeItems]="assigneeItems" [priorityItems]="priorityItems" [statusItems]="statusItems"
+        [getAssigneeAvatar]="getAssigneeAvatar" [getAssigneeInitials]="getAssigneeInitials"
+        [getAssigneeColor]="getAssigneeColor" [formatStartDate]="formatStartDate" [getStartDate]="getStartDate"
+        [formatDueDate]="formatDueDate" [getDueDate]="getDueDate"
+        [getStatusColor]="getStatusColor" [getStatusLabel]="getStatusLabel"
+        [gridTemplateColumns]="gridTemplateColumns"
+        (rowClick)="openTaskDetail.emit({section, task})" (toggleCompleted)="toggleCompleted.emit({section, task})"
+        (nameChange)="onNameChange(task, $event)" (assigneeSelect)="onAssigneeSelect(task, $event)"
+        (startDateChange)="onStartDateChange(task, $event)" 
+        (dueDateChange)="onDueDateChange(task, $event)" 
+        (dateRangeChange)="onDateRangeChange(task, $event)"
+        (prioritySelect)="onPrioritySelect(task, $event)"
+        (statusSelect)="onStatusSelect(task, $event)"></app-task-row>
 
-    <app-add-task-button (addTask)="addTask.emit(section)"></app-add-task-button>
+      <app-add-task-button (addTask)="addTask.emit(section)"></app-add-task-button>
+    </ng-container>
   </div>
 </div>

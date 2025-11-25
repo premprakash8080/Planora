@@ -8,6 +8,17 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  width: 100%;
+
+  // Make task-header fixed at top
+  app-task-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    flex-shrink: 0;
+    background: var(--color-background);
+    width: 100%;
+  }
 }
 
 /* ── Loading & Error States ─────────────────────────────────────── */
@@ -20,10 +31,31 @@
   padding: space(8);
   min-height: 400px;
   gap: space(3);
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  width: 100%;
+
+  @media (max-width: 768px) {
+    padding: space(6);
+    min-height: 300px;
+  }
+
+  @media (max-width: 640px) {
+    padding: space(4);
+    min-height: 250px;
+    gap: space(2);
+  }
 
   p {
     color: var(--color-text-body);
     font-size: font-size(md);
+    text-align: center;
+    padding: 0 space(2);
+
+    @media (max-width: 640px) {
+      font-size: font-size(sm);
+    }
   }
 }
 
@@ -48,6 +80,8 @@
   min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
+  width: 100%;
+  box-sizing: border-box;
 
   // Custom scrollbar styling
   &::-webkit-scrollbar {
@@ -75,6 +109,22 @@
 
   @media (max-width: 1200px) {
     grid-template-columns: 1fr;
+    gap: space(4);
+    padding: space(4);
+
+    .right-column {
+      max-width: 100%;
+    }
+  }
+
+  @media (max-width: 768px) {
+    gap: space(3);
+    padding: space(3);
+  }
+
+  @media (max-width: 640px) {
+    gap: space(2);
+    padding: space(2);
   }
 }
 
@@ -84,6 +134,27 @@
   display: flex;
   flex-direction: column;
   gap: space(5);
+  min-width: 0; // Prevent overflow
+  width: 100%;
+
+  @media (max-width: 1200px) {
+    gap: space(4);
+    max-width: 100%;
+  }
+
+  @media (max-width: 768px) {
+    gap: space(3);
+  }
+
+  @media (max-width: 640px) {
+    gap: space(2);
+  }
+}
+
+.right-column {
+  @media (min-width: 1201px) {
+    max-width: 380px;
+  }
 }
 
 /* ── Card sections ─────────────────────────────────────────────── */
@@ -94,6 +165,16 @@
   border-color: var(--color-border);
   box-shadow: var(--shadow-xs);
   transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  min-width: 0; // Prevent overflow
+  width: 100%;
+
+  @media (max-width: 768px) {
+    @include card(space(3));
+  }
+
+  @media (max-width: 640px) {
+    @include card(space(2));
+  }
 }
 
 .section-header {
@@ -101,6 +182,12 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: space(2);
+  gap: space(2);
+  min-width: 0; // Allow flex shrinking
+
+  @media (max-width: 640px) {
+    margin-bottom: space(1.5);
+  }
 }
 
 .edit-btn,
@@ -142,6 +229,19 @@
   color: var(--color-text-heading);
   margin: 0;
   transition: color 0.3s ease;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+
+  @media (max-width: 768px) {
+    font-size: font-size(md);
+  }
+
+  @media (max-width: 640px) {
+    font-size: font-size(sm);
+  }
 }
 
 .section-subtitle {
@@ -159,6 +259,13 @@
   margin: 0;
   line-height: 1.6;
   transition: color 0.3s ease;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+
+  @media (max-width: 640px) {
+    font-size: font-size(sm);
+    line-height: 1.5;
+  }
 }
 
 .empty-text {
@@ -213,6 +320,16 @@
     justify-content: flex-end;
     gap: space(2);
     margin-top: space(3);
+    flex-wrap: wrap;
+
+    @media (max-width: 640px) {
+      flex-direction: column-reverse;
+      width: 100%;
+
+      button {
+        width: 100%;
+      }
+    }
 
     .inline-spinner {
       display: inline-block;
@@ -272,6 +389,14 @@
   color: var(--color-text-body);
   font-size: font-size(md);
   transition: color 0.3s ease;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+
+  @media (max-width: 640px) {
+    font-size: font-size(sm);
+  }
 }
 
 .member-role {
@@ -279,6 +404,14 @@
   color: var(--color-text-subtle);
   text-transform: capitalize;
   transition: color 0.3s ease;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+
+  @media (max-width: 640px) {
+    font-size: font-size(xs);
+  }
 }
 
 .remove-member-btn {
@@ -335,6 +468,16 @@
   padding: space(4);
   text-align: center;
   transition: all 0.3s ease;
+  width: 100%;
+  box-sizing: border-box;
+
+  @media (max-width: 768px) {
+    padding: space(3);
+  }
+
+  @media (max-width: 640px) {
+    padding: space(2);
+  }
 
   &:hover {
     border-color: var(--color-primary);
@@ -376,6 +519,18 @@
   gap: space(3);
   margin-top: space(3);
   flex-wrap: wrap;
+  width: 100%;
+
+  @media (max-width: 640px) {
+    flex-direction: column;
+    gap: space(2);
+    margin-top: space(2);
+
+    .resource-btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
 }
 
 /* ── Status Section ────────────────────────────────────────────── */
@@ -392,6 +547,12 @@
   flex-wrap: wrap;
   gap: space(2);
   margin-bottom: space(4);
+  width: 100%;
+
+  @media (max-width: 640px) {
+    gap: space(1.5);
+    margin-bottom: space(3);
+  }
 }
 
 .status-pill {
@@ -407,6 +568,15 @@
   cursor: pointer;
   min-width: 100px;
   justify-content: center;
+  flex: 1 1 auto;
+
+  @media (max-width: 640px) {
+    min-width: 80px;
+    padding: space(1.25) space(2);
+    font-size: font-size(xs);
+    // Calculate width accounting for gap: 50% minus half the gap (space(1) = 0.25rem)
+    flex: 1 1 calc(50% - #{space(1)});
+  }
 
   &:hover:not(:disabled) {
     transform: translateY(-2px);
@@ -428,6 +598,11 @@
     height: 8px;
     border-radius: 50%;
     flex-shrink: 0;
+
+    @media (max-width: 640px) {
+      width: 6px;
+      height: 6px;
+    }
   }
 }
 
@@ -444,6 +619,12 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: space(2);
+  gap: space(2);
+  min-width: 0;
+
+  @media (max-width: 640px) {
+    margin-bottom: space(1.5);
+  }
 }
 
 .due-date-label {
@@ -452,6 +633,15 @@
   color: var(--color-text-heading);
   margin: 0;
   transition: color 0.3s ease;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  @media (max-width: 640px) {
+    font-size: font-size(sm);
+  }
 }
 
 .due-date {
@@ -463,10 +653,23 @@
   padding: space(2);
   border-radius: $radius-md;
   transition: all 0.3s ease;
+  min-width: 0;
+  width: 100%;
+
+  @media (max-width: 640px) {
+    font-size: font-size(sm);
+    padding: space(1.5);
+    gap: space(1.5);
+  }
 
   span {
     color: inherit;
     transition: color 0.3s ease;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1;
+    min-width: 0;
   }
 
   &.empty {
@@ -483,6 +686,11 @@
     font-size: 20px;
     color: var(--color-text-subtle);
     transition: color 0.3s ease;
+    flex-shrink: 0;
+
+    @media (max-width: 640px) {
+      font-size: 18px;
+    }
   }
 }
 
@@ -496,6 +704,18 @@
   border-color: var(--color-border);
   box-shadow: var(--shadow-xs);
   transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  min-width: 0;
+  width: 100%;
+
+  @media (max-width: 768px) {
+    @include card(space(3));
+    max-height: 500px;
+  }
+
+  @media (max-width: 640px) {
+    @include card(space(2));
+    max-height: 400px;
+  }
 }
 
 .activity-header {
@@ -506,6 +726,13 @@
   padding-bottom: space(2);
   border-bottom: 2px solid var(--color-border);
   transition: border-color 0.3s ease;
+  gap: space(2);
+  min-width: 0;
+
+  @media (max-width: 640px) {
+    margin-bottom: space(2);
+    padding-bottom: space(1.5);
+  }
 }
 
 .activity-count {
@@ -513,6 +740,12 @@
   color: var(--color-text-subtle);
   font-weight: 500;
   transition: color 0.3s ease;
+  flex-shrink: 0;
+  white-space: nowrap;
+
+  @media (max-width: 640px) {
+    font-size: font-size(xs);
+  }
 }
 
 .activity-list {
@@ -547,6 +780,13 @@
   padding: space(3);
   border-bottom: 1px solid var(--color-border);
   transition: all 0.3s ease;
+  min-width: 0;
+  width: 100%;
+
+  @media (max-width: 640px) {
+    gap: space(2);
+    padding: space(2);
+  }
 
   &:last-child {
     border-bottom: none;
@@ -599,6 +839,13 @@
   align-items: center;
   justify-content: space-between;
   gap: space(2);
+  min-width: 0;
+  width: 100%;
+  flex-wrap: wrap;
+
+  @media (max-width: 640px) {
+    gap: space(1);
+  }
 }
 
 .activity-time {
@@ -606,6 +853,8 @@
   color: var(--color-text-subtle);
   font-weight: 500;
   transition: color 0.3s ease;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .activity-avatar {

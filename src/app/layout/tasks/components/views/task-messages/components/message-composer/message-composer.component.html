@@ -1,0 +1,52 @@
+<div class="message-composer" [class.dark-theme]="isDarkTheme">
+  <!-- Toolbar (only when typing) -->
+  <div class="composer-toolbar" *ngIf="content">
+    <button mat-icon-button matTooltip="Bold" (click)="onInsertMarkdown('**', '**')">
+      <mat-icon>format_bold</mat-icon>
+    </button>
+    <button mat-icon-button matTooltip="Italic" (click)="onInsertMarkdown('*', '*')">
+      <mat-icon>format_italic</mat-icon>
+    </button>
+    <button mat-icon-button matTooltip="Link" (click)="onInsertMarkdown('[text](', ')')">
+      <mat-icon>link</mat-icon>
+    </button>
+    <button mat-icon-button matTooltip="Mention" (click)="onInsertMarkdown('@', '')">
+      <mat-icon>alternate_email</mat-icon>
+    </button>
+  </div>
+
+  <!-- Input and Send Button Row -->
+  <div class="composer-row">
+    <div class="composer-input">
+      <textarea
+        #composerTextarea
+        [value]="content"
+        (input)="onContentChange($any($event.target).value)"
+        class="composer-textarea"
+        placeholder="Post an update..."
+        rows="1"
+        (keydown)="onKeyDown($event)"
+        [disabled]="sending"
+      ></textarea>
+    </div>
+    <button
+      mat-flat-button
+      color="primary"
+      class="send-button"
+      [disabled]="!canSend"
+      (click)="onSend()"
+    >
+      <mat-icon *ngIf="!sending">send</mat-icon>
+      <mat-spinner *ngIf="sending" diameter="16"></mat-spinner>
+      Send
+    </button>
+  </div>
+
+  <!-- Character Count Footer -->
+  <div class="composer-footer" *ngIf="showCharacterCount">
+    <div class="character-count" [class.warning]="characterCount > 4000">
+      {{ characterCount }} / 5000
+    </div>
+  </div>
+</div>
+

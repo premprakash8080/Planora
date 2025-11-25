@@ -11,6 +11,8 @@ import { MemberService, Member } from '../../../../members/service/member.servic
 import { ProjectService, Project, ProjectMember } from '../../../services/project.service';
 import { TaskStatusService } from '../../../services/task-status.service';
 import { PriorityLabelService } from '../../../services/priority-label.service';
+import { TasksRouteHelperService } from '../../../services/tasks-route-helper.service';
+import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 
 interface TeamMember {
   id: string;
@@ -69,7 +71,7 @@ export class ListViewComponent implements OnInit, AfterViewInit, OnDestroy {
   columnWidths: { [key: string]: number } = {
     name: 300,
     assignee: 150,
-    dueDate: 150,
+    dates: 150,
     priority: 100,
     status: 100,
     comments: 80
@@ -79,6 +81,8 @@ export class ListViewComponent implements OnInit, AfterViewInit, OnDestroy {
   private startX = 0;
   private startWidth = 0;
 
+  isMyTasksMode = false;
+
   constructor(
     private readonly taskService: TaskService,
     private readonly route: ActivatedRoute,
@@ -86,6 +90,7 @@ export class ListViewComponent implements OnInit, AfterViewInit, OnDestroy {
     private readonly projectService: ProjectService,
     private readonly taskStatusService: TaskStatusService,
     private readonly priorityLabelService: PriorityLabelService,
+    private readonly routeHelper: TasksRouteHelperService,
     private cdr: ChangeDetectorRef,
     private ngZone: NgZone
   ) {}
@@ -96,18 +101,15 @@ export class ListViewComponent implements OnInit, AfterViewInit, OnDestroy {
     // Load members for assignee dropdown
     this.loadMembers();
 
-    const projectRoute = this.findProjectRoute() ?? this.route;
-
-    const initialProjectId = projectRoute.snapshot.paramMap.get('projectId');
-    if (initialProjectId) {
-      this.currentProjectId = initialProjectId;
-      // Load project data
-      this.loadProject(initialProjectId);
-      // Load sections from API
-      this.taskService.loadSections(initialProjectId).subscribe();
-      // Subscribe to sections
+    // Check if we're in my-tasks mode
+    this.isMyTasksMode = this.routeHelper.isMyTasksMode(this.route);
+    
+    if (this.isMyTasksMode) {
+      // My Tasks mode - load my tasks
+      this.taskService.loadMyTasks().subscribe();
+      // Subscribe to my tasks
       this.taskService
-        .filterTasks(initialProjectId, this.searchControl.value ?? '')
+        .filterMyTasks(this.searchControl.value ?? '')
         .pipe(take(1))
         .subscribe(sections => {
           this.ngZone.run(() => {
@@ -115,35 +117,13 @@ export class ListViewComponent implements OnInit, AfterViewInit, OnDestroy {
             this.cdr.detectChanges();
           });
         });
-    }
 
-    const projectId$ = projectRoute.paramMap.pipe(
-      map(params => params.get('projectId')),
-      filter((projectId): projectId is string => Boolean(projectId)),
-      distinctUntilChanged(),
-      tap(projectId => {
-        if (this.currentProjectId !== projectId) {
-          this.searchControl.setValue('', { emitEvent: false });
-          if (this.currentProjectId) {
-            this.closeDetail();
-          }
-        }
-        this.currentProjectId = projectId;
-        // Load project data
-        this.loadProject(projectId);
-      })
-    );
-
-    combineLatest([
-      projectId$,
+      // Subscribe to search changes for my tasks
       this.searchControl.valueChanges.pipe(
         startWith(this.searchControl.value),
         debounceTime(200),
-        distinctUntilChanged()
-      )
-    ])
-      .pipe(
-        switchMap(([projectId, query]) => this.taskService.filterTasks(projectId, query)),
+        distinctUntilChanged(),
+        switchMap(query => this.taskService.filterMyTasks(query)),
         takeUntil(this.destroy$)
       )
       .subscribe(sections => {
@@ -183,6 +163,96 @@ export class ListViewComponent implements OnInit, AfterViewInit, OnDestroy {
           this.cdr.detectChanges();
         });
       });
+    } else {
+      // Project mode - existing logic
+      const projectRoute = this.routeHelper.findProjectRoute(this.route) ?? this.route;
+
+      const initialProjectId = projectRoute.snapshot.paramMap.get('projectId');
+      if (initialProjectId) {
+        this.currentProjectId = initialProjectId;
+        // Load project data
+        this.loadProject(initialProjectId);
+        // Load sections from API
+        this.taskService.loadSections(initialProjectId).subscribe();
+        // Subscribe to sections
+        this.taskService
+          .filterTasks(initialProjectId, this.searchControl.value ?? '')
+          .pipe(take(1))
+          .subscribe(sections => {
+            this.ngZone.run(() => {
+              this.sections = sections;
+              this.cdr.detectChanges();
+            });
+          });
+      }
+
+      const projectId$ = projectRoute.paramMap.pipe(
+        map(params => params.get('projectId')),
+        filter((projectId): projectId is string => Boolean(projectId)),
+        distinctUntilChanged(),
+        tap(projectId => {
+          if (this.currentProjectId !== projectId) {
+            this.searchControl.setValue('', { emitEvent: false });
+            if (this.currentProjectId) {
+              this.closeDetail();
+            }
+          }
+          this.currentProjectId = projectId;
+          // Load project data
+          this.loadProject(projectId);
+        })
+      );
+
+      combineLatest([
+        projectId$,
+        this.searchControl.valueChanges.pipe(
+          startWith(this.searchControl.value),
+          debounceTime(200),
+          distinctUntilChanged()
+        )
+      ])
+        .pipe(
+          switchMap(([projectId, query]) => this.taskService.filterTasks(projectId, query)),
+          takeUntil(this.destroy$)
+        )
+        .subscribe(sections => {
+          this.ngZone.run(() => {
+            this.sections = sections;
+
+            if (this.selectedSectionId && this.selectedTaskId) {
+              const nextSection = sections.find(section => section.id === this.selectedSectionId);
+
+              if (!nextSection) {
+                this.closeDetail();
+                this.cdr.detectChanges();
+                return;
+              }
+
+              if (this.selectedParentTaskId) {
+                const parentTask = nextSection.tasks.find(task => task.id === this.selectedParentTaskId);
+                const childTask = parentTask?.subtasks?.find(subtask => subtask.id === this.selectedTaskId);
+
+                if (parentTask && childTask) {
+                  this.selectedSection = nextSection;
+                  this.selectedTask = childTask;
+                } else {
+                  this.closeDetail();
+                }
+              } else {
+                const nextTask = nextSection.tasks.find(task => task.id === this.selectedTaskId);
+
+                if (nextTask) {
+                  this.selectedSection = nextSection;
+                  this.selectedTask = nextTask;
+                } else {
+                  this.closeDetail();
+                }
+              }
+            }
+            this.cdr.detectChanges();
+          });
+        });
+    }
   }
 
   ngAfterViewInit(): void {
@@ -283,7 +353,17 @@ export class ListViewComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!this.currentProjectId) {
       return;
     }
-    this.taskService.updateTask(this.currentProjectId, section.id, task.id, { completed: !task.completed });
+    this.taskService.updateTask(this.currentProjectId, section.id, task.id, { completed: !task.completed }).subscribe({
+      next: (updatedTask) => {
+        // Task updated successfully
+        // The task service already handles optimistic updates
+      },
+      error: (error) => {
+        console.error('Error toggling task completion:', error);
+        // Reload sections to revert optimistic update
+        this.taskService.loadSections(this.currentProjectId!).subscribe();
+      }
+    });
   }
 
   /** Persist status updates triggered by the detail panel */
@@ -489,16 +569,323 @@ export class ListViewComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  /** Update due date and close the menu when a calendar date is picked */
-  handleDueDateChange(section: TaskSection, task: Task, date: Date | null, popover?: DropdownPopoverComponent): void {
-    if (!this.currentProjectId || !date) {
+  /** Handle date range change from date range picker */
+  handleDateRangeChange(section: TaskSection, task: Task, range: { start: Date | null; end: Date | null }): void {
+    if (!this.currentProjectId) {
+      return;
+    }
+
+    // Normalize dates to ISO strings (date only, no time)
+    const startNormalized = range.start ? new Date(Date.UTC(
+      range.start.getFullYear(),
+      range.start.getMonth(),
+      range.start.getDate()
+    )).toISOString() : null;
+
+    const endNormalized = range.end ? new Date(Date.UTC(
+      range.end.getFullYear(),
+      range.end.getMonth(),
+      range.end.getDate()
+    )).toISOString() : null;
+
+    // Update both dates in a single API call
+    this.taskService.updateTask(this.currentProjectId, section.id, task.id, {
+      startDate: startNormalized,
+      dueDate: endNormalized
+    }).subscribe({
+      next: (updatedTask) => {
+        // Task updated successfully
+        // The task service already handles optimistic updates
+      },
+      error: (error) => {
+        console.error('Error updating task dates:', error);
+        // Reload sections to revert optimistic update
+        this.taskService.loadSections(this.currentProjectId!).subscribe();
+      }
+    });
+  }
+
+  /** Update start date and close the menu when a calendar date is picked */
+  handleStartDateChange(section: TaskSection, task: Task, date: Date | null, popover?: DropdownPopoverComponent): void {
+    if (!this.currentProjectId) {
       popover?.close();
       return;
     }
 
-    const normalized = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())).toISOString();
-    this.taskService.updateTask(this.currentProjectId, section.id, task.id, { dueDate: normalized });
-    popover?.close();
+    const normalized = date ? new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())).toISOString() : null;
+    this.taskService.updateTask(this.currentProjectId, section.id, task.id, { startDate: normalized }).subscribe({
+      next: (updatedTask) => {
+        // Task updated successfully
+        popover?.close();
+      },
+      error: (error) => {
+        console.error('Error updating start date:', error);
+        popover?.close();
+        // Reload sections to revert optimistic update
+        this.taskService.loadSections(this.currentProjectId!).subscribe();
+      }
+    });
+  }
+
+  /** Update due date and close the menu when a calendar date is picked */
+  handleDueDateChange(section: TaskSection, task: Task, date: Date | null, popover?: DropdownPopoverComponent): void {
+    if (!this.currentProjectId) {
+      popover?.close();
+      return;
+    }
+
+    const normalized = date ? new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())).toISOString() : null;
+    this.taskService.updateTask(this.currentProjectId, section.id, task.id, { dueDate: normalized }).subscribe({
+      next: (updatedTask) => {
+        // Task updated successfully
+        popover?.close();
+      },
+      error: (error) => {
+        console.error('Error updating due date:', error);
+        popover?.close();
+        // Reload sections to revert optimistic update
+        this.taskService.loadSections(this.currentProjectId!).subscribe();
+      }
+    });
+  }
+
+  /** Handle task drag and drop - Asana-style with beforeTaskId/afterTaskId */
+  handleTaskDropped(event: CdkDragDrop<Task[]>): void {
+    if (!this.currentProjectId) {
+      return;
+    }
+
+    // Get the task being moved FIRST (before any array manipulation)
+    const task = event.previousContainer.data[event.previousIndex];
+    if (!task) {
+      console.error('No task found in drag event');
+      return;
+    }
+    
+    // Identify sections - prioritize section ID from the event (most reliable)
+    const eventWithSection = event as any;
+    let targetSection: TaskSection | undefined;
+    let previousSection: TaskSection | undefined;
+    
+    // PRIORITY 1: Find previous section by checking which section currently contains the task
+    // This is the most reliable method since the task hasn't been moved yet
+    previousSection = this.sections.find(s => s.tasks.some(t => t.id === task.id));
+    
+    // PRIORITY 2: Use section ID from the event (set by target section component in onTaskDropped)
+    // This is the MOST RELIABLE for target section identification
+    const targetSectionIdFromEvent = eventWithSection.sectionId || (event.container as any)?.sectionId;
+    if (targetSectionIdFromEvent) {
+      targetSection = this.sections.find(s => s.id === targetSectionIdFromEvent || String(s.id) === String(targetSectionIdFromEvent));
+      if (targetSection) {
+        console.log('✓ Using event sectionId for target:', targetSectionIdFromEvent, 'Found section:', targetSection.id);
+      }
+    }
+    
+    // PRIORITY 3: Find by comparing data arrays (fallback for target)
+    if (!targetSection) {
+      targetSection = this.sections.find(s => s.tasks === event.container.data);
+      if (targetSection) {
+        console.log('✓ Using container data for target, found:', targetSection.id);
+      }
+    }
+    
+    // PRIORITY 4: Find by comparing data arrays (fallback for previous)
+    if (!previousSection) {
+      previousSection = this.sections.find(s => s.tasks === event.previousContainer.data);
+      if (previousSection) {
+        console.log('✓ Using previousContainer data for previous, found:', previousSection.id);
+      }
+    }
+
+    if (!previousSection || !targetSection) {
+      console.error('Could not identify sections:', {
+        taskId: task.id,
+        previousSection,
+        targetSection,
+        previousData: event.previousContainer.data,
+        targetData: event.container.data,
+        eventSectionId: eventWithSection.sectionId,
+        sections: this.sections.map(s => ({ 
+          id: s.id, 
+          tasksLength: s.tasks.length, 
+          taskIds: s.tasks.map(t => t.id),
+          hasTask: s.tasks.some(t => t.id === task.id)
+        }))
+      });
+      return;
+    }
+    
+    // Check if moving to a different section by comparing section IDs
+    // This is more reliable than comparing container references
+    // Also check if containers are different as a fallback
+    const isSameSection = targetSection.id === previousSection.id;
+    const containersAreDifferent = event.previousContainer !== event.container;
+    // If containers are different OR section IDs are different, it's a cross-section move
+    const isMovingToDifferentSection = !isSameSection || (containersAreDifferent && eventWithSection.sectionId && eventWithSection.sectionId !== previousSection.id);
+    
+    // Debug logging
+    console.log('Drag drop event:', {
+      taskId: task.id,
+      isSameSection,
+      previousSectionId: previousSection?.id,
+      targetSectionId: targetSection?.id,
+      eventSectionId: eventWithSection.sectionId,
+      isMovingToDifferentSection,
+      previousContainer: event.previousContainer,
+      container: event.container,
+      containerSame: event.previousContainer === event.container,
+      previousDataLength: event.previousContainer.data.length,
+      targetDataLength: event.container.data.length,
+      allSectionIds: this.sections.map(s => s.id)
+    });
+
+    // Get tasks in target section BEFORE the transfer (for calculating beforeTaskId/afterTaskId)
+    const tasksInTargetBefore = [...event.container.data];
+    const insertIndex = event.currentIndex;
+
+    // Determine beforeTaskId and afterTaskId
+    // Note: afterTaskId is the task that will be AFTER the dropped task
+    // beforeTaskId is the task that will be BEFORE the dropped task
+    let beforeTaskId: string | undefined;
+    let afterTaskId: string | undefined;
+
+    if (insertIndex > 0 && insertIndex <= tasksInTargetBefore.length) {
+      // There's a task before the insertion point
+      const taskBefore = tasksInTargetBefore[insertIndex - 1];
+      if (taskBefore && taskBefore.id !== task.id) {
+        beforeTaskId = taskBefore.id;
+      }
+    }
+    if (insertIndex < tasksInTargetBefore.length) {
+      // There's a task at the insertion point (will be after the dropped task)
+      const taskAfter = tasksInTargetBefore[insertIndex];
+      if (taskAfter && taskAfter.id !== task.id) {
+        afterTaskId = taskAfter.id;
+      }
+    }
+
+    // Optimistic update: move task in UI immediately
+    // Use section ID comparison for determining if it's the same section
+    const containersAreSame = event.previousContainer === event.container;
+    
+    if (isSameSection && containersAreSame) {
+      // Same section: reorder tasks within the same array
+      // Only move if the index actually changed
+      if (event.previousIndex !== event.currentIndex) {
+        moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+        console.log('✓ Same-section reorder: moved from index', event.previousIndex, 'to', event.currentIndex);
+      } else {
+        console.log('✓ Same-section: no position change, skipping UI update');
+        // No position change, but still need to call API to ensure backend is in sync
+      }
+    } else {
+      // Different section: transfer task between arrays
+      transferArrayItem(
+        event.previousContainer.data,
+        event.container.data,
+        event.previousIndex,
+        event.currentIndex
+      );
+      console.log('✓ Cross-section move: transferred from section', previousSection.id, 'to section', targetSection.id);
+    }
+
+    // Prepare move options
+    // ALWAYS include taskId and sectionId (target section where task is being moved to)
+    const moveOptions: { taskId?: string; sectionId?: string; beforeTaskId?: string; afterTaskId?: string } = {};
+
+    // Get target section ID - this is the section where the task is being dropped
+    // CRITICAL: Always use targetSection.id as the primary source (most reliable)
+    // Fallback to eventSectionId only if targetSection is not found
+    const targetSectionId = targetSection?.id || eventWithSection.sectionId || (event.container as any)?.sectionId;
+    
+    if (!targetSectionId || !targetSection) {
+      console.error('✗ Cannot move task: targetSection.id is missing', {
+        taskId: task.id,
+        targetSection,
+        targetSectionId,
+        previousSection,
+        eventSectionId: eventWithSection.sectionId,
+        containerSectionId: (event.container as any)?.sectionId,
+        allSections: this.sections.map(s => ({ id: s.id, title: s.title }))
+      });
+      // Revert optimistic update
+      if (isSameSection) {
+        moveItemInArray(event.container.data, event.currentIndex, event.previousIndex);
+      } else {
+        transferArrayItem(
+          event.container.data,
+          event.previousContainer.data,
+          event.currentIndex,
+          event.previousIndex
+        );
+      }
+      return;
+    }
+
+    // ALWAYS include taskId so backend knows which task to update
+    moveOptions.taskId = String(task.id);
+    
+    // CRITICAL: ALWAYS include sectionId - this is the target section where the task is being moved to
+    // Example: task is in section 3, moved to section 2, then sectionId = 2
+    // The backend will handle updating section_id if it's different, or just position if it's the same
+    moveOptions.sectionId = String(targetSection.id);
+
+    if (isMovingToDifferentSection || containersAreDifferent) {
+      console.log('✓ Moving task to different section:', {
+        taskId: task.id,
+        fromSection: previousSection.id,
+        toSection: targetSectionId,
+        sectionId: moveOptions.sectionId,
+        beforeTaskId,
+        afterTaskId
+      });
+    } else {
+      console.log('✓ Reordering task within same section:', {
+        taskId: task.id,
+        sectionId: targetSectionId,
+        beforeTaskId,
+        afterTaskId
+      });
+    }
+
+    // Include beforeTaskId or afterTaskId for precise positioning
+    // Prefer beforeTaskId if available, otherwise use afterTaskId
+    if (beforeTaskId) {
+      moveOptions.beforeTaskId = String(beforeTaskId);
+    } else if (afterTaskId) {
+      moveOptions.afterTaskId = String(afterTaskId);
+    }
+
+    // Debug: Log the final move options
+    console.log('Move options being sent:', moveOptions);
+
+    // Call the new moveTask API with beforeTaskId/afterTaskId
+    this.taskService.moveTask(task.id, moveOptions).subscribe({
+      next: (updatedTask) => {
+        // Update the task in the UI with the response
+        const taskIndex = targetSection.tasks.findIndex(t => t.id === task.id);
+        if (taskIndex !== -1) {
+          targetSection.tasks[taskIndex] = updatedTask;
+        }
+        // Reload sections to ensure consistency and get updated positions
+        this.taskService.loadSections(this.currentProjectId!).subscribe();
+      },
+      error: (err) => {
+        console.error('Error moving task:', err);
+        // Revert optimistic update on error
+        if (isSameSection) {
+          moveItemInArray(event.container.data, event.currentIndex, event.previousIndex);
+        } else {
+          transferArrayItem(
+            event.container.data,
+            event.previousContainer.data,
+            event.currentIndex,
+            event.previousIndex
+          );
+        }
+        this.taskService.loadSections(this.currentProjectId!).subscribe();
+      }
+    });
   }
 
   /** Reusable handler for dropdown-popover selection for assignee */
@@ -517,12 +904,23 @@ export class ListViewComponent implements OnInit, AfterViewInit, OnDestroy {
       assigneeAvatar: initials
     };
 
-    this.taskService.updateTask(this.currentProjectId, section.id, task.id, update, assigneeId);
-    Object.assign(task, update);
-
-    if (this.selectedTask?.id === task.id) {
-      this.selectedTask = { ...this.selectedTask, ...update };
-    }
+    // Update task via API
+    this.taskService.updateTask(this.currentProjectId, section.id, task.id, update, assigneeId).subscribe({
+      next: (updatedTask) => {
+        // Task updated successfully
+        // The task service already handles optimistic updates
+        // Update local references if needed
+        Object.assign(task, update);
+        if (this.selectedTask?.id === task.id) {
+          this.selectedTask = { ...this.selectedTask, ...update };
+        }
+      },
+      error: (error) => {
+        console.error('Error updating assignee:', error);
+        // Reload sections to revert optimistic update
+        this.taskService.loadSections(this.currentProjectId!).subscribe();
+      }
+    });
   }
 
   /** Reusable handler for dropdown-popover selection for priority */
@@ -612,6 +1010,15 @@ export class ListViewComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   /** Convert stored ISO string to Date for the calendar component */
+  getStartDate(task: Task): Date | null {
+    if (!task.startDate) {
+      return null;
+    }
+    const parsed = new Date(task.startDate);
+    return Number.isNaN(parsed.getTime()) ? null : parsed;
+  }
+
+  /** Convert stored ISO string to Date for the calendar component */
   getDueDate(task: Task): Date | null {
     if (!task.dueDate) {
       return null;
@@ -698,6 +1105,37 @@ export class ListViewComponent implements OnInit, AfterViewInit, OnDestroy {
       return 'Set status';
     }
     return this.statusOptions.find(option => option.value === status)?.label ?? status;
+  }
+
+  /** Format ISO dates into human readable strings with relative hints */
+  formatStartDate(value: string | undefined): string {
+    if (!value) {
+      return 'No start date';
+    }
+
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+      return 'No start date';
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const target = new Date(date);
+    target.setHours(0, 0, 0, 0);
+
+    const diff = (target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
+
+    if (diff === 0) {
+      return `Today – ${formatDate(target, 'dd MMM', 'en-US')}`;
+    }
+    if (diff === 1) {
+      return `Tomorrow – ${formatDate(target, 'dd MMM', 'en-US')}`;
+    }
+    if (diff === -1) {
+      return `Yesterday – ${formatDate(target, 'dd MMM', 'en-US')}`;
+    }
+
+    return formatDate(target, 'dd MMM yyyy', 'en-US');
   }
 
   /** Format ISO dates into human readable strings with relative hints */
@@ -1012,6 +1450,10 @@ export class ListViewComponent implements OnInit, AfterViewInit, OnDestroy {
 
   /** Provide friendly name for breadcrumbs and title components */
   get currentProjectName(): string {
+    // Return "My Tasks" when in my-tasks mode
+    if (this.isMyTasksMode) {
+      return 'My Tasks';
+    }
     if (this.currentProject?.name) {
       return this.currentProject.name;
     }
@@ -1050,7 +1492,8 @@ export class ListViewComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   getGridTemplateColumns(): string {
-    return `${this.columnWidths.name}px ${this.columnWidths.assignee}px ${this.columnWidths.dueDate}px ${this.columnWidths.priority}px ${this.columnWidths.status}px ${this.columnWidths.comments}px`;
+    // Include 24px for drag handle column
+    return `24px ${this.columnWidths.name}px ${this.columnWidths.assignee}px ${this.columnWidths.dates}px ${this.columnWidths.priority}px ${this.columnWidths.status}px ${this.columnWidths.comments}px`;
   }
 
   onResizeStart(event: MouseEvent, column: string): void {
@@ -1149,16 +1592,5 @@ export class ListViewComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  /** Walk up the route tree to locate the ancestor holding :projectId */
-  private findProjectRoute(): ActivatedRoute | null {
-    let current: ActivatedRoute | null = this.route;
-    while (current) {
-      if (current.snapshot.paramMap.has('projectId')) {
-        return current;
-      }
-      current = current.parent;
-    }
-    return null;
-  }
 }
 

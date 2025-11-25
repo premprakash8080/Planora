@@ -48,6 +48,13 @@
       Archived
       <span class="filter-count" *ngIf="filterCounts.archived > 0">({{ filterCounts.archived }})</span>
     </button>
+    <button 
+      mat-button 
+      [class.active]="filterType === 'sent'"
+      (click)="onFilterChange('sent')">
+      Sent
+      <span class="filter-count" *ngIf="filterCounts.sent > 0">({{ filterCounts.sent }})</span>
+    </button>
   </div>
 
   <!-- Mail Tab Component -->

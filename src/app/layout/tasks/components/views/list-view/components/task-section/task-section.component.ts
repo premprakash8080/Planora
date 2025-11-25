@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy, Change
 import { Task, TaskSection } from '../../../../../task.model';
 import { DropdownPopoverItem } from '../../../../../../../shared/ui/dropdown-popover/dropdown-popover.component';
 import { DropdownPopoverComponent } from '../../../../../../../shared/ui/dropdown-popover/dropdown-popover.component';
+import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-task-section',
@@ -19,6 +20,8 @@ export class TaskSectionComponent {
   @Input() getAssigneeAvatar!: (assignee: string | undefined) => string | null;
   @Input() getAssigneeInitials!: (assignee: string | undefined) => string;
   @Input() getAssigneeColor!: (assignee: string | undefined) => string | undefined;
+  @Input() formatStartDate!: (value: string | undefined) => string;
+  @Input() getStartDate!: (task: Task) => Date | null;
   @Input() formatDueDate!: (value: string | undefined) => string;
   @Input() getDueDate!: (task: Task) => Date | null;
   @Input() getStatusColor!: (status: string | undefined) => string;
@@ -36,15 +39,35 @@ export class TaskSectionComponent {
   @Output() updateTaskName = new EventEmitter<{ section: TaskSection; task: Task; name: string }>();
   @Output() toggleCompleted = new EventEmitter<{ section: TaskSection; task: Task }>();
   @Output() assigneeSelect = new EventEmitter<{ section: TaskSection; task: Task; item: DropdownPopoverItem }>();
+  @Output() startDateChange = new EventEmitter<{ section: TaskSection; task: Task; date: Date | null }>();
   @Output() dueDateChange = new EventEmitter<{ section: TaskSection; task: Task; date: Date | null }>();
+  @Output() dateRangeChange = new EventEmitter<{ section: TaskSection; task: Task; range: { start: Date | null; end: Date | null } }>();
   @Output() prioritySelect = new EventEmitter<{ section: TaskSection; task: Task; item: DropdownPopoverItem }>();
   @Output() statusSelect = new EventEmitter<{ section: TaskSection; task: Task; item: DropdownPopoverItem }>();
+  @Output() taskDropped = new EventEmitter<CdkDragDrop<Task[]>>();
 
+  isDropZoneActive = false;
   private localTitleDraft: string | null = null;
 
   constructor(private cdr: ChangeDetectorRef) {}
 
   trackTask = (_: number, t: Task) => t.id;
+
+  /**
+   * Get tasks sorted by position to ensure correct ordering
+   * This is a safety measure in case the backend order isn't preserved
+   */
+  getSortedTasks(): Task[] {
+    if (!this.section?.tasks) {
+      return [];
+    }
+    return [...this.section.tasks].sort((a, b) => {
+      // Sort by position (ascending), with fallback for tasks without position
+      const posA = a.position ?? 0;
+      const posB = b.position ?? 0;
+      return posA - posB;
+    });
+  }
 
   onTitleInput(event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -122,8 +145,16 @@ export class TaskSectionComponent {
     this.assigneeSelect.emit({ section: this.section, task, item });
   }
 
+  onStartDateChange(task: Task, date: Date | null, _popover?: DropdownPopoverComponent) {
+    this.startDateChange.emit({ section: this.section, task, date });
+  }
+
   onDueDateChange(task: Task, date: Date | null, _popover?: DropdownPopoverComponent) {
     this.dueDateChange.emit({ section: this.section, task, date });
+  }
+
+  onDateRangeChange(task: Task, range: { start: Date | null; end: Date | null }) {
+    this.dateRangeChange.emit({ section: this.section, task, range });
   }
 
   onPrioritySelect(task: Task, item: DropdownPopoverItem) {
@@ -132,6 +163,26 @@ export class TaskSectionComponent {
 
   onStatusSelect(task: Task, item: DropdownPopoverItem) {
     this.statusSelect.emit({ section: this.section, task, item });
+  }
+
+  onTaskDropped(event: CdkDragDrop<Task[]>): void {
+    this.isDropZoneActive = false;
+    // CRITICAL: Add section information to the event for reliable section identification
+    // This ensures the parent component knows which section the task was dropped into
+    (event as any).sectionId = this.section.id;
+    // Also add it to the container for extra reliability
+    (event.container as any).sectionId = this.section.id;
+    this.taskDropped.emit(event);
+  }
+
+  onDropZoneEntered(): void {
+    this.isDropZoneActive = true;
+    this.cdr.markForCheck();
+  }
+
+  onDropZoneExited(): void {
+    this.isDropZoneActive = false;
+    this.cdr.markForCheck();
   }
 }
 

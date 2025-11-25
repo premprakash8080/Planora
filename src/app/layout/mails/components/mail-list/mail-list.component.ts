@@ -13,14 +13,15 @@ import { MailTabComponent } from '../mail-tab/mail-tab.component';
 export class MailListComponent implements OnInit, AfterViewInit {
   @ViewChild('mailTab') mailTab!: MailTabComponent;
 
-  filterType: 'all' | 'unread' | 'starred' | 'archived' = 'all';
+  filterType: 'all' | 'unread' | 'starred' | 'archived' | 'sent' = 'all';
   
   // Filter counts
   filterCounts = {
     all: 0,
     unread: 0,
     starred: 0,
-    archived: 0
+    archived: 0,
+    sent: 0
   };
 
   constructor(
@@ -42,17 +43,32 @@ export class MailListComponent implements OnInit, AfterViewInit {
    * Load filter counts
    */
   loadFilterCounts(): void {
-    // Load all mails to calculate counts
+    // Load all mails and sent mails in parallel to calculate counts
     this.mailService.getAllMails().subscribe({
       next: (allMails) => {
-        // Create new object reference for OnPush change detection
-        this.filterCounts = {
-          all: allMails.length,
-          unread: allMails.filter(m => !m.isRead).length,
-          starred: allMails.filter(m => m.isStarred).length,
-          archived: allMails.filter(m => m.isArchived).length
-        };
-        this.cdr.markForCheck();
+        // Load sent mails count separately
+        this.mailService.getSentMails().subscribe({
+          next: (sentMails) => {
+            // Create new object reference for OnPush change detection
+            this.filterCounts = {
+              all: allMails.length,
+              unread: allMails.filter(m => !m.isRead).length,
+              starred: allMails.filter(m => m.isStarred).length,
+              archived: allMails.filter(m => m.isArchived).length,
+              sent: sentMails.length
+            };
+            this.cdr.markForCheck();
+          },
+          error: (error) => {
+            console.error('Error loading sent mails count:', error);
+            // Fallback: set sent count to 0
+            this.filterCounts = {
+              ...this.filterCounts,
+              sent: 0
+            };
+            this.cdr.markForCheck();
+          }
+        });
       },
       error: (error) => {
         console.error('Error loading filter counts:', error);
@@ -80,8 +96,9 @@ export class MailListComponent implements OnInit, AfterViewInit {
   /**
    * Change filter
    */
-  onFilterChange(filter: 'all' | 'unread' | 'starred' | 'archived'): void {
+  onFilterChange(filter: 'all' | 'unread' | 'starred' | 'archived' | 'sent'): void {
     this.filterType = filter;
+    // Filter change will trigger mail-tab component to reload via ngOnChanges
   }
 
   /**
@@ -121,6 +138,8 @@ export class MailListComponent implements OnInit, AfterViewInit {
         return 'You have no starred mails.';
       case 'archived':
         return 'You have no archived mails.';
+      case 'sent':
+        return 'You have no sent emails.';
       default:
         return 'No mails found.';
     }

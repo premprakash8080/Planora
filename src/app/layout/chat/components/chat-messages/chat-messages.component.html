@@ -1,0 +1,213 @@
+<div class="chat-messages" #messagesContainer>
+  <!-- Loading State -->
+  <div class="chat-messages__loading" *ngIf="loading">
+    <div class="loading-spinner">
+      <div class="spinner"></div>
+      <span>Loading messages...</span>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div
+    class="chat-messages__empty"
+    *ngIf="!loading && messageGroups.length === 0"
+  >
+    <div class="empty-content">
+      <mat-icon class="empty-icon">chat_bubble_outline</mat-icon>
+      <h3 class="empty-title">No messages yet</h3>
+      <p class="empty-description">
+        Start the conversation by sending a message
+      </p>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div
+    class="chat-messages__content"
+    *ngIf="!loading && messageGroups.length > 0"
+  >
+    <!-- "New messages" divider (can be added dynamically) -->
+    <div class="new-messages-divider" *ngIf="false">
+      <span class="divider-line"></span>
+      <span class="divider-label">New messages</span>
+      <span class="divider-line"></span>
+    </div>
+
+    <!-- Message Groups (by day) -->
+    <ng-container
+      *ngFor="let group of messageGroups; trackBy: trackByGroupDate"
+    >
+      <!-- Day Divider -->
+      <div class="day-divider">
+        <span class="divider-line"></span>
+        <span class="divider-label">{{ group.dateLabel }}</span>
+        <span class="divider-line"></span>
+      </div>
+
+      <!-- Messages in this day -->
+      <div class="message-group">
+        <div
+          *ngFor="
+            let groupedMessage of group.messages;
+            trackBy: trackByMessageId
+          "
+          class="message-wrapper"
+          [class.message-wrapper--consecutive]="groupedMessage.isConsecutive"
+          [class.message-wrapper--own]="groupedMessage.isOwnMessage"
+          (mouseenter)="onMessageHover(groupedMessage, true)"
+          (mouseleave)="onMessageHover(groupedMessage, false)"
+        >
+          <!-- Avatar (only shown when sender changes) -->
+          <div class="message-avatar" *ngIf="groupedMessage.showAvatar">
+            <app-avatar
+              size="sm"
+              [src]="groupedMessage.message.user?.avatar_url"
+              [initials]="
+                groupedMessage.message.user?.initials ||
+                groupedMessage.message.user?.full_name?.charAt(0) ||
+                '?'
+              "
+              [color]="groupedMessage.message.user?.avatar_color || '#6b7280'"
+              [alt]="groupedMessage.message.user?.full_name || 'User'"
+            ></app-avatar>
+          </div>
+          <div
+            class="message-avatar-spacer"
+            *ngIf="!groupedMessage.showAvatar"
+          ></div>
+
+          <!-- Message Content -->
+          <div class="message-content">
+            <!-- Message Header (name + timestamp, shown on hover or first message) -->
+            <div
+              class="message-header"
+              *ngIf="groupedMessage.showAvatar || groupedMessage.showTimestamp"
+            >
+              <span class="message-author">{{
+                groupedMessage.message.user?.full_name || "Unknown User"
+              }}</span>
+              <span
+                class="message-timestamp"
+                *ngIf="groupedMessage.showTimestamp"
+              >
+                {{ formatTime(groupedMessage.message.createdAt) }}
+              </span>
+            </div>
+
+            <!-- Message Body -->
+            <div class="message-body">
+              <div class="message-text">
+                {{ groupedMessage.message.content }}
+              </div>
+
+              <!-- Reactions (placeholder for future implementation) -->
+              <div class="message-reactions" *ngIf="false">
+                <button
+                  *ngFor="let reaction of []"
+                  class="reaction-pill"
+                  type="button"
+                >
+                  <span class="reaction-emoji">👍</span>
+                  <span class="reaction-count">2</span>
+                </button>
+                <button class="reaction-add" type="button" mat-icon-button>
+                  <mat-icon>add</mat-icon>
+                </button>
+              </div>
+
+              <!-- Thread Reply Count (placeholder) -->
+              <button
+                *ngIf="false"
+                class="thread-reply"
+                type="button"
+                (click)="onMessageAction('thread', groupedMessage.message)"
+              >
+                <mat-icon>reply</mat-icon>
+                <span>3 replies</span>
+              </button>
+            </div>
+
+            <!-- Message Actions (shown on hover) -->
+            <div class="message-actions" *ngIf="groupedMessage.showTimestamp">
+              <!-- <button
+                mat-icon-button
+                type="button"
+                class="message-action-btn"
+                (click)="onMessageAction('react', groupedMessage.message)"
+                [attr.aria-label]="'Add reaction'"
+                [attr.title]="'Add reaction'"
+              >
+                <mat-icon>add_reaction</mat-icon>
+              </button>
+              <button
+                mat-icon-button
+                type="button"
+                class="message-action-btn"
+                (click)="onMessageAction('reply', groupedMessage.message)"
+                [attr.aria-label]="'Reply in thread'"
+                [attr.title]="'Reply in thread'"
+              >
+                <mat-icon>reply</mat-icon>
+              </button>
+              <button
+                *ngIf="groupedMessage.isOwnMessage"
+                mat-icon-button
+                type="button"
+                class="message-action-btn"
+                (click)="onMessageAction('edit', groupedMessage.message)"
+                [attr.aria-label]="'Edit message'"
+                [attr.title]="'Edit message'"
+              >
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button
+                *ngIf="groupedMessage.isOwnMessage"
+                mat-icon-button
+                type="button"
+                class="message-action-btn"
+                (click)="onMessageAction('delete', groupedMessage.message)"
+                [attr.aria-label]="'Delete message'"
+                [attr.title]="'Delete message'"
+              >
+                <mat-icon>delete</mat-icon>
+              </button>
+              <button
+                mat-icon-button
+                type="button"
+                [matMenuTriggerFor]="messageMenu"
+                class="message-action-btn"
+                [attr.aria-label]="'More options'"
+                [attr.title]="'More options'"
+              >
+                <mat-icon>more_vert</mat-icon>
+              </button> -->
+              <mat-menu #messageMenu="matMenu">
+                <button
+                  mat-menu-item
+                  (click)="onMessageAction('copy', groupedMessage.message)"
+                >
+                  <mat-icon>content_copy</mat-icon>
+                  <span>Copy message</span>
+                </button>
+                <button
+                  mat-menu-item
+                  (click)="onMessageAction('pin', groupedMessage.message)"
+                >
+                  <mat-icon>push_pin</mat-icon>
+                  <span>Pin message</span>
+                </button>
+                <button
+                  mat-menu-item
+                  (click)="onMessageAction('share', groupedMessage.message)"
+                >
+                  <mat-icon>share</mat-icon>
+                  <span>Share message</span>
+                </button>
+              </mat-menu>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+</div>

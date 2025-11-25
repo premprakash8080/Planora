@@ -16,6 +16,7 @@
 
   <section class="task-sections">
     <div class="task-grid-header" *ngIf="sections.length" [style.grid-template-columns]="getGridTemplateColumns()">
+      <div class="header-cell header-cell--drag-handle"></div>
       <div class="header-cell header-cell--name">
         <span>Name</span>
         <div class="resize-handle" (mousedown)="onResizeStart($event, 'name')"></div>
@@ -25,8 +26,8 @@
         <div class="resize-handle" (mousedown)="onResizeStart($event, 'assignee')"></div>
       </div>
       <div class="header-cell">
-        <span>Due Date</span>
-        <div class="resize-handle" (mousedown)="onResizeStart($event, 'dueDate')"></div>
+        <span>Date</span>
+        <div class="resize-handle" (mousedown)="onResizeStart($event, 'dates')"></div>
       </div>
       <div class="header-cell">
         <span>Priority</span>
@@ -43,11 +44,15 @@
     </div>
 
     <!-- scroll start from here this hole section is scrollable -->
-    <div class="task-list-scroll">
-      <app-task-section *ngFor="let section of sections" [section]="section" [selectedTask]="selectedTask"
+    <div class="task-list-scroll" cdkDropListGroup>
+      <app-task-section 
+        *ngFor="let section of sections" 
+        [section]="section" 
+        [selectedTask]="selectedTask"
         [nameDrafts]="nameDrafts" [sectionTitleDrafts]="sectionTitleDrafts" [assigneeItems]="assigneeItems"
         [priorityItems]="priorityItems" [statusItems]="statusItems" [getAssigneeAvatar]="getAssigneeAvatar.bind(this)"
         [getAssigneeInitials]="getAssigneeInitials.bind(this)" [getAssigneeColor]="getAssigneeColor.bind(this)"
+        [formatStartDate]="formatStartDate.bind(this)" [getStartDate]="getStartDate.bind(this)"
         [formatDueDate]="formatDueDate.bind(this)" [getDueDate]="getDueDate.bind(this)"
         [getStatusColor]="getStatusColor.bind(this)" [getStatusLabel]="getStatusLabel.bind(this)"
         [gridTemplateColumns]="getGridTemplateColumns()"
@@ -56,9 +61,12 @@
         (updateTaskName)="inlineNameChanged($event.section, $event.task, $event.name)"
         (toggleCompleted)="toggleCompleted($event.section, $event.task)"
         (assigneeSelect)="handleAssigneeSelect($event.section, $event.task, $any($event.item))"
+        (startDateChange)="handleStartDateChange($event.section, $event.task, $event.date)"
         (dueDateChange)="handleDueDateChange($event.section, $event.task, $event.date)"
+        (dateRangeChange)="handleDateRangeChange($event.section, $event.task, $event.range)"
         (prioritySelect)="handlePrioritySelect($event.section, $event.task, $event.item)"
-        (statusSelect)="handleStatusSelect($event.section, $event.task, $event.item)"></app-task-section>
+        (statusSelect)="handleStatusSelect($event.section, $event.task, $event.item)"
+        (taskDropped)="handleTaskDropped($event)"></app-task-section>
     </div>
     <!-- scroll end here this hole section is scrollable -->
 
