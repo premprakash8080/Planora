@@ -120,10 +120,15 @@ export class MemberService {
 
     return this.httpService.post(ENDPOINTS.createMember, userData).pipe(
       map((response: any) => {
-        // Handle unified response format from register endpoint
-        if (response.success && response.data && response.data.user) {
-          this.snackBarService.showSuccess(response.message || 'Member created successfully');
-          return this.mapUserToMember(response.data.user);
+        // Handle unified response format - check for data.member first, then data.user as fallback
+        if (response.success && response.data) {
+          if (response.data.member) {
+            this.snackBarService.showSuccess(response.message || 'Member created successfully');
+            return this.mapUserToMember(response.data.member);
+          } else if (response.data.user) {
+            this.snackBarService.showSuccess(response.message || 'Member created successfully');
+            return this.mapUserToMember(response.data.user);
+          }
         }
         throw new Error('Failed to create member');
       }),
@@ -148,10 +153,15 @@ export class MemberService {
 
     return this.httpService.put(ENDPOINTS.updateMember.replace(':id', memberId.toString()), userData).pipe(
       map((response: any) => {
-        // Handle unified response format
-        if (response.success && response.data && response.data.user) {
-          this.snackBarService.showSuccess(response.message || 'Member updated successfully');
-          return this.mapUserToMember(response.data.user);
+        // Handle unified response format - check for data.member first, then data.user as fallback
+        if (response.success && response.data) {
+          if (response.data.member) {
+            this.snackBarService.showSuccess(response.message || 'Member updated successfully');
+            return this.mapUserToMember(response.data.member);
+          } else if (response.data.user) {
+            this.snackBarService.showSuccess(response.message || 'Member updated successfully');
+            return this.mapUserToMember(response.data.user);
+          }
         }
         throw new Error('Failed to update member');
       }),

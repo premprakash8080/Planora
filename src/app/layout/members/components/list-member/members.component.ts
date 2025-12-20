@@ -1,10 +1,12 @@
-import { Component, OnInit, AfterViewInit, ChangeDetectorRef, ChangeDetectionStrategy, ViewChild } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ChangeDetectorRef, ChangeDetectionStrategy, ViewChild, OnDestroy } from '@angular/core';
 import { MatSelectChange } from '@angular/material/select';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
-import { Router } from '@angular/router';
+import { Router, NavigationEnd } from '@angular/router';
 import { Member, MemberService } from '../../service/member.service';
 import { PaginationConfig } from 'src/app/shared/ui/app-pagination/app-pagination.component';
+import { filter } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
 
 interface DisplayMember {
   id: number;
@@ -24,7 +26,7 @@ interface DisplayMember {
   styleUrls: ['./members.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class MembersComponent implements OnInit, AfterViewInit {
+export class MembersComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(MatSort) sort!: MatSort;
 
   searchTerm = '';
@@ -37,6 +39,7 @@ export class MembersComponent implements OnInit, AfterViewInit {
   dataSource = new MatTableDataSource<DisplayMember>([]);
   displayedColumns: string[] = ['name', 'role', 'projectsAssigned', 'status'];
   loading = false;
+  private routerSubscription?: Subscription;
 
   // Pagination
   paginationConfig: PaginationConfig = {
@@ -59,6 +62,21 @@ export class MembersComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.loadMembers();
+    
+    // Reload members when navigating back to this route (e.g., after adding/editing)
+    this.routerSubscription = this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe((event: any) => {
+        if (event.url === '/members' || event.urlAfterRedirects === '/members') {
+          this.loadMembers();
+        }
+      });
+  }
+
+  ngOnDestroy(): void {
+    if (this.routerSubscription) {
+      this.routerSubscription.unsubscribe();
+    }
   }
 
   ngAfterViewInit(): void {

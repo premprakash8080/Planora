@@ -104,8 +104,12 @@ export class AddMemberComponent implements OnInit {
         }
 
         this.memberService.updateMember(this.memberId, updateData).subscribe({
-          next: () => {
-            this.router.navigate(['/members', this.memberId]);
+          next: (updatedMember) => {
+            // Navigate back to member detail view
+            this.router.navigate(['/members', this.memberId]).then(() => {
+              this.loading = false;
+              this.cdr.markForCheck();
+            });
           },
           error: (error) => {
             console.error('Error updating member:', error);
@@ -124,8 +128,12 @@ export class AddMemberComponent implements OnInit {
         };
 
         this.memberService.createMember(newMember).subscribe({
-          next: () => {
-            this.router.navigate(['/members']);
+          next: (createdMember) => {
+            // Navigate back to members list - the list will auto-refresh via router events
+            this.router.navigate(['/members']).then(() => {
+              this.loading = false;
+              this.cdr.markForCheck();
+            });
           },
           error: (error) => {
             console.error('Error creating member:', error);
