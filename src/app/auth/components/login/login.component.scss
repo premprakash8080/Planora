@@ -1,7 +1,7 @@
 // .wrapper-login {
- 
+
 //   width: 100%;
-  
+
 //   overflow: auto;
 //   height: 100%;
 //   margin: 0 auto;
@@ -38,11 +38,10 @@
 // }
 
 // .welcome-msg {
- 
 
-//   img {  
+//   img {
 //       width: 100%;
-    
+
 //   }
 // }
 
@@ -86,9 +85,18 @@
 //   background: none !important;
 //   background-color: transparent !important;
 // }
-.bg-image{
-  background-image: url('../../../../assets/img/loginLHS.png');
+.bg-image {
+  background-image: url("../../../../assets/img/loginLHS.png");
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center center;
+}
+
+.font-40 {
+  font-size: 40px;
+  font-weight: 600;
+}
+
+.font-24 {
+  font-size: 24px;
 }
