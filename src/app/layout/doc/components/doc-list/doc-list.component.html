@@ -11,7 +11,9 @@
 
         <!-- New Doc Button -->
         <button
-            class="flex flex-col items-center justify-center p-6 border-2 border-dashed border-gray-800 rounded-lg hover:border-gray-600 hover:bg-gray-800/50 transition-all text-gray-500 hover:text-gray-300 h-full min-h-[200px]">
+            type="button"
+            (click)="onCreateNewDoc()"
+            class="flex flex-col items-center justify-center p-6 border-2 border-dashed border-gray-800 rounded-lg hover:border-gray-600 hover:bg-gray-800/50 transition-all text-gray-500 hover:text-gray-300 h-full min-h-[200px] cursor-pointer">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mb-2" fill="none" viewBox="0 0 24 24"
                 stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v16m8-8H4" />
